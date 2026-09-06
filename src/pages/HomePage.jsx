@@ -1605,40 +1605,40 @@ export default function HomePage({ onNavigate }) {
   <div className="section-inner">
     <div className="chip sr" style={{"margin": "0 auto 16px", "display": "table"}}>🛡️ Seguridad y confianza</div>
     <h2 className="section-title sr sr-delay-1" style={{"textAlign": "center"}}>¿Cómo <span>verificamos</span><br/>a nuestros profesionales?</h2>
-    <p className="section-sub sr sr-delay-2" style={{"margin": "0 auto 56px", "textAlign": "center", "maxWidth": "560px"}}>Antes de que un profesional pueda aparecer en Listo, debe pasar por nuestro proceso de verificación de 4 pasos.</p>
+    <p className="section-sub sr sr-delay-2" style={{"margin": "0 auto 56px", "textAlign": "center", "maxWidth": "560px", "color": "#C24D00", "fontWeight": "700"}}>Antes de que un profesional pueda aparecer en Listo, debe pasar por nuestro proceso de verificación de 4 pasos.</p>
 
     <div style={{"display": "grid", "gridTemplateColumns": "repeat(auto-fit,minmax(240px,1fr))", "gap": "16px", "marginBottom": "18px"}}>
 
       {/*  Paso 1  */}
-      <div className="sr sr-delay-1" style={{"background": "var(--orange-pale)", "borderRadius": "24px", "padding": "20px 28px", "border": "2px solid transparent", "transition": "all .25s", "position": "relative", "overflow": "hidden"}}>
+      <div className="sr sr-delay-1" style={{"background": "var(--orange-pale)", "borderRadius": "24px", "padding": "20px 28px", "border": "2px solid #FFD0B8", "transition": "all .25s", "position": "relative", "overflow": "hidden"}}>
         <div style={{"width": "52px", "height": "52px", "background": "var(--orange)", "borderRadius": "16px", "display": "flex", "alignItems": "center", "justifyContent": "center", "fontSize": "24px", "marginBottom": "12px"}}>🪪</div>
-        <div style={{"position": "absolute", "top": "20px", "right": "24px", "fontFamily": "'Fredoka One',cursive", "fontSize": "52px", "color": "rgba(242,96,0,0.1)", "lineHeight": "1"}}>01</div>
+        <div style={{"position": "absolute", "top": "20px", "right": "24px", "fontFamily": "'Fredoka One',cursive", "fontSize": "52px", "color": "#F26000", "opacity": "0.45", "lineHeight": "1"}}>01</div>
         <h3 style={{"fontFamily": "'Fredoka One',cursive", "fontSize": "20px", "color": "#222", "marginBottom": "10px"}}>Verificación de identidad</h3>
-        <p style={{"fontSize": "14px", "color": "var(--gray)", "lineHeight": "1.7"}}>Cédula de identidad o pasaporte verificado con RD Identidad y cruzado con el Registro Civil.</p>
+        <p style={{"fontSize": "14px", "color": "#C24D00", "fontWeight": "600", "lineHeight": "1.7"}}>Cédula de identidad o pasaporte verificado con RD Identidad y cruzado con el Registro Civil.</p>
       </div>
 
       {/*  Paso 2  */}
-      <div className="sr sr-delay-2" style={{"background": "var(--orange-pale)", "borderRadius": "24px", "padding": "20px 28px", "border": "2px solid transparent", "transition": "all .25s", "position": "relative", "overflow": "hidden"}}>
+      <div className="sr sr-delay-2" style={{"background": "var(--orange-pale)", "borderRadius": "24px", "padding": "20px 28px", "border": "2px solid #FFD0B8", "transition": "all .25s", "position": "relative", "overflow": "hidden"}}>
         <div style={{"width": "52px", "height": "52px", "background": "var(--orange)", "borderRadius": "16px", "display": "flex", "alignItems": "center", "justifyContent": "center", "fontSize": "24px", "marginBottom": "12px"}}>📋</div>
-        <div style={{"position": "absolute", "top": "20px", "right": "24px", "fontFamily": "'Fredoka One',cursive", "fontSize": "52px", "color": "rgba(242,96,0,0.1)", "lineHeight": "1"}}>02</div>
+        <div style={{"position": "absolute", "top": "20px", "right": "24px", "fontFamily": "'Fredoka One',cursive", "fontSize": "52px", "color": "#F26000", "opacity": "0.45", "lineHeight": "1"}}>02</div>
         <h3 style={{"fontFamily": "'Fredoka One',cursive", "fontSize": "20px", "color": "#222", "marginBottom": "10px"}}>Antecedentes penales</h3>
-        <p style={{"fontSize": "14px", "color": "var(--gray)", "lineHeight": "1.7"}}>Verificamos el récord policial actualizado ante la Policía Nacional Dominicana antes de activar el perfil.</p>
+        <p style={{"fontSize": "14px", "color": "#C24D00", "fontWeight": "600", "lineHeight": "1.7"}}>Verificamos el récord policial actualizado ante la Policía Nacional Dominicana antes de activar el perfil.</p>
       </div>
 
       {/*  Paso 3  */}
-      <div className="sr sr-delay-3" style={{"background": "var(--orange-pale)", "borderRadius": "24px", "padding": "20px 28px", "border": "2px solid transparent", "transition": "all .25s", "position": "relative", "overflow": "hidden"}}>
+      <div className="sr sr-delay-3" style={{"background": "var(--orange-pale)", "borderRadius": "24px", "padding": "20px 28px", "border": "2px solid #FFD0B8", "transition": "all .25s", "position": "relative", "overflow": "hidden"}}>
         <div style={{"width": "52px", "height": "52px", "background": "var(--orange)", "borderRadius": "16px", "display": "flex", "alignItems": "center", "justifyContent": "center", "fontSize": "24px", "marginBottom": "12px"}}>🔧</div>
-        <div style={{"position": "absolute", "top": "20px", "right": "24px", "fontFamily": "'Fredoka One',cursive", "fontSize": "52px", "color": "rgba(242,96,0,0.1)", "lineHeight": "1"}}>03</div>
+        <div style={{"position": "absolute", "top": "20px", "right": "24px", "fontFamily": "'Fredoka One',cursive", "fontSize": "52px", "color": "#F26000", "opacity": "0.45", "lineHeight": "1"}}>03</div>
         <h3 style={{"fontFamily": "'Fredoka One',cursive", "fontSize": "20px", "color": "#222", "marginBottom": "10px"}}>Prueba de habilidades</h3>
-        <p style={{"fontSize": "14px", "color": "var(--gray)", "lineHeight": "1.7"}}>Evaluamos los conocimientos técnicos del profesional con pruebas prácticas por especialidad.</p>
+        <p style={{"fontSize": "14px", "color": "#C24D00", "fontWeight": "600", "lineHeight": "1.7"}}>Evaluamos los conocimientos técnicos del profesional con pruebas prácticas por especialidad.</p>
       </div>
 
       {/*  Paso 4  */}
-      <div className="sr sr-delay-4" style={{"background": "var(--orange-pale)", "borderRadius": "24px", "padding": "20px 28px", "border": "2px solid transparent", "transition": "all .25s", "position": "relative", "overflow": "hidden"}}>
+      <div className="sr sr-delay-4" style={{"background": "var(--orange-pale)", "borderRadius": "24px", "padding": "20px 28px", "border": "2px solid #FFD0B8", "transition": "all .25s", "position": "relative", "overflow": "hidden"}}>
         <div style={{"width": "52px", "height": "52px", "background": "var(--orange)", "borderRadius": "16px", "display": "flex", "alignItems": "center", "justifyContent": "center", "fontSize": "24px", "marginBottom": "12px"}}>⭐</div>
-        <div style={{"position": "absolute", "top": "20px", "right": "24px", "fontFamily": "'Fredoka One',cursive", "fontSize": "52px", "color": "rgba(242,96,0,0.1)", "lineHeight": "1"}}>04</div>
+        <div style={{"position": "absolute", "top": "20px", "right": "24px", "fontFamily": "'Fredoka One',cursive", "fontSize": "52px", "color": "#F26000", "opacity": "0.45", "lineHeight": "1"}}>04</div>
         <h3 style={{"fontFamily": "'Fredoka One',cursive", "fontSize": "20px", "color": "#222", "marginBottom": "10px"}}>Sistema de reputación</h3>
-        <p style={{"fontSize": "14px", "color": "var(--gray)", "lineHeight": "1.7"}}>Cada servicio genera una reseña. Los profesionales con calificación baja son suspendidos automáticamente.</p>
+        <p style={{"fontSize": "14px", "color": "#C24D00", "fontWeight": "600", "lineHeight": "1.7"}}>Cada servicio genera una reseña. Los profesionales con calificación baja son suspendidos automáticamente.</p>
       </div>
 
     </div>
