@@ -842,7 +842,7 @@ export default function HomePage({ onNavigate }) {
               <img src="./assets/google_play_badge.png" alt="Google Play" style={{ height: '34px', width: 'auto', display: 'block', borderRadius: '6px' }} />
             </a>
             <a 
-              href="https://apps.apple.com/app/listopatron/id000000000" 
+              href="https://apps.apple.com/app/listo-patron/id6799846724" 
               target="_blank" 
               rel="noopener noreferrer" 
               className="download-dropdown-item"
@@ -1025,7 +1025,7 @@ export default function HomePage({ onNavigate }) {
          <a href="https://play.google.com/store/apps/details?id=com.listopatron.app" target="_blank" rel="noopener noreferrer" className="portada-store-btn">
            <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" alt="Disponible en Google Play" style={{"width": "100%", "height": "auto", "display": "block"}} />
          </a>
-         <a href="https://www.apple.com/app-store/" target="_blank" rel="noopener noreferrer" className="portada-store-btn">
+         <a href="https://apps.apple.com/app/listo-patron/id6799846724" target="_blank" rel="noopener noreferrer" className="portada-store-btn">
            <img src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Download_on_the_App_Store_Badge.svg" alt="Consíguelo en el App Store" style={{"width": "100%", "height": "auto", "display": "block"}} />
          </a>
       </div>
@@ -2664,7 +2664,7 @@ export default function HomePage({ onNavigate }) {
       </a>
 
       {/*  App Store  */}
-      <a href="https://apps.apple.com/app/listopatron/id000000000" target="_blank" rel="noopener noreferrer" onClick={() => trackAppDownload('ios')} className="app-store-btn apple">
+      <a href="https://apps.apple.com/app/listo-patron/id6799846724" target="_blank" rel="noopener noreferrer" onClick={() => trackAppDownload('ios')} className="app-store-btn apple">
         <svg width="26" height="28" viewBox="0 0 814 1000" fill="white">
           <path d="M788.1 340.9c-5.8 4.5-108.2 62.2-108.2 190.5 0 148.4 130.3 200.9 134.2 202.2-.6 3.2-20.7 71.9-68.7 141.9-42.8 61.6-87.5 123.1-155.5 123.1s-85.5-39.5-164-39.5c-76 0-103.7 40.8-165.9 40.8s-105-37.8-155.5-118.2C46.2 687 0 582.1 0 481.3c0-183 119.1-279.6 236.7-279.6 61.4 0 112.6 40.8 149.9 40.8 35.7 0 92.3-43.2 161.9-43.2 26.1 0 108.2 2.6 168.6 79.9zm-208-175.8c31.1-36.9 53.1-88.1 53.1-139.3 0-7.1-.6-14.3-1.9-20.1-50.6 1.9-110.8 33.7-147.1 75.8-28.5 32.4-55.1 83.6-55.1 135.5 0 7.8 1.3 15.6 1.9 18.1 3.2.6 8.4 1.3 13.6 1.3 45.4 0 102.5-30.4 135.5-71.3z"/>
         </svg>
@@ -2802,7 +2802,7 @@ export default function HomePage({ onNavigate }) {
               <div style={{"fontSize": "15px", "fontWeight": "800"}}>Google Play</div>
             </div>
           </a>
-          <a href="https://apps.apple.com/app/listopatron/id000000000" data-platform="ios" target="_blank" rel="noopener noreferrer" onClick={() => { trackAppDownload('ios') }} className="store-download-btn">
+          <a href="https://apps.apple.com/app/listo-patron/id6799846724" data-platform="ios" target="_blank" rel="noopener noreferrer" onClick={() => { trackAppDownload('ios') }} className="store-download-btn">
             <svg viewBox="0 0 24 24" fill="white" width="24" height="24"><path d="M18.71,19.5C17.88,20.74 17,21.95 15.66,21.97C14.32,22 13.89,21.18 12.37,21.18C10.84,21.18 10.37,21.95 9.1,22C7.79,22.05 6.8,20.68 5.96,19.47C4.25,17 2.94,12.45 4.7,9.39C5.57,7.87 7.13,6.91 8.82,6.88C10.1,6.86 11.32,7.75 12.11,7.75C12.89,7.75 14.37,6.68 15.92,6.84C16.57,6.87 18.39,7.1 19.56,8.82C19.47,8.88 17.39,10.1 17.41,12.63C17.44,15.65 20.06,16.66 20.09,16.67C20.06,16.74 19.67,18.11 18.71,19.5M13,3.5C13.73,2.67 14.94,2.04 15.94,2C16.07,3.17 15.6,4.35 14.9,5.19C14.21,6.04 13.07,6.7 11.95,6.61C11.8,5.46 12.36,4.26 13,3.5Z"/></svg>
             <div style={{"lineHeight": "1.2"}}>
               <div style={{"fontSize": "11px", "opacity": ".7"}}>Descargar en</div>
