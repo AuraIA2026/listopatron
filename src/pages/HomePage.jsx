@@ -2850,7 +2850,20 @@ export default function HomePage({ onNavigate }) {
       <div>
         <h3 style={{"color": "#fff", "fontSize": "22px", "fontWeight": "800", "marginBottom": "10px"}}>Listo Patrón SRL</h3>
         <p style={{"color": "#768bb1", "margin": "0 0 6px", "fontSize": "15px"}}>Barrio La Terrazita, Peatón 3 No. 18, Edificio de Arte</p>
-        <p style={{"color": "#768bb1", "margin": "0", "fontSize": "15px"}}>Detrás Urb. La Terraza, Santiago de los Caballeros, Rep. Dom.</p>
+        <p style={{"color": "#768bb1", "margin": "0 0 16px", "fontSize": "15px"}}>Detrás Urb. La Terraza, Santiago de los Caballeros, Rep. Dom.</p>
+        
+        {/* Enlaces de contacto directo */}
+        <div style={{"display": "flex", "gap": "20px", "justifyContent": "center", "flexWrap": "wrap", "color": "#fff", "fontSize": "14px", "fontWeight": "700", "marginBottom": "16px"}}>
+          <a href="tel:18099090455" style={{"color": "#F26000", "textDecoration": "none", "display": "inline-flex", "alignItems": "center", "gap": "6px", "background": "rgba(242,96,0,0.12)", "padding": "8px 16px", "borderRadius": "30px", "border": "1px solid rgba(242,96,0,0.3)"}}>
+            📞 809-909-0455
+          </a>
+          <a href="https://wa.me/18099090455" target="_blank" rel="noopener noreferrer" style={{"color": "#25D366", "textDecoration": "none", "display": "inline-flex", "alignItems": "center", "gap": "6px", "background": "rgba(37,211,102,0.12)", "padding": "8px 16px", "borderRadius": "30px", "border": "1px solid rgba(37,211,102,0.3)"}}>
+            💬 WhatsApp: 809-909-0455
+          </a>
+          <a href="mailto:listopatron.app@gmail.com" style={{"color": "#60A5FA", "textDecoration": "none", "display": "inline-flex", "alignItems": "center", "gap": "6px", "background": "rgba(96,165,250,0.12)", "padding": "8px 16px", "borderRadius": "30px", "border": "1px solid rgba(96,165,250,0.3)"}}>
+            ✉️ listopatron.app@gmail.com
+          </a>
+        </div>
       </div>
 
       <div style={{"display": "flex", "gap": "20px", "flexWrap": "wrap", "justifyContent": "center", "marginTop": "12px", "marginBottom": "8px"}}>
