@@ -2829,6 +2829,87 @@ export default function HomePage({ onNavigate }) {
 </section>
 
 
+{/* YOUTUBE SHORTS / VIDEOS SECTION */}
+<section className="yt-videos-section" style={{ padding: '80px 20px', background: 'linear-gradient(180deg, rgba(13,27,42,0.95) 0%, rgba(10,14,26,1) 100%)', position: 'relative', overflow: 'hidden' }}>
+  <div style={{ maxWidth: '1200px', margin: '0 auto', textAlign: 'center', position: 'relative', zIndex: 2 }}>
+    <div className="chip" style={{ background: 'rgba(255,0,0,0.12)', color: '#FF0000', border: '1px solid rgba(255,0,0,0.3)', margin: '0 auto 16px', display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '6px 16px', borderRadius: '50px', fontSize: '0.85rem', fontWeight: '700' }}>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="#FF0000">
+        <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+      </svg>
+      VIDEOS & DEMOS DESTACADOS
+    </div>
+    <h2 style={{ fontSize: '2.5rem', fontWeight: '800', color: '#FFFFFF', marginBottom: '14px', letterSpacing: '-0.5px' }}>
+      Descubre Listo Patron en <span style={{ color: '#FF0000', background: 'linear-gradient(90deg, #FF3333 0%, #FF0000 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>YouTube Shorts</span>
+    </h2>
+    <p style={{ color: '#94A3B8', fontSize: '1.1rem', maxWidth: '650px', margin: '0 auto 40px', lineHeight: '1.6' }}>
+      Mira nuestros videos explicativos, testimonios y demostraciones rápidas de cómo Listo conecta clientes con los mejores profesionales de RD.
+    </p>
+
+    {/* 3 Parallel Video Grid */}
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px', justifyContent: 'center' }}>
+      
+      {/* Video 1 */}
+      <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.1)', padding: '16px', backdropFilter: 'blur(10px)', transition: 'transform 0.3s ease, box-shadow 0.3s ease', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <div style={{ width: '100%', aspectRatio: '9/16', maxHeight: '520px', borderRadius: '14px', overflow: 'hidden', boxShadow: '0 10px 30px rgba(0,0,0,0.5)', background: '#000' }}>
+          <iframe
+            src="https://www.youtube.com/embed/JVupcQmPLm8"
+            title="Listo Patron YouTube Short 1"
+            style={{ width: '100%', height: '100%', border: 'none' }}
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowFullScreen
+          ></iframe>
+        </div>
+        <div style={{ marginTop: '16px', textAlign: 'center' }}>
+          <a href="https://www.youtube.com/shorts/JVupcQmPLm8" target="_blank" rel="noopener noreferrer" style={{ color: '#FF4D4D', fontWeight: '600', fontSize: '0.95rem', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+            <span>Ver en YouTube</span>
+            <span>↗</span>
+          </a>
+        </div>
+      </div>
+
+      {/* Video 2 */}
+      <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.1)', padding: '16px', backdropFilter: 'blur(10px)', transition: 'transform 0.3s ease, box-shadow 0.3s ease', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <div style={{ width: '100%', aspectRatio: '9/16', maxHeight: '520px', borderRadius: '14px', overflow: 'hidden', boxShadow: '0 10px 30px rgba(0,0,0,0.5)', background: '#000' }}>
+          <iframe
+            src="https://www.youtube.com/embed/uZz6nTbRcNs"
+            title="Listo Patron YouTube Short 2"
+            style={{ width: '100%', height: '100%', border: 'none' }}
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowFullScreen
+          ></iframe>
+        </div>
+        <div style={{ marginTop: '16px', textAlign: 'center' }}>
+          <a href="https://www.youtube.com/shorts/uZz6nTbRcNs" target="_blank" rel="noopener noreferrer" style={{ color: '#FF4D4D', fontWeight: '600', fontSize: '0.95rem', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+            <span>Ver en YouTube</span>
+            <span>↗</span>
+          </a>
+        </div>
+      </div>
+
+      {/* Video 3 */}
+      <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.1)', padding: '16px', backdropFilter: 'blur(10px)', transition: 'transform 0.3s ease, box-shadow 0.3s ease', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <div style={{ width: '100%', aspectRatio: '9/16', maxHeight: '520px', borderRadius: '14px', overflow: 'hidden', boxShadow: '0 10px 30px rgba(0,0,0,0.5)', background: '#000' }}>
+          <iframe
+            src="https://www.youtube.com/embed/4TMBoy_JQsk"
+            title="Listo Patron YouTube Short 3"
+            style={{ width: '100%', height: '100%', border: 'none' }}
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowFullScreen
+          ></iframe>
+        </div>
+        <div style={{ marginTop: '16px', textAlign: 'center' }}>
+          <a href="https://www.youtube.com/shorts/4TMBoy_JQsk" target="_blank" rel="noopener noreferrer" style={{ color: '#FF4D4D', fontWeight: '600', fontSize: '0.95rem', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+            <span>Ver en YouTube</span>
+            <span>↗</span>
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
 {/*  APP DOWNLOAD BANNER  */}
 <div className="app-banner">
   <div className="app-banner-bg"></div>
