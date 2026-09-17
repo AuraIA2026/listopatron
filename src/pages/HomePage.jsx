@@ -2174,7 +2174,7 @@ export default function HomePage({ onNavigate }) {
           </div>
         <h2 className="pro-title">Gana más trabajando<br/>con Listo Patrón</h2>
         <p className="pro-sub">Únete a la red de profesionales más confiable de República Dominicana y consigue clientes todos los días.</p>
-        <div className="free-tag">🎉 &nbsp;1 mes GRATIS · Plan Básico incluido</div>
+        <div className="free-tag">🎉 &nbsp;3 Meses GRATIS · Plan Básico incluido</div>
         <div className="pro-perks">
           <div className="perk"><span className="perk-icon">📱</span><p><strong>Más clientes sin esfuerzo</strong> — ellos te encuentran a ti</p></div>
           <div className="perk"><span className="perk-icon">💬</span><p><strong>Chat y llamadas integradas</strong> — comunícate directo</p></div>
@@ -2820,7 +2820,7 @@ export default function HomePage({ onNavigate }) {
           <span className="faq-arrow-icon">▼</span>
         </button>
         <div className="faq-a-wrap" style={{ maxHeight: activeFaqId === 5 ? '200px' : '0' }}>
-          <div className="faq-a-content">Entra a la app, selecciona "Soy profesional", completa tu perfil con tus datos y especialidad, y elige el plan que mejor se adapte a ti. El primer mes es gratis.</div>
+          <div className="faq-a-content">Entra a la app, selecciona "Soy profesional", completa tu perfil con tus datos y especialidad, y elige el plan que mejor se adapte a ti. ¡Tus primeros 3 meses del Plan Básico son 100% gratis!</div>
         </div>
       </div>
 
