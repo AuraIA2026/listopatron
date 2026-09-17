@@ -2400,13 +2400,13 @@ export default function HomePage({ onNavigate }) {
             <div className="plan-3d-blur" style={{"position": "absolute", "bottom": "-7px", "left": "7px", "right": "-2px", "height": "100%", "borderRadius": "18px", "opacity": "0.28", "filter": "blur(5px)", "zIndex": "0"}}></div>
             <div className="plan-3d-inner">
               <div className="plan-3d-shine-top"></div>
-              <div className="plan-3d-badge">BÁSICO</div>
+              <div className="plan-3d-badge">GRATIS (3 MESES)</div>
               <div className="plan-3d-num">1</div>
               <div style={{"marginTop": "12px", "position": "relative"}}><span className="plan-3d-emoji">🔹</span></div>
               <p style={{"fontSize": "12px", "fontWeight": "800", "color": "white", "margin": "6px 0 0", "textShadow": "0 1px 4px rgba(0,0,0,0.4)", "textAlign": "center", "lineHeight": "1.2"}}>Plan Básico</p>
-              <p style={{"fontSize": "10px", "color": "rgba(255,255,255,0.85)", "margin": "0", "fontWeight": "600"}}>⭐ 0-3.9 | 3 contratos</p>
-              <div className="plan-3d-price-box"><p style={{"fontSize": "13px", "fontWeight": "900", "color": "white", "margin": "0", "textShadow": "0 1px 4px rgba(0,0,0,0.5)"}}>Gratis</p></div>
-              <p style={{"fontSize": "8px", "color": "rgba(255,255,255,0.6)", "margin": "4px 0 0", "letterSpacing": "0.5px"}}>REGISTRARSE EN LA APP →</p>
+              <p style={{"fontSize": "10px", "color": "rgba(255,255,255,0.85)", "margin": "0", "fontWeight": "600"}}>⭐ 0-3.9 | 3 Meses Gratis</p>
+              <div className="plan-3d-price-box"><p style={{"fontSize": "12px", "fontWeight": "900", "color": "white", "margin": "0", "textShadow": "0 1px 4px rgba(0,0,0,0.5)"}}>¡GRATIS POR 3 MESES!</p></div>
+              <p style={{"fontSize": "8px", "color": "rgba(255,255,255,0.6)", "margin": "4px 0 0", "letterSpacing": "0.5px"}}>RECLAMAR 3 MESES GRATIS →</p>
             </div>
           </div>
         )}
