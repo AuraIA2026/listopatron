@@ -55,6 +55,12 @@ export default function HomePage({ onNavigate }) {
   const [matchedProPhone, setMatchedProPhone] = useState('');
   const [matchedProCategory, setMatchedProCategory] = useState('');
   const [dragOver, setDragOver] = useState(false);
+  const [proCedula, setProCedula] = useState('');
+  const [showBasicClaimModal, setShowBasicClaimModal] = useState(false);
+  const [showBlockedModal, setShowBlockedModal] = useState(false);
+  const [blockedUserData, setBlockedUserData] = useState(null);
+  const [basicClaimSuccess, setBasicClaimSuccess] = useState(false);
+  const [basicClaimError, setBasicClaimError] = useState('');
   const [cardFocusedField, setCardFocusedField] = useState('');
   const [activePlanTab, setActivePlanTab] = useState('vip');
 
@@ -240,21 +246,23 @@ export default function HomePage({ onNavigate }) {
   const webPlanes = [
     { 
       id: 'standard', 
-      name: 'Plan Estándar', 
-      price: 'RD$500', 
-      period: '/ mes', 
+      name: 'Plan Básico (3 Meses Gratis)', 
+      price: '¡GRATIS!', 
+      period: 'por 3 meses', 
       contracts: '3 contratos', 
       emoji: '🔹', 
-      desc: 'Plan básico mensual de mantenimiento.',
+      desc: 'Disfruta de 3 meses totalmente gratis para conseguir clientes.',
       class: 'plan-3d-standard',
-      badge: 'BÁSICO',
+      badge: 'GRATIS',
       num: 1,
-      subText: '⭐ 0-3.9 | 3 contratos',
+      subText: '⭐ 0-3.9 | 3 Meses Gratis',
       glowColor: 'rgba(46,125,50,0.28)',
+      isBasic: true,
       benefits: [
+        'Prueba 100% GRATIS por 3 meses.',
         '3 contratos al mes incluidos en la aplicación.',
-        'Ideal para profesionales que realizan servicios ocasionales.',
-        'Visibilidad básica en los listados de búsqueda.',
+        'Ideal para profesionales que inician en Listo Patrón.',
+        'Visibilidad en los listados de búsqueda de tu zona.',
         'Calificaciones y comentarios de clientes habilitados.',
         'Soporte técnico estándar a través de la aplicación.'
       ]
@@ -326,14 +334,194 @@ export default function HomePage({ onNavigate }) {
   ];
 
   const handleSelectPlanFromCard = (planId) => {
-    if (planId === 'basico') {
-      alert("El Plan Básico es gratuito durante tus primeros 3 meses. Para obtenerlo, solo debes registrarte directamente en la app Listo Patrón.");
+    if (planId === 'basico' || planId === 'standard') {
+      setShowPlanesModal(false);
+      setSelectedPlanForBenefits(null);
+      setBasicClaimError('');
+      setBasicClaimSuccess(false);
+      setShowBasicClaimModal(true);
       return;
     }
     const planObj = webPlanes.find(p => p.id === planId);
     if (planObj) {
       setSelectedPlanForBenefits(planObj);
       setShowPlanesModal(false);
+    }
+  };
+
+  const handleClaimBasicPlan = async (e) => {
+    if (e && e.preventDefault) e.preventDefault();
+    if (!accountEmail.trim() && !accountPhone.trim() && !proCedula.trim()) {
+      setBasicClaimError("Por favor completa tu correo, teléfono o cédula para verificar tu elegibilidad.");
+      return;
+    }
+
+    setLoading(true);
+    setBasicClaimError('');
+
+    try {
+      const emailClean = accountEmail.trim().toLowerCase();
+      const phoneClean = accountPhone.replace(/\D/g, '');
+      const cedulaClean = proCedula.trim().replace(/\D/g, '');
+      const nameClean = proName.trim().toLowerCase();
+
+      // 1. Buscar en Firestore si el usuario ya existe en 'users'
+      const usersRef = collection(db, 'users');
+      let foundUserDoc = null;
+      let matchedField = '';
+
+      if (emailClean) {
+        const qEmail = query(usersRef, where('email', '==', emailClean));
+        const snapEmail = await getDocs(qEmail);
+        if (!snapEmail.empty) {
+          foundUserDoc = snapEmail.docs[0];
+          matchedField = `correo (${emailClean})`;
+        }
+      }
+
+      if (!foundUserDoc && cedulaClean) {
+        const qCedula = query(usersRef, where('cedula', '==', proCedula.trim()));
+        const snapCedula = await getDocs(qCedula);
+        if (!snapCedula.empty) {
+          foundUserDoc = snapCedula.docs[0];
+          matchedField = `cédula (${proCedula.trim()})`;
+        } else {
+          const qCedulaDigits = query(usersRef, where('cedulaId', '==', cedulaClean));
+          const snapCedulaDigits = await getDocs(qCedulaDigits);
+          if (!snapCedulaDigits.empty) {
+            foundUserDoc = snapCedulaDigits.docs[0];
+            matchedField = `cédula (${proCedula.trim()})`;
+          }
+        }
+      }
+
+      if (!foundUserDoc && phoneClean.length >= 8) {
+        const qPhone = query(usersRef, where('phone', '==', accountPhone.trim()));
+        const snapPhone = await getDocs(qPhone);
+        if (!snapPhone.empty) {
+          foundUserDoc = snapPhone.docs[0];
+          matchedField = `teléfono (${accountPhone.trim()})`;
+        } else {
+          const qPhoneDigits = query(usersRef, where('phone', '==', phoneClean));
+          const snapPhoneDigits = await getDocs(qPhoneDigits);
+          if (!snapPhoneDigits.empty) {
+            foundUserDoc = snapPhoneDigits.docs[0];
+            matchedField = `teléfono (${accountPhone.trim()})`;
+          }
+        }
+      }
+
+      if (!foundUserDoc && nameClean.length > 3) {
+        const qName = query(usersRef, where('name', '==', proName.trim()));
+        const snapName = await getDocs(qName);
+        if (!snapName.empty) {
+          foundUserDoc = snapName.docs[0];
+          matchedField = `nombre (${proName.trim()})`;
+        }
+      }
+
+      // 2. Comprobar si ya fue utilizado en 'basic_claims' o en 'plan_purchases' o en 'users'
+      let alreadyClaimed = false;
+
+      const claimsRef = collection(db, 'basic_claims');
+      if (emailClean) {
+        const qClaimEmail = query(claimsRef, where('email', '==', emailClean));
+        const snapClaimEmail = await getDocs(qClaimEmail);
+        if (!snapClaimEmail.empty) alreadyClaimed = true;
+      }
+
+      if (!alreadyClaimed && phoneClean) {
+        const qClaimPhone = query(claimsRef, where('phone', '==', phoneClean));
+        const snapClaimPhone = await getDocs(qClaimPhone);
+        if (!snapClaimPhone.empty) alreadyClaimed = true;
+      }
+
+      if (!alreadyClaimed && cedulaClean) {
+        const qClaimCedula = query(claimsRef, where('cedula', '==', cedulaClean));
+        const snapClaimCedula = await getDocs(qClaimCedula);
+        if (!snapClaimCedula.empty) alreadyClaimed = true;
+      }
+
+      if (foundUserDoc) {
+        const uData = foundUserDoc.data();
+        if (
+          uData.basicPlanClaimed || 
+          uData.hasUsedBasicTrial || 
+          uData.currentPlan === 'standard' || 
+          uData.currentPlan === 'basico' ||
+          (uData.basicPlanClaimedAt && new Date() - new Date(uData.basicPlanClaimedAt) > 0)
+        ) {
+          alreadyClaimed = true;
+        }
+      }
+
+      // 3. Evaluar resultado y aplicar BLOQUEO si ya usó sus 3 meses
+      if (alreadyClaimed) {
+        setLoading(false);
+        setShowBasicClaimModal(false);
+        setBlockedUserData({
+          matchedField: matchedField || 'correo/teléfono/cédula',
+          email: emailClean || accountEmail,
+          phone: accountPhone,
+          cedula: proCedula,
+          name: foundUserDoc ? foundUserDoc.data().name : proName
+        });
+        setShowBlockedModal(true);
+        return;
+      }
+
+      if (!foundUserDoc) {
+        setLoading(false);
+        setBasicClaimError("No encontramos una cuenta en Listo Patrón con estos datos. Para obtener tus 3 Meses Gratis, descarga la App de Listo Patrón y regístrate como profesional.");
+        return;
+      }
+
+      // ELEGIBLE: Activar 3 meses gratis
+      const userDocId = foundUserDoc.id;
+      const userDocRef = doc(db, 'users', userDocId);
+      
+      const expDate = new Date();
+      expDate.setDate(expDate.getDate() + 90); // 3 Meses (90 Días) gratis
+
+      await updateDoc(userDocRef, {
+        contracts: (foundUserDoc.data().contracts || 0) + 3,
+        planStatus: 'active',
+        currentPlan: 'standard',
+        basicPlanClaimed: true,
+        hasUsedBasicTrial: true,
+        basicPlanClaimedAt: new Date().toISOString(),
+        planExpirationDate: expDate.toISOString(),
+        cedula: proCedula.trim() || foundUserDoc.data().cedula || '',
+        available: true,
+        approved: true
+      });
+
+      await addDoc(collection(db, 'basic_claims'), {
+        userId: userDocId,
+        email: emailClean,
+        phone: phoneClean,
+        cedula: cedulaClean,
+        name: proName || foundUserDoc.data().name || '',
+        claimedAt: serverTimestamp(),
+        expiresAt: expDate.toISOString()
+      });
+
+      await addDoc(collection(db, 'notificaciones'), {
+        userId: userDocId,
+        type: 'system',
+        title: '🎉 ¡3 Meses Gratis del Plan Básico Activados!',
+        text: '¡Felicidades! Se ha activado tu prueba gratuita de 3 meses del Plan Básico. Ya puedes recibir contratos de clientes.',
+        read: false,
+        createdAt: serverTimestamp()
+      });
+
+      setLoading(false);
+      setBasicClaimSuccess(true);
+
+    } catch (err) {
+      console.error("Error al verificar elegibilidad del Plan Básico:", err);
+      setLoading(false);
+      setBasicClaimError("Ocurrió un error al procesar la solicitud. Por favor intenta de nuevo.");
     }
   };
 
@@ -2285,7 +2473,7 @@ export default function HomePage({ onNavigate }) {
           margin: '0 0 6px 0',
           fontFamily: "'Plus Jakarta Sans', sans-serif"
         }}>
-          {activePlanTab === 'basico' && 'Plan Básico ⚪'}
+          {activePlanTab === 'basico' && 'Plan Básico (3 Meses Gratis) ⚪'}
           {activePlanTab === 'gold' && 'Plan Gold 🟡'}
           {activePlanTab === 'platinum' && 'Plan Platinum ⚫'}
           {activePlanTab === 'vip' && 'Plan VIP 💎'}
@@ -2297,7 +2485,7 @@ export default function HomePage({ onNavigate }) {
           color: activePlanTab === 'basico' ? '#10B981' : activePlanTab === 'gold' ? '#FFD700' : activePlanTab === 'platinum' ? '#4B5563' : '#F26000',
           marginBottom: '20px'
         }}>
-          {activePlanTab === 'basico' && 'Gratuito'}
+          {activePlanTab === 'basico' && '¡Gratis por 3 Meses!'}
           {activePlanTab === 'gold' && 'RD$ 1,000 / mes'}
           {activePlanTab === 'platinum' && 'RD$ 1,500 / mes'}
           {activePlanTab === 'vip' && 'RD$ 2,500 / mes'}
@@ -2306,6 +2494,7 @@ export default function HomePage({ onNavigate }) {
         <ul className="plan-details-list">
           {activePlanTab === 'basico' && (
             <>
+              <li className="plan-details-item"><span className="plan-details-icon check">✓</span> Prueba 100% GRATIS por 3 meses</li>
               <li className="plan-details-item"><span className="plan-details-icon check">✓</span> Hasta 3 contratos al mes</li>
               <li className="plan-details-item"><span className="plan-details-icon check">✓</span> Visibilidad básica en búsquedas</li>
               <li className="plan-details-item"><span className="plan-details-icon check">✓</span> Recomendado para calificación: 0 - 3.9 estrellas</li>
@@ -2347,20 +2536,22 @@ export default function HomePage({ onNavigate }) {
         </ul>
 
         {activePlanTab === 'basico' ? (
-          <a 
-            href="https://listopatron.vercel.app/"
+          <button 
+            type="button"
+            onClick={() => handleSelectPlanFromCard('basico')}
             className="btn-download-app"
             style={{ 
-              textDecoration: 'none',
+              border: 'none',
               width: '100%',
               textAlign: 'center',
               boxSizing: 'border-box',
               background: '#10B981',
-              boxShadow: '0 4px 14px rgba(16,185,129,0.3)'
+              boxShadow: '0 4px 14px rgba(16,185,129,0.3)',
+              cursor: 'pointer'
             }}
           >
-            🚀 Obtener Gratis en la App
-          </a>
+            🚀 Reclamar 3 Meses Gratis
+          </button>
         ) : (
           <button
             type="button"
@@ -3643,6 +3834,214 @@ export default function HomePage({ onNavigate }) {
             >
               Cerrar y Volver
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── MODAL CANJEAR PLAN BÁSICO (3 MESES GRATIS) ── */}
+      {showBasicClaimModal && (
+        <div style={{
+          position: 'fixed', inset: 0, zIndex: 10004,
+          background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(12px)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px'
+        }}>
+          <div style={{
+            width: '100%', maxWidth: '480px', background: 'white', borderRadius: '28px',
+            padding: '30px', boxSizing: 'border-box', boxShadow: '0 25px 60px rgba(0,0,0,0.25)',
+            maxHeight: '90vh', overflowY: 'auto', position: 'relative', fontFamily: "'Plus Jakarta Sans', sans-serif"
+          }}>
+            <button 
+              type="button"
+              onClick={() => {
+                setShowBasicClaimModal(false);
+                setBasicClaimError('');
+                setBasicClaimSuccess(false);
+              }}
+              style={{ position: 'absolute', top: '20px', right: '20px', background: '#F3F4F6', border: 'none', borderRadius: '50%', width: '36px', height: '36px', fontSize: '18px', cursor: 'pointer', fontWeight: 'bold' }}
+            >
+              ✕
+            </button>
+
+            <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+              <div style={{ display: 'inline-block', background: 'rgba(16,185,129,0.1)', color: '#10B981', padding: '6px 14px', borderRadius: '20px', fontSize: '12px', fontWeight: '800', marginBottom: '8px' }}>
+                🎁 OFERTA ESPECIAL PRO
+              </div>
+              <h3 style={{ fontSize: '22px', fontWeight: '900', color: '#1A1A2E', margin: '0 0 6px 0' }}>
+                Plan Básico (3 Meses Gratis)
+              </h3>
+              <p style={{ fontSize: '13px', color: '#64748B', margin: '0' }}>
+                Ingresa tus datos de cuenta para verificar y activar tus 3 meses totalmente gratis.
+              </p>
+            </div>
+
+            {basicClaimSuccess ? (
+              <div style={{ textAlign: 'center', padding: '20px 10px' }}>
+                <div style={{ fontSize: '50px', marginBottom: '16px' }}>🎉</div>
+                <h4 style={{ fontSize: '20px', fontWeight: '800', color: '#10B981', margin: '0 0 10px 0' }}>¡3 Meses Gratis Activados!</h4>
+                <p style={{ fontSize: '14px', color: '#475569', lineHeight: '1.5', marginBottom: '24px' }}>
+                  Tu cuenta ha sido actualizada exitosamente con el Plan Básico. Tienes 3 contratos al mes y 90 días sin ningún costo.
+                </p>
+                <button
+                  onClick={() => {
+                    setShowBasicClaimModal(false);
+                    setBasicClaimSuccess(false);
+                  }}
+                  style={{
+                    width: '100%', background: '#10B981', color: 'white', border: 'none',
+                    borderRadius: '14px', padding: '14px', fontSize: '15px', fontWeight: '800', cursor: 'pointer'
+                  }}
+                >
+                  ¡Entendido, Empezar! 🚀
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={handleClaimBasicPlan} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                {basicClaimError && (
+                  <div style={{ padding: '12px', background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: '12px', color: '#991B1B', fontSize: '13px', fontWeight: '500', lineHeight: '1.4' }}>
+                    ⚠️ {basicClaimError}
+                  </div>
+                )}
+
+                <div>
+                  <label style={{ fontSize: '12px', fontWeight: '800', color: '#475569', display: 'block', marginBottom: '6px' }}>Nombre Completo</label>
+                  <input 
+                    type="text" 
+                    required
+                    placeholder="Ej. Juan Pérez"
+                    value={proName}
+                    onChange={e => setProName(e.target.value)}
+                    style={{ width: '100%', padding: '11px 14px', borderRadius: '12px', border: '1.5px solid #E2E8F0', background: '#FAFAFA', fontSize: '13px', outline: 'none', boxSizing: 'border-box' }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ fontSize: '12px', fontWeight: '800', color: '#475569', display: 'block', marginBottom: '6px' }}>Correo Electrónico de tu Cuenta</label>
+                  <input 
+                    type="email" 
+                    required
+                    placeholder="ejemplo@correo.com"
+                    value={accountEmail}
+                    onChange={e => setAccountEmail(e.target.value)}
+                    style={{ width: '100%', padding: '11px 14px', borderRadius: '12px', border: '1.5px solid #E2E8F0', background: '#FAFAFA', fontSize: '13px', outline: 'none', boxSizing: 'border-box' }}
+                  />
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                  <div>
+                    <label style={{ fontSize: '12px', fontWeight: '800', color: '#475569', display: 'block', marginBottom: '6px' }}>Teléfono / WhatsApp</label>
+                    <input 
+                      type="tel" 
+                      required
+                      placeholder="809-000-0000"
+                      value={accountPhone}
+                      onChange={e => setAccountPhone(e.target.value)}
+                      style={{ width: '100%', padding: '11px 14px', borderRadius: '12px', border: '1.5px solid #E2E8F0', background: '#FAFAFA', fontSize: '13px', outline: 'none', boxSizing: 'border-box' }}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{ fontSize: '12px', fontWeight: '800', color: '#475569', display: 'block', marginBottom: '6px' }}>Número de Cédula</label>
+                    <input 
+                      type="text" 
+                      required
+                      placeholder="001-0000000-0"
+                      value={proCedula}
+                      onChange={e => setProCedula(e.target.value)}
+                      style={{ width: '100%', padding: '11px 14px', borderRadius: '12px', border: '1.5px solid #E2E8F0', background: '#FAFAFA', fontSize: '13px', outline: 'none', boxSizing: 'border-box' }}
+                    />
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  style={{
+                    width: '100%', background: 'linear-gradient(135deg, #10B981, #059669)',
+                    color: 'white', border: 'none', borderRadius: '14px', padding: '15px',
+                    fontSize: '15px', fontWeight: '800', cursor: loading ? 'not-allowed' : 'pointer',
+                    boxShadow: '0 4px 16px rgba(16,185,129,0.3)', marginTop: '8px'
+                  }}
+                >
+                  {loading ? 'Verificando con Firestore...' : '🎁 Activar 3 Meses Gratis Ahora'}
+                </button>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ── MODAL BLOQUEO: USUARIO YA UTILIZÓ PLAN BÁSICO / EXPIRADO ── */}
+      {showBlockedModal && (
+        <div style={{
+          position: 'fixed', inset: 0, zIndex: 10005,
+          background: 'rgba(15, 23, 42, 0.75)', backdropFilter: 'blur(16px)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px'
+        }}>
+          <div style={{
+            width: '100%', maxWidth: '520px', background: '#ffffff', borderRadius: '28px',
+            padding: '36px 30px', boxSizing: 'border-box', boxShadow: '0 30px 70px rgba(0,0,0,0.3)',
+            textAlign: 'center', position: 'relative', fontFamily: "'Plus Jakarta Sans', sans-serif"
+          }}>
+            <button 
+              onClick={() => setShowBlockedModal(false)}
+              style={{ position: 'absolute', top: '20px', right: '20px', background: '#F1F5F9', border: 'none', borderRadius: '50%', width: '36px', height: '36px', fontSize: '18px', cursor: 'pointer', fontWeight: 'bold', color: '#64748B' }}
+            >
+              ✕
+            </button>
+
+            <div style={{
+              width: '80px', height: '80px', borderRadius: '50%', background: 'linear-gradient(135deg, #FEF2F2, #FEE2E2)',
+              border: '2px solid #FECACA', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              margin: '0 auto 20px auto', fontSize: '36px', boxShadow: '0 10px 25px rgba(239, 68, 68, 0.15)'
+            }}>
+              🚫
+            </div>
+
+            <h3 style={{ fontSize: '23px', fontWeight: '900', color: '#1E293B', margin: '0 0 10px 0', lineHeight: '1.2' }}>
+              Prueba Gratuita Ya Utilizada
+            </h3>
+
+            <div style={{ background: '#FFF5F5', border: '1px solid #FED7D7', borderRadius: '16px', padding: '14px', marginBottom: '20px', textAlign: 'left' }}>
+              <p style={{ margin: '0 0 6px 0', fontSize: '13px', color: '#C53030', fontWeight: '700' }}>
+                ⚠️ Coincidencia de Usuario Registrado:
+              </p>
+              <p style={{ margin: '0', fontSize: '12px', color: '#742A2A', lineHeight: '1.5' }}>
+                El <strong>{blockedUserData?.matchedField || 'correo, teléfono o cédula'}</strong> ingresado ya cuenta con un registro previo del Plan Básico o ya expiró el período de prueba de 3 meses.
+              </p>
+            </div>
+
+            <p style={{ fontSize: '14px', color: '#475569', lineHeight: '1.6', margin: '0 0 24px 0' }}>
+              El Plan Básico Gratuito solo puede ser adquirido <strong>una única vez por profesional</strong>. Para continuar recibiendo solicitudes de trabajos y mantener activo tu perfil en Listo Patrón, por favor selecciona uno de nuestros planes profesionales.
+            </p>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <button
+                onClick={() => {
+                  setShowBlockedModal(false);
+                  setShowPlanesModal(true);
+                }}
+                style={{
+                  width: '100%', background: 'linear-gradient(135deg, #F26000, #FF8533)',
+                  color: 'white', border: 'none', borderRadius: '14px', padding: '16px',
+                  fontSize: '15px', fontWeight: '800', cursor: 'pointer', outline: 'none',
+                  boxShadow: '0 6px 20px rgba(242,96,0,0.35)', transition: 'transform 0.1s'
+                }}
+                onMouseDown={e => e.currentTarget.style.transform = 'scale(0.97)'}
+                onMouseUp={e => e.currentTarget.style.transform = 'scale(1)'}
+              >
+                🚀 Ver Planes de Pago (Gold, Platinum, VIP)
+              </button>
+
+              <button
+                onClick={() => setShowBlockedModal(false)}
+                style={{
+                  width: '100%', background: 'none', color: '#64748B', border: '2px solid #E2E8F0',
+                  borderRadius: '14px', padding: '12px', fontSize: '14px', fontWeight: '700', cursor: 'pointer'
+                }}
+              >
+                Cerrar
+              </button>
+            </div>
           </div>
         </div>
       )}
