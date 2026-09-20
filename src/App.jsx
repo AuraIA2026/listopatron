@@ -7,7 +7,15 @@ import './premium.css'
 function App() {
   const [currentPage, setCurrentPage] = useState(() => {
     const params = new URLSearchParams(window.location.search);
-    return params.get('page') === 'shop' || window.location.hash === '#shop' ? 'shop' : 'home';
+    const path = window.location.pathname.toLowerCase();
+    return (
+      params.get('page') === 'shop' ||
+      window.location.hash === '#shop' ||
+      path === '/tienda' ||
+      path === '/tienda/' ||
+      path === '/shop' ||
+      path.startsWith('/tienda')
+    ) ? 'shop' : 'home';
   });
 
   return (
