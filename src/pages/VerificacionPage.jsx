@@ -109,7 +109,14 @@ export default function VerificacionPage({ onBack }) {
   const toggleSection = (n) => setOpenSections((p) => ({ ...p, [n]: !p[n] }));
   const toggleCheck   = (key) => setChecks((p) => ({ ...p, [key]: !p[key] }));
 
-  const completedSections = Object.keys(openSections).filter(k => openSections[k]).length;
+  const isSection1Done = Boolean(form.nombre && form.nombre.trim().length >= 3 && form.cedula && form.cedula.replace(/[- ]/g, '').length >= 11);
+  const isSection2Done = Boolean(docs.cedulaFrontal && docs.cedulaTrasera && docs.selfie && docs.buenaConducta);
+  const isSection3Done = Boolean(form.direccion && form.direccion.trim().length >= 5);
+  const isSection4Done = Boolean(form.telefono && form.telefono.trim().length >= 8);
+  const isSection5Done = Boolean(form.especialidad || form.categoria || form.expAnos);
+  const isSection6Done = Boolean(checks.c1 && checks.c2 && checks.c3);
+
+  const completedSections = [isSection1Done, isSection2Done, isSection3Done, isSection4Done, isSection5Done, isSection6Done].filter(Boolean).length;
   const progress = Math.round((completedSections / 6) * 100);
 
   // Maneja la subida de un documento individual
@@ -142,36 +149,29 @@ export default function VerificacionPage({ onBack }) {
   };
 
   const handleSubmit = async () => {
-    if (!form.nombre || form.nombre.trim().length < 3) {
-      alert("⚠️ Por favor ingresa tu nombre completo.");
+    if (!isSection1Done) {
+      setOpenSections(prev => ({ ...prev, 1: true }));
+      alert("⚠️ Por favor completa tu Información Personal (Nombre completo y Cédula de 11 dígitos).");
       return;
     }
-    if (!form.cedula || form.cedula.replace(/[- ]/g, '').length < 11) {
-      alert("⚠️ Por favor ingresa un número de cédula válido (11 dígitos).");
+    if (!isSection2Done) {
+      setOpenSections(prev => ({ ...prev, 2: true }));
+      alert("⚠️ Por favor adjunta los 4 documentos obligatorios: Cédula Frente, Cédula Reverso, Selfie con Cédula y Papel de Buena Conducta.");
       return;
     }
-    if (!form.direccion || form.direccion.trim().length < 5) {
-      alert("⚠️ Por favor ingresa tu dirección de residencia completa.");
+    if (!isSection3Done) {
+      setOpenSections(prev => ({ ...prev, 3: true }));
+      alert("⚠️ Por favor ingresa tu Dirección de Residencia completa.");
       return;
     }
-    if (!docs.cedulaFrontal) {
-      alert("⚠️ Falta la foto frontal de tu cédula. Por favor adjúntala.");
+    if (!isSection4Done) {
+      setOpenSections(prev => ({ ...prev, 4: true }));
+      alert("⚠️ Por favor ingresa tu Número de Teléfono de Contacto.");
       return;
     }
-    if (!docs.cedulaTrasera) {
-      alert("⚠️ Falta la foto trasera de tu cédula. Por favor adjúntala.");
-      return;
-    }
-    if (!docs.selfie) {
-      alert("⚠️ Falta la foto selfie sosteniendo tu cédula. Por favor adjúntala.");
-      return;
-    }
-    if (!docs.buenaConducta) {
-      alert("⚠️ Falta el Certificado de No Antecedentes Penales (Papel de Buena Conducta). Por favor adjúntalo.");
-      return;
-    }
-    if (!checks.c1 || !checks.c2 || !checks.c3) {
-      alert("⚠️ Por favor marca las 3 casillas de aceptación de términos antes de enviar.");
+    if (!isSection6Done) {
+      setOpenSections(prev => ({ ...prev, 6: true }));
+      alert("⚠️ Por favor acepta las 3 casillas de términos y declaraciones antes de enviar.");
       return;
     }
     setSaving(true);
@@ -327,8 +327,8 @@ export default function VerificacionPage({ onBack }) {
           <div style={styles.stepDots}>
             {sections.map((s, i) => (
               <div key={s.n} style={{ display:"flex", alignItems:"center", flex: i < 5 ? 1 : "none" }}>
-                <div style={{ ...styles.stepDot, background: openSections[s.n] ? s.color : "#E5E7EB", color: openSections[s.n] ? "white" : "#9CA3AF", boxShadow: openSections[s.n] ? `0 2px 10px ${s.color}55` : "none" }}>
-                  {openSections[s.n] ? "✓" : s.n}
+                <div style={{ ...styles.stepDot, background: [isSection1Done, isSection2Done, isSection3Done, isSection4Done, isSection5Done, isSection6Done][i] ? s.color : "#E5E7EB", color: [isSection1Done, isSection2Done, isSection3Done, isSection4Done, isSection5Done, isSection6Done][i] ? "white" : "#9CA3AF", boxShadow: [isSection1Done, isSection2Done, isSection3Done, isSection4Done, isSection5Done, isSection6Done][i] ? `0 2px 10px ${s.color}55` : "none" }}>
+                  {[isSection1Done, isSection2Done, isSection3Done, isSection4Done, isSection5Done, isSection6Done][i] ? "✓" : s.n}
                 </div>
                 {i < 5 && <div style={{ flex:1, height:2, background: openSections[s.n+1] ? "#F26000" : "#E5E7EB", transition:"background 0.3s" }} />}
               </div>
