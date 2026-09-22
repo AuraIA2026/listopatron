@@ -1,0 +1,250 @@
+// ── ARCHIVO CENTRAL DE CATEGORÍAS ──
+// Importa este archivo en HomePage, SearchPage y RegisterPage
+
+export const FILTERS = [
+  { id: 'disponible', icon: '⚡', labelEs: 'Disponible hoy',     labelEn: 'Available today' },
+  { id: 'domicilio',  icon: '🏠', labelEs: 'A domicilio',         labelEn: 'Home service' },
+  { id: 'top_recomendado', icon: '🏆', labelEs: 'Top recomendado', labelEn: 'Top recommended' },
+  { id: 'mas_contratado',  icon: '🔥', labelEs: 'Más contratado',  labelEn: 'Most hired' },
+  { id: 'exclusivo',       icon: '💎', labelEs: 'Exclusivo',       labelEn: 'Exclusive' },
+]
+
+export const PLANS = {
+  basico: {
+    id: 'basico',
+    icon: '⚪',
+    labelEs: 'Básico',
+    labelEn: 'Basic',
+    ratingMin: 0,
+    ratingMax: 3.9,
+    color: '#9CA3AF',
+    bg: '#F3F4F6',
+  },
+  gold: {
+    id: 'gold',
+    icon: '🟡',
+    labelEs: 'Gold',
+    labelEn: 'Gold',
+    ratingMin: 4.0,
+    ratingMax: 4.7,
+    color: '#F59E0B',
+    bg: '#FFFBEB',
+  },
+  vip: {
+    id: 'vip',
+    icon: '⭐',
+    labelEs: 'VIP',
+    labelEn: 'VIP',
+    ratingMin: 4.8,
+    ratingMax: 5.0,
+    color: '#3B82F6',
+    bg: '#EFF6FF',
+  },
+  platinum: {
+    id: 'platinum',
+    icon: '⚫',
+    labelEs: 'Platinum',
+    labelEn: 'Platinum',
+    ratingMin: 4.5,
+    ratingMax: 4.7,
+    color: '#1A1A2E',
+    bg: '#F5F3FF',
+  },
+}
+
+export const CATEGORIES = [
+  // ── HOGAR Y MANTENIMIENTO ──
+  {
+    id: 'mantenimiento',
+    icon: '🔧',
+    image: '/icons/cat_mantenimiento.png',
+    labelEs: 'Mantenimiento y Reparación',
+    labelEn: 'Maintenance & Repair',
+    subcategories: [
+      { id: 'albanil',       icon: '🧱', image: '/icons/albanil.webp', labelEs: 'Albañil',          labelEn: 'Mason' },
+      { id: 'plomero',       icon: '🔩', image: '/icons/plomero.webp', labelEs: 'Plomero',          labelEn: 'Plumber' },
+      { id: 'electricista',  icon: '⚡', image: '/icons/electricista.webp', labelEs: 'Electricista',     labelEn: 'Electrician' },
+      { id: 'mecanico',      icon: '🔧', image: '/icons/mecanico.webp', labelEs: 'Mecánico / Asistencia Vial', labelEn: 'Mechanic / Roadside Assistance' },
+      { id: 'refrigeracion', icon: '❄️', labelEs: 'Instalación de Aire/AC', labelEn: 'AC / Refrigeration' },
+      { id: 'pisos',         icon: '🪵', labelEs: 'Instalación de Pisos',   labelEn: 'Floor Installation' },
+      { id: 'camaras',       icon: '📹', labelEs: 'Cámaras de Seguridad',   labelEn: 'Security Cameras / CCTV' },
+      { id: 'inversores',    icon: '🔋', labelEs: 'Inversores y Solares',   labelEn: 'Inverters & Solar Panels' },
+      { id: 'computadoras',  icon: '💻', labelEs: 'Técnico PC/TV',          labelEn: 'PC/TV Technician' },
+      { id: 'celulares',     icon: '📱', labelEs: 'Técnico de Celulares',   labelEn: 'Phone Repair' },
+      { id: 'cerrajero',     icon: '🔑', image: '/icons/cerrajero.webp', labelEs: 'Cerrajero',        labelEn: 'Locksmith' },
+      { id: 'pintor',        icon: '🎨', image: '/icons/pintor.webp', labelEs: 'Pintor',           labelEn: 'Painter' },
+      { id: 'carpintero',    icon: '🪵', image: '/icons/carpintero1.webp', labelEs: 'Carpintero',       labelEn: 'Carpenter' },
+      { id: 'herrero',       icon: '🛠️', labelEs: 'Herrero / Soldador',     labelEn: 'Welder' },
+      { id: 'tapicero',      icon: '🛋️', labelEs: 'Tapicero',             labelEn: 'Upholstery' },
+      { id: 'constructor',   icon: '🏗️', labelEs: 'Maestro Constructor',    labelEn: 'Master Builder' },
+      { id: 'instalacion',   icon: '🔨', labelEs: 'Instalación General',    labelEn: 'General Installation' },
+    ]
+  },
+
+  // ── LIMPIEZA ──
+  {
+    id: 'limpieza',
+    icon: '🧹',
+    image: '/icons/cat_limpieza.png',
+    labelEs: 'Limpieza',
+    labelEn: 'Cleaning',
+    subcategories: [
+      { id: 'limpieza_hogar',   icon: '🏠', image: '/icons/limpieza.webp', labelEs: 'Limpieza del hogar',   labelEn: 'Home cleaning' },
+      { id: 'limpieza_oficina', icon: '🏢', labelEs: 'Limpieza de oficina',  labelEn: 'Office cleaning' },
+      { id: 'airbnb',           icon: '🏨', image: '/icons/limpieza.webp', labelEs: 'Limpieza Airbnb',      labelEn: 'Airbnb Cleaning' },
+      { id: 'limpieza_auto',    icon: '🧽', labelEs: 'Car Wash a Domicilio', labelEn: 'Mobile Car Wash' },
+      { id: 'limpieza_muebles', icon: '🛋️', labelEs: 'Limpieza de muebles', labelEn: 'Furniture cleaning' },
+      { id: 'lavanderia',       icon: '👕', labelEs: 'Lavandería / Planchado', labelEn: 'Laundry & Ironing' },
+      { id: 'plagas',           icon: '🐛', image: '/icons/control_de_plaga.webp', labelEs: 'Control de plagas',    labelEn: 'Pest control' },
+    ]
+  },
+
+  // ── CUIDADO PERSONAL ──
+  {
+    id: 'cuidado',
+    icon: '👶',
+    image: '/icons/cat_cuidado_personal.jpg',
+    labelEs: 'Cuidado personal',
+    labelEn: 'Personal care',
+    subcategories: [
+      { id: 'ninera',     icon: '👶', image: '/icons/ninera.webp', labelEs: 'Niñera',           labelEn: 'Nanny' },
+      { id: 'ancianos',   icon: '👵', labelEs: 'Cuidado de Mayores', labelEn: 'Elder Care' },
+      { id: 'enfermera',  icon: '🩺', labelEs: 'Enfermera a domicilio', labelEn: 'In-home Nurse' },
+      { id: 'educativo',  icon: '📚', labelEs: 'Tutorías / Clases',  labelEn: 'Tutoring / Classes' },
+      { id: 'jardinero',  icon: '🌿', image: '/icons/jardinero.webp', labelEs: 'Jardinero',        labelEn: 'Gardener' },
+      { id: 'mensajero',  icon: '🛵', labelEs: 'Mensajero',        labelEn: 'Messenger' },
+      { id: 'mudanzas',   icon: '📦', labelEs: 'Mudanzas',         labelEn: 'Moving' },
+    ]
+  },
+
+  // ── BELLEZA Y BIENESTAR ──
+  {
+    id: 'belleza',
+    icon: '💆',
+    image: '/icons/cat_belleza_y_bienestar.png',
+    labelEs: 'Belleza y Bienestar',
+    labelEn: 'Beauty & Wellness',
+    subcategories: [
+      { id: 'masajista',  icon: '💆', image: '/icons/masajes.webp', labelEs: 'Masajes a domicilio',  labelEn: 'In-home Massage' },
+      { id: 'peluquero',  icon: '✂️', image: '/icons/peluquero.webp', labelEs: 'Peluquero / Estilista', labelEn: 'Hairdresser / Stylist' },
+      { id: 'barbero',    icon: '💈', labelEs: 'Barbero a domicilio',    labelEn: 'In-home Barber' },
+      { id: 'maquillaje', icon: '💄', labelEs: 'Maquillaje Profesional', labelEn: 'Professional Makeup' },
+      { id: 'manicura',   icon: '💅', labelEs: 'Manicura y Pedicura',    labelEn: 'Manicure & Pedicure' },
+      { id: 'entrenador', icon: '🏋️', labelEs: 'Entrenador Personal',    labelEn: 'Personal Trainer' },
+    ]
+  },
+
+  // ── MASCOTAS ──
+  {
+    id: 'mascotas',
+    icon: '🐾',
+    image: '/icons/cat_mascotas.png',
+    labelEs: 'Mascotas',
+    labelEn: 'Pets',
+    subcategories: [
+      { id: 'paseador',   icon: '🐕', labelEs: 'Paseador de Perros',     labelEn: 'Dog Walker' },
+      { id: 'pelu_canina',icon: '✂️', labelEs: 'Peluquería Canina',      labelEn: 'Pet Grooming' },
+      { id: 'veterinario',icon: '🩺', labelEs: 'Veterinario a domicilio',labelEn: 'Mobile Vet' },
+      { id: 'cuidador',   icon: '🏡', labelEs: 'Cuidador de Mascotas',   labelEn: 'Pet Sitter' },
+    ]
+  },
+
+  // ── TRANSPORTE ──
+  {
+    id: 'transporte',
+    icon: '🚚',
+    image: '/icons/cat_transporte.png',
+    labelEs: 'Transporte',
+    labelEn: 'Transport',
+    subcategories: [
+      { id: 'delivery',   icon: '🛵', image: '/icons/delivery.webp', labelEs: 'Delivery',         labelEn: 'Delivery' },
+      { id: 'grua',       icon: '🪝', image: '/icons/servicio_de_grua.webp', labelEs: 'Servicio de grúa', labelEn: 'Tow truck' },
+    ]
+  },
+
+  // ── EVENTOS ──
+  {
+    id: 'eventos',
+    icon: '🎉',
+    image: '/icons/cat_eventos.png',
+    labelEs: 'Eventos',
+    labelEn: 'Events',
+    subcategories: [
+
+      // Organización
+      { id: 'organizador',   icon: '🎈', labelEs: 'Organizador de eventos', labelEn: 'Event organizer' },
+      { id: 'wedding',       icon: '💍', image: '/icons/organizadora_de_boda.webp', labelEs: 'Wedding planner',        labelEn: 'Wedding planner' },
+      { id: 'coordinador',   icon: '📋', labelEs: 'Coordinador de eventos', labelEn: 'Event coordinator' },
+      { id: 'planificador',  icon: '🎯', labelEs: 'Planificador de fiestas',labelEn: 'Party planner' },
+      { id: 'productor',     icon: '🎬', labelEs: 'Productor de eventos',   labelEn: 'Event producer' },
+
+      // Decoración
+      { id: 'decorador',     icon: '🎨', labelEs: 'Decorador de eventos',   labelEn: 'Event decorator' },
+      { id: 'decorador_int', icon: '🛋️', labelEs: 'Decorador de interiores',labelEn: 'Interior decorator' },
+      { id: 'disenador_int', icon: '📐', labelEs: 'Diseñador de interiores',labelEn: 'Interior designer' },
+      { id: 'decor_tematica',icon: '🎭', labelEs: 'Decoración temática',    labelEn: 'Thematic decoration' },
+      { id: 'globos',        icon: '🎈', labelEs: 'Especialista en globos', labelEn: 'Balloon specialist' },
+      { id: 'iluminacion',   icon: '💡', labelEs: 'Iluminación decorativa', labelEn: 'Decorative lighting' },
+      { id: 'montaje_ev',    icon: '🏗️', labelEs: 'Montaje de eventos',     labelEn: 'Event setup' },
+
+      // Fotografía y video
+      { id: 'fotografo',     icon: '📸', image: '/icons/fotografo.webp', labelEs: 'Fotógrafo profesional',  labelEn: 'Professional photographer' },
+      { id: 'videografo',    icon: '🎥', labelEs: 'Videógrafo',             labelEn: 'Videographer' },
+      { id: 'editor',        icon: '💻', labelEs: 'Editor de fotos y video',labelEn: 'Photo & video editor' },
+      { id: 'drone',         icon: '🚁', image: '/icons/fotografia_con_drone.webp', labelEs: 'Drone para eventos',     labelEn: 'Event drone' },
+      { id: 'photobooth',    icon: '📷', labelEs: 'Cabina de fotos',        labelEn: 'Photobooth' },
+
+      // Alquiler
+      { id: 'alq_sillas',    icon: '🪑', labelEs: 'Alquiler de sillas',     labelEn: 'Chair rental' },
+      { id: 'alq_mesas',     icon: '🪑', labelEs: 'Alquiler de mesas',      labelEn: 'Table rental' },
+      { id: 'alq_carpas',    icon: '⛺', labelEs: 'Alquiler de carpas',     labelEn: 'Tent rental' },
+      { id: 'alq_sonido',    icon: '🔊', labelEs: 'Alquiler de sonido',     labelEn: 'Sound rental' },
+      { id: 'alq_luces',     icon: '💡', labelEs: 'Alquiler de luces',      labelEn: 'Light rental' },
+      { id: 'alq_tarimas',   icon: '🎪', labelEs: 'Alquiler de tarimas',    labelEn: 'Stage rental' },
+      { id: 'alq_vajilla',   icon: '🍽️', labelEs: 'Alquiler de vajilla',    labelEn: 'Tableware rental' },
+      { id: 'alq_decoracion',icon: '🏺', labelEs: 'Alquiler de decoración', labelEn: 'Decoration rental' },
+
+      // Entretenimiento
+      { id: 'bartender',     icon: '🍾', labelEs: 'Bartender',              labelEn: 'Bartender' },
+      { id: 'catering',      icon: '🍱', labelEs: 'Catering',               labelEn: 'Catering' },
+      { id: 'chef_privado',  icon: '👨‍🍳', image: '/icons/chef.webp', labelEs: 'Chef privado / gourmet',  labelEn: 'Private / gourmet chef' },
+      { id: 'dj',            icon: '🎵', labelEs: 'Show en vivo / DJ',      labelEn: 'Live show / DJ' },
+      { id: 'payasos',       icon: '🤡', labelEs: 'Payasos / entretenimiento infantil', labelEn: 'Clowns / kids entertainment' },
+      { id: 'fuegos',        icon: '🎆', labelEs: 'Fuegos artificiales',    labelEn: 'Fireworks' },
+      { id: 'limusina',      icon: '🚗', labelEs: 'Servicio de limusina',   labelEn: 'Limousine service' },
+
+      // Servicios personales (Roles corporativos / eventos)
+      { id: 'acompanante_ev',icon: '🤝', image: '/icons/acompanante_a_evento.webp', labelEs: 'Acompañante a evento', labelEn: 'Event companion' },
+      { id: 'host',          icon: '🎤', labelEs: 'Host / Anfitrión Corporativo', labelEn: 'Corporate Host' },
+      { id: 'maestro_cer',   icon: '🎩', labelEs: 'Maestro de ceremonias',  labelEn: 'Master of ceremonies' },
+      { id: 'animador',      icon: '🎭', labelEs: 'Animador',               labelEn: 'Entertainer' },
+      { id: 'modelo',        icon: '💃', labelEs: 'Modelo para eventos',    labelEn: 'Event model' },
+      { id: 'seguridad',     icon: '🛡️', labelEs: 'Seguridad para eventos', labelEn: 'Event security' },
+    ]
+  },
+
+  // ── PERSONALIZADO ──
+  {
+    id: 'personalizado',
+    icon: '🎯',
+    image: '/icons/cat_personalizado.png',
+    labelEs: 'Personalizado',
+    labelEn: 'Custom',
+    subcategories: [
+      { id: 'custom', icon: '🎯', labelEs: 'Servicio personalizado', labelEn: 'Custom service' },
+    ]
+  },
+]
+
+// Helper para obtener todas las subcategorías flat
+export const ALL_SUBCATEGORIES = CATEGORIES.flatMap(cat =>
+  cat.subcategories.map(sub => ({ ...sub, parentId: cat.id, parentLabel: cat.labelEs }))
+)
+
+// Helper para obtener el plan de un profesional según su rating (Fallback por defecto)
+export const getPlan = (rating) => {
+  if (rating >= 4.8) return PLANS.vip
+  if (rating >= 4.5) return PLANS.platinum
+  if (rating >= 4.0) return PLANS.gold
+  return PLANS.basico
+}

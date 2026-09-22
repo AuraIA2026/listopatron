@@ -1,0 +1,890 @@
+import { useState, useEffect } from 'react'
+import { collection, query, where, getDocs, doc, updateDoc, arrayUnion, arrayRemove, addDoc, serverTimestamp, onSnapshot } from 'firebase/firestore'
+import { db } from '../firebase'
+import { CATEGORIES, ALL_SUBCATEGORIES } from '../categories'
+import { useUserData } from '../useUserData'
+import logoListo from '../assets/logo_listo.png'
+import './ProfessionalProfilePage.css'
+
+const txt = {
+  es: {
+    reviews: 'Reseñas',
+    photos: 'Trabajos Realizados',
+    book: 'Contratar',
+    chat: 'Enviar mensaje',
+    available: 'Disponible ahora',
+    busy: 'Ocupado',
+    writeReview: 'Escribe tu reseña',
+    reviewPlaceholder: 'Describe tu experiencia con este profesional...',
+    submitReview: 'Publicar reseña',
+    reviewTitle: 'Calificar a',
+    selectRating: 'Selecciona una calificación',
+    reviewSent: '¡Reseña publicada!',
+    reviewSentSub: 'Gracias por tu opinión',
+    noPhotos: 'Este profesional aún no ha subido fotos',
+    noReviews: 'Aún no hay reseñas',
+    noReviewsSub: 'Sé el primero en calificar',
+    addPhoto: 'Subir foto de trabajo',
+    photoUploaded: '¡Foto subida!',
+    jobs: 'trabajos',
+    years: 'años exp.',
+    viewAll: 'Ver todas',
+    hide: 'Ocultar',
+    service: 'Servicio',
+    verifiedPro: 'Profesional verificado',
+  },
+  en: {
+    reviews: 'Reviews',
+    photos: 'Work Completed',
+    book: 'Book service',
+    chat: 'Send message',
+    available: 'Available now',
+    busy: 'Busy',
+    writeReview: 'Write your review',
+    reviewPlaceholder: 'Describe your experience with this professional...',
+    submitReview: 'Post review',
+    reviewTitle: 'Rate',
+    selectRating: 'Select a rating',
+    reviewSent: 'Review posted!',
+    reviewSentSub: 'Thank you for your feedback',
+    noPhotos: 'This professional has not uploaded photos yet',
+    noReviews: 'No reviews yet',
+    noReviewsSub: 'Be the first to rate',
+    addPhoto: 'Upload work photo',
+    photoUploaded: 'Photo uploaded!',
+    jobs: 'jobs',
+    years: 'yrs exp.',
+    viewAll: 'View all',
+    hide: 'Hide',
+    service: 'Service',
+    verifiedPro: 'Verified professional',
+  }
+}
+
+const mockReviews = [
+  { id: 1, user: 'María López', avatar: 'ML', color: '#F26000', rating: 5, comment: 'Excelente trabajo, muy profesional y puntual. Lo recomiendo al 100%.', date: '20 Feb 2026', service: 'Instalación eléctrica' },
+  { id: 2, user: 'Pedro Sánchez', avatar: 'PS', color: '#C24D00', rating: 4, comment: 'Buen trabajo, llegó a tiempo y resolvió el problema rápido.', date: '15 Feb 2026', service: 'Reparación de circuito' },
+  { id: 3, user: 'Ana Rodríguez', avatar: 'AR', color: '#FF8533', rating: 5, comment: '¡Increíble! Muy limpio y ordenado. Ya lo contraté dos veces.', date: '10 Feb 2026', service: 'Instalación eléctrica' },
+  { id: 4, user: 'Luis García', avatar: 'LG', color: '#7A3000', rating: 3, comment: 'Buen trabajo pero llegó un poco tarde.', date: '5 Feb 2026', service: 'Reparación general' },
+]
+
+const compressImage = (file) => new Promise((resolve, reject) => {
+  const reader = new FileReader()
+  reader.onload = (e) => {
+    const img = new Image()
+    img.onload = () => {
+      const MAX = 600
+      let { width, height } = img
+      if (width > height) { if (width > MAX) { height = Math.round(height * MAX / width); width = MAX } }
+      else { if (height > MAX) { width = Math.round(width * MAX / height); height = MAX } }
+      const canvas = document.createElement('canvas')
+      canvas.width = width; canvas.height = height
+      canvas.getContext('2d').drawImage(img, 0, 0, width, height)
+      resolve(canvas.toDataURL('image/jpeg', 0.75))
+    }
+    img.onerror = reject; img.src = e.target.result
+  }
+  reader.onerror = reject; reader.readAsDataURL(file)
+})
+
+
+function Stars({ rating, interactive = false, onRate }) {
+  const [hovered, setHovered] = useState(0)
+  return (
+    <div className="stars-row">
+      {[1,2,3,4,5].map(n => (
+        <span
+          key={n}
+          className={`star ${n <= (interactive ? (hovered || rating) : rating) ? 'lit' : ''} ${interactive ? 'interactive' : ''}`}
+          onMouseEnter={() => interactive && setHovered(n)}
+          onMouseLeave={() => interactive && setHovered(0)}
+          onClick={() => interactive && onRate && onRate(n)}
+        >★</span>
+      ))}
+    </div>
+  )
+}
+
+function ReviewCard({ review }) {
+  return (
+    <div className="review-card">
+      <div className="review-top">
+        <div className="review-avatar" style={{ background: review.color }}>{review.avatar}</div>
+        <div className="review-meta">
+          <p className="review-user">{review.user}</p>
+          <p className="review-service">{review.service}</p>
+        </div>
+        <div className="review-right">
+          <Stars rating={review.rating} />
+          <p className="review-date">{review.date}</p>
+        </div>
+      </div>
+      <p className="review-comment">{review.comment}</p>
+    </div>
+  )
+}
+
+function PhotoGrid({ photos, lang, isOwnProfile, onUploadPhoto, onDeletePhoto, hasPendingWork }) {
+  const T = txt[lang]
+  const [lightbox, setLightbox] = useState(null)
+
+  const handleFileChange = (e) => {
+    const files = e.target.files
+    if (!files || files.length === 0) return
+    onUploadPhoto(files)
+    e.target.value = ''
+  }
+
+  return (
+    <div className="photo-section">
+      <input id="pro-work-upload" type="file" accept="image/*" multiple style={{ display: 'none' }} onChange={handleFileChange} />
+
+      {hasPendingWork && (
+        <div style={{ background: '#FFFBEB', border: '1px solid #FCD34D', borderRadius: '12px', padding: '12px 16px', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <span style={{ fontSize: '20px' }}>⏳</span>
+          <div>
+            <p style={{ margin: 0, fontWeight: '700', fontSize: '13px', color: '#92400E' }}>
+              {lang === 'es' ? 'Fotos de trabajos en revisión por el Administrador' : 'Work photos under Admin review'}
+            </p>
+            <p style={{ margin: '2px 0 0', fontSize: '11px', color: '#B45309' }}>
+              {lang === 'es' ? 'Tus fotos enviadas se publicarán en tu portafolio en cuanto sean autorizadas por Central de Mando.' : 'Your submitted photos will be published to your portfolio as soon as authorized.'}
+            </p>
+          </div>
+        </div>
+      )}
+      
+      {photos.length === 0 && !isOwnProfile && (
+         <div style={{ textAlign: 'center', padding: '40px 20px' }}>
+            <span style={{ fontSize: 40, display: 'block', marginBottom: 12 }}>📸</span>
+            <p style={{ fontWeight: 'bold', margin: 0, color: '#333' }}>{T.noPhotos}</p>
+         </div>
+      )}
+
+      <div className="photos-grid-title-wrap">
+        <h2 className="photos-grid-title">{T.photos}</h2>
+      </div>
+
+      <div className="photos-grid">
+        {isOwnProfile && (
+          <button className="photo-upload-btn-new" onClick={() => document.getElementById('pro-work-upload').click()}>
+            <span className="upload-icon">➕</span>
+            <span className="upload-text">Subir Trabajo</span>
+          </button>
+        )}
+        {photos.map((photo, index) => {
+          const photoUrl = typeof photo === 'string' ? photo : photo.url
+          const caption = typeof photo === 'string' ? 'Trabajo realizado' : (photo.caption || 'Trabajo realizado')
+          const photoId = typeof photo === 'string' ? `img-${index}` : (photo.id || index)
+          const isPortfolioPhoto = typeof photoId === 'string' && photoId.startsWith('port-')
+          const isMockPhoto = typeof photoId === 'string' && photoId.startsWith('mock-')
+
+          return (
+            <div key={photoId} className="photo-thumb-wrapper">
+              <button className="photo-thumb" onClick={() => setLightbox({ url: photoUrl, caption })}>
+                <img src={photoUrl} alt={caption} />
+                <div className="photo-overlay"><span>{caption}</span></div>
+              </button>
+              {isOwnProfile && !isMockPhoto && (
+                <button className="delete-photo-btn" onClick={(e) => { e.stopPropagation(); onDeletePhoto(photoUrl, isPortfolioPhoto) }} title="Eliminar foto">
+                  ✕
+                </button>
+              )}
+            </div>
+          )
+        })}
+      </div>
+
+      {lightbox && (
+        <div className="lightbox" onClick={() => setLightbox(null)}>
+          <div className="lightbox-content" onClick={e => e.stopPropagation()}>
+            <button className="lightbox-close" onClick={() => setLightbox(null)}>✕</button>
+            <img src={lightbox.url} alt={lightbox.caption} />
+            <p className="lightbox-caption">{lightbox.caption}</p>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function WriteReview({ lang, proName, onSubmit }) {
+  const T = txt[lang]
+  const [rating, setRating] = useState(0)
+  const [comment, setComment] = useState('')
+  const [service, setService] = useState('')
+  const [sent, setSent] = useState(false)
+
+  const handleSubmit = () => {
+    if (!rating || !comment.trim()) return
+    setSent(true)
+    onSubmit({ rating, comment, service })
+  }
+
+  if (sent) return (
+    <div className="review-sent">
+      <span>🎉</span>
+      <p>{T.reviewSent}</p>
+      <span className="review-sent-sub">{T.reviewSentSub}</span>
+    </div>
+  )
+
+  return (
+    <div className="write-review">
+      <p className="write-review-title">{T.reviewTitle} {proName}</p>
+      <Stars rating={rating} interactive onRate={setRating} />
+      {rating === 0 && <p className="rating-hint">{T.selectRating}</p>}
+      <input
+        className="review-service-input"
+        placeholder={T.service}
+        value={service}
+        onChange={e => setService(e.target.value)}
+      />
+      <textarea
+        className="review-textarea"
+        placeholder={T.reviewPlaceholder}
+        value={comment}
+        onChange={e => setComment(e.target.value)}
+        rows={3}
+      />
+      <button
+        className={`review-submit-btn ${rating && comment.trim() ? 'active' : ''}`}
+        disabled={!rating || !comment.trim()}
+        onClick={handleSubmit}
+      >
+        {T.submitReview}
+      </button>
+    </div>
+  )
+}
+
+const getPlanTemplate = (planId) => {
+  const p = (planId || '').toLowerCase()
+  if (p.includes('vip') || p.includes('elite') || p.includes('ilimitado')) {
+    return '/templates/VIP.png'
+  } else if (p.includes('platinum') || p.includes('platino')) {
+    return '/templates/PLATINUM.png'
+  } else if (p.includes('gold')) {
+    return '/templates/GOLD.png'
+  }
+  return '/templates/ESTANDAR.png'
+}
+
+const formatFirstNameAndInitial = (fullName) => {
+  if (!fullName) return ''
+  const parts = fullName.trim().split(/\s+/)
+  if (parts.length === 0) return ''
+  const firstName = parts[0]
+  const formattedFirst = firstName.charAt(0).toUpperCase() + firstName.slice(1).toLowerCase()
+  if (parts.length === 1) return formattedFirst
+  const lastInitial = parts[parts.length - 1][0] || ''
+  return `${formattedFirst} ${lastInitial.toLowerCase()}.`
+}
+
+const formatProfession = (category) => {
+  if (!category) return ''
+  return category.charAt(0).toUpperCase() + category.slice(1).toLowerCase()
+}
+
+const getProMemberSinceText = (proObj, lang = 'es') => {
+  if (proObj?.createdAt) {
+    try {
+      const date = proObj.createdAt.toDate ? proObj.createdAt.toDate() : new Date(proObj.createdAt)
+      return date.toLocaleDateString(lang === 'es' ? 'es-DO' : 'en-US', { month: 'short', year: 'numeric' })
+    } catch (e) {
+      console.error(e)
+    }
+  }
+  if (proObj?.verificacion?.fechaAprobacion) {
+    try {
+      const date = new Date(proObj.verificacion.fechaAprobacion)
+      return date.toLocaleDateString(lang === 'es' ? 'es-DO' : 'en-US', { month: 'short', year: 'numeric' })
+    } catch (e) {
+      console.error(e)
+    }
+  }
+  return lang === 'es' ? 'Reciente' : 'Recent'
+}
+
+export default function ProfessionalProfilePage({ lang = 'es', navigate, professional }) {
+  const T = txt[lang]
+  const { userData } = useUserData()
+
+  const pro = professional || {
+    name: 'Carlos Méndez', categoryEs: 'Mecánico', categoryEn: 'Mechanic',
+    icon: '🔧', rating: 4.9, reviews: 128, price: 'RD$800/hr',
+    location: 'Santo Domingo', avatar: 'CM', available: true, id: 1
+  }
+
+  const isOwnProfile = userData && (userData.uid === pro.id || userData.uid === pro.uid)
+  const displayPro = isOwnProfile ? userData : pro
+
+  const [activeTab, setActiveTab] = useState(pro.autoWriteReview ? 'reviews' : 'photos')
+  const [reviews, setReviews] = useState([])
+  const [proPhotos, setProPhotos] = useState([])
+  const [loadingReviews, setLoadingReviews] = useState(true)
+  const [showWriteReview, setShowWriteReview] = useState(pro.autoWriteReview || false)
+  const [showPhotoOptions, setShowPhotoOptions] = useState(false)
+  const [pendingRequests, setPendingRequests] = useState([])
+
+  useEffect(() => {
+    if (!isOwnProfile || !userData?.uid) return
+    const q = query(
+      collection(db, 'profile_edit_requests'),
+      where('userId', '==', userData.uid),
+      where('status', '==', 'pending')
+    )
+    const unsub = onSnapshot(q, (snap) => {
+      setPendingRequests(snap.docs.map(d => ({ id: d.id, ...d.data() })))
+    }, (err) => console.error(err))
+
+    return () => unsub()
+  }, [isOwnProfile, userData?.uid])
+
+  const hasPendingPhoto = pendingRequests.some(r => r.type === 'photo')
+  const hasPendingCover = pendingRequests.some(r => r.type === 'cover')
+  const hasPendingWork  = pendingRequests.some(r => r.type === 'work_photo')
+  const avatarColors = ['#F26000','#C24D00','#FF8533','#7A3000','#FFB380']
+  const proColor = avatarColors[displayPro.id % avatarColors.length] || '#F26000'
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const q = query(
+          collection(db, 'orders'),
+          where('proId', '==', displayPro.id || displayPro.uid)
+        )
+        const snapshot = await getDocs(q)
+        const fetchedReviews = []
+        const fetchedEvidences = []
+        let photoIdCounter = 1
+
+        snapshot.forEach(doc => {
+          const d = doc.data()
+          if (d.rated === true || typeof d.ratingScore === 'number') {
+            fetchedReviews.push({
+              id: doc.id,
+              user: d.reviewerName || d.clientName || 'Cliente',
+              avatar: (d.reviewerName || d.clientName || 'C').substring(0,2).toUpperCase(),
+              color: avatarColors[Math.floor(Math.random() * avatarColors.length)],
+              rating: d.ratingScore || 5,
+              comment: d.ratingComment || '',
+              date: d.dateToken || 'Reciente',
+              service: d.proSpecialty || d.specialty || 'Servicio General',
+              createdAt: d.createdAt?.seconds || 0
+            })
+          }
+          if (d.evidences && Array.isArray(d.evidences) && d.evidences.length > 0) {
+            d.evidences.forEach(url => {
+              fetchedEvidences.push({
+                id: photoIdCounter++,
+                url: url,
+                caption: d.evidenceText || d.specialty || d.proSpecialty || 'Evidencia de trabajo completado',
+                createdAt: d.createdAt?.seconds || 0
+              })
+            })
+          }
+        })
+        
+        fetchedEvidences.sort((a,b) => b.createdAt - a.createdAt)
+        setProPhotos(fetchedEvidences)
+
+        if (fetchedReviews.length === 0) {
+          setReviews([])
+        } else {
+          fetchedReviews.sort((a,b) => b.createdAt - a.createdAt)
+          setReviews(fetchedReviews)
+        }
+      } catch (e) {
+        console.error('Error fetching data:', e)
+        setReviews([])
+      } finally {
+        setLoadingReviews(false)
+      }
+    }
+    fetchData()
+  }, [displayPro.id, displayPro.uid])
+
+  const avgRating = reviews.length > 0 
+    ? (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1) 
+    : (displayPro.rating && Number(displayPro.rating) > 0 ? Number(displayPro.rating).toFixed(1) : '0.0')
+
+  const ratingDist = [5,4,3,2,1].map(n => ({
+    n,
+    count: reviews.filter(r => r.rating === n).length,
+    pct: reviews.length > 0 ? Math.round((reviews.filter(r => r.rating === n).length / reviews.length) * 100) : 0
+  }))
+
+  const handleNewReview = ({ rating, comment, service }) => {
+    setReviews(prev => [{
+      id: prev.length + 1,
+      user: 'Tú',
+      avatar: 'TU',
+      color: '#F26000',
+      rating,
+      comment,
+      date: 'Hoy',
+      service: service || 'Servicio general'
+    }, ...prev])
+    setShowWriteReview(false)
+  }
+
+  const handleCoverUpload = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    try {
+      const base64 = await compressImage(file)
+      
+      // Enviar solicitud de cambio de portada al administrador
+      const docRef = await addDoc(collection(db, 'profile_edit_requests'), {
+        userId: userData.uid,
+        userName: userData.name || displayPro.name,
+        requestedChanges: { coverURL: base64 },
+        status: 'pending',
+        createdAt: serverTimestamp(),
+        type: 'cover'
+      })
+
+      // Registrar notificación para el administrador
+      await addDoc(collection(db, 'notificaciones'), {
+        userId: 'admin',
+        fromUserId: userData.uid,
+        editRequestId: docRef.id,
+        userEmail: userData.email || '',
+        userName: userData.name || displayPro.name || 'Profesional',
+        requestedChanges: { coverURL: base64 },
+        type: 'new_edit_request_cover',
+        title: '🖼️ SOLICITUD DE CAMBIO DE PORTADA',
+        text: `El profesional ${userData.name || displayPro.name || 'Un profesional'} ha solicitado actualizar su foto de portada.`,
+        read: false,
+        createdAt: serverTimestamp(),
+        date: new Date().toISOString()
+      })
+
+      alert(lang === 'es' 
+        ? "Tu solicitud de cambio de foto de portada ha sido enviada al administrador para su aprobación. Se actualizará una vez sea aprobada por Central de Mando."
+        : "Your cover photo change request has been sent to the administrator for approval. It will update once approved by Central de Mando."
+      )
+    } catch (err) {
+      console.error("Error uploading cover request:", err)
+      alert(lang === 'es' ? "Error al enviar la solicitud de cambio de portada." : "Error sending cover change request.")
+    }
+  }
+
+  const handleAvatarUpload = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    try {
+      const base64 = await compressImage(file)
+      
+      // Enviar solicitud de cambio de foto al administrador
+      const docRef = await addDoc(collection(db, 'profile_edit_requests'), {
+        userId: userData.uid,
+        userName: userData.name || displayPro.name,
+        requestedChanges: { photoURL: base64 },
+        status: 'pending',
+        createdAt: serverTimestamp(),
+        type: 'photo'
+      })
+
+      // Registrar notificación para el administrador
+      await addDoc(collection(db, 'notificaciones'), {
+        userId: 'admin',
+        fromUserId: userData.uid,
+        editRequestId: docRef.id,
+        userEmail: userData.email || '',
+        userName: userData.name || displayPro.name || 'Profesional',
+        requestedChanges: { photoURL: base64 },
+        type: 'new_edit_request_photo',
+        title: '🖼️ SOLICITUD DE CAMBIO DE FOTO',
+        text: `El profesional ${userData.name || displayPro.name || 'Un profesional'} ha solicitado actualizar su foto de perfil.`,
+        read: false,
+        createdAt: serverTimestamp(),
+        date: new Date().toISOString()
+      })
+
+      alert(lang === 'es' 
+        ? "Tu solicitud de cambio de foto de perfil ha sido enviada al administrador para su aprobación. Se actualizará una vez sea aprobada por Central de Mando."
+        : "Your profile photo change request has been sent to the administrator for approval. It will update once approved by Central de Mando."
+      )
+    } catch (err) {
+      console.error("Error uploading avatar request:", err)
+      alert(lang === 'es' ? "Error al enviar la solicitud de cambio de foto." : "Error sending photo change request.")
+    }
+  }
+
+  const handleDeleteAvatar = async () => {
+    if (!window.confirm(lang === 'es' ? "¿Seguro que deseas eliminar tu foto de perfil?" : "Are you sure you want to delete your profile photo?")) return;
+    try {
+      await updateDoc(doc(db, 'users', userData.uid), {
+        photoURL: null
+      });
+      setShowPhotoOptions(false);
+      alert(lang === 'es' ? "Foto de perfil eliminada correctamente." : "Profile photo deleted successfully.");
+    } catch (err) {
+      console.error("Error al eliminar foto de perfil:", err);
+      alert(lang === 'es' ? "Error al eliminar la foto." : "Error deleting photo.");
+    }
+  };
+
+  const handleWorkUpload = async (files) => {
+    try {
+      const uploadPromises = Array.from(files).map(file => compressImage(file))
+      const base64Images = await Promise.all(uploadPromises)
+      
+      const currentPhotos = displayPro.photos || []
+      const updatedPhotos = [...currentPhotos, ...base64Images]
+
+      // Enviar solicitud de nuevo trabajo al administrador
+      const docRef = await addDoc(collection(db, 'profile_edit_requests'), {
+        userId: userData.uid,
+        userName: userData.name || displayPro.name,
+        requestedChanges: { photos: updatedPhotos },
+        status: 'pending',
+        createdAt: serverTimestamp(),
+        type: 'work_photo'
+      })
+
+      // Registrar notificación para el administrador
+      await addDoc(collection(db, 'notificaciones'), {
+        userId: 'admin',
+        fromUserId: userData.uid,
+        editRequestId: docRef.id,
+        userEmail: userData.email || '',
+        userName: userData.name || displayPro.name || 'Profesional',
+        requestedChanges: { photos: updatedPhotos },
+        type: 'new_edit_request_work',
+        title: '📷 SOLICITUD DE NUEVO TRABAJO',
+        text: `El profesional ${userData.name || displayPro.name || 'Un profesional'} ha solicitado subir fotos de trabajos realizados a su portafolio.`,
+        read: false,
+        createdAt: serverTimestamp(),
+        date: new Date().toISOString()
+      })
+
+      alert(lang === 'es' 
+        ? "Tu solicitud para subir fotos de trabajos realizados ha sido enviada al administrador para su aprobación. Se publicará una vez sea aprobada por Central de Mando."
+        : "Your request to upload completed work photos has been sent to the administrator for approval. It will publish once approved by Central de Mando."
+      )
+    } catch (err) {
+      console.error("Error uploading work request:", err)
+      alert(lang === 'es' ? "Error al enviar la solicitud de trabajo." : "Error sending work upload request.")
+    }
+  }
+
+  const handleDeleteWorkPhoto = async (photoUrl, isPortfolio) => {
+    try {
+      if (isPortfolio) {
+        await updateDoc(doc(db, 'users', userData.uid), {
+          photos: arrayRemove(photoUrl)
+        })
+      } else {
+        // Buscar el pedido que tenga esta evidencia y eliminarla
+        const q = query(collection(db, 'orders'), where('proId', '==', userData.uid))
+        const snap = await getDocs(q)
+        let targetOrderDocId = null
+        snap.forEach(docSnap => {
+          const ev = docSnap.data().evidences || []
+          if (ev.includes(photoUrl)) {
+            targetOrderDocId = docSnap.id
+          }
+        })
+        if (targetOrderDocId) {
+          await updateDoc(doc(db, 'orders', targetOrderDocId), {
+            evidences: arrayRemove(photoUrl)
+          })
+          setProPhotos(prev => prev.filter(p => p.url !== photoUrl))
+        }
+      }
+    } catch (err) {
+      console.error("Error deleting photo:", err)
+    }
+  }
+
+  // Combine manual photos and evidences
+  const portfolioPhotos = displayPro.photos || []
+  const allPhotos = [
+    ...portfolioPhotos.map((url, i) => ({ id: `port-${i}`, url, caption: 'Portafolio' })),
+    ...proPhotos.filter(ph => !portfolioPhotos.includes(ph.url))
+  ]
+
+  const finalPhotos = allPhotos
+
+  const getPlanDetails = (planId) => {
+    const p = (planId || '').toLowerCase()
+    if (p.includes('vip') || p.includes('elite') || p.includes('ilimitado')) {
+      return { label: 'PLAN VIP', medal: '👑', grad: 'linear-gradient(135deg, #F97316, #EF4444)' }
+    } else if (p.includes('platinum') || p.includes('platino')) {
+      return { label: 'PLAN PLATINUM', medal: '💎', grad: 'linear-gradient(135deg, #B0BEC5, #78909C)' }
+    } else if (p.includes('gold')) {
+      return { label: 'PLAN GOLD', medal: '⭐', grad: 'linear-gradient(135deg, #FDE047, #EAB308)' }
+    }
+    return { label: 'PLAN BÁSICO', medal: '🛠️', grad: 'linear-gradient(135deg, #94A3B8, #64748B)' }
+  }
+
+  const planInfo = getPlanDetails(displayPro.currentPlan || displayPro.planId || displayPro.plan)
+
+  return (
+    <div className="pro-profile-page">
+      {/* Ocultos inputs de archivos */}
+      <input id="pro-cover-upload" type="file" accept="image/*" style={{ display: 'none' }} onChange={handleCoverUpload} />
+      <input id="pro-avatar-upload" type="file" accept="image/*" style={{ display: 'none' }} onChange={handleAvatarUpload} />
+      <input id="pro-avatar-camera" type="file" accept="image/*" capture="user" style={{ display: 'none' }} onChange={handleAvatarUpload} />
+
+      {/* Header naranja superior de 25.png */}
+      <div className="pro-header-bar">
+        <button className="pro-back-btn-new" onClick={() => navigate('search')}>←</button>
+        <span className="pro-header-title">PERFIL PROFESIONAL</span>
+        <div className="pro-bell-wrap">
+          <span className="pro-bell-icon">🔔</span>
+          <span className="pro-bell-badge">1</span>
+        </div>
+      </div>
+
+      {/* Portada Cover */}
+      <div className="pro-cover">
+        <div 
+          className="pro-cover-bg"
+          style={{
+            backgroundImage: (displayPro.coverURL || displayPro.coverPhoto)
+              ? `url(${displayPro.coverURL || displayPro.coverPhoto})`
+              : (displayPro.photoURL || displayPro.profilePhoto || displayPro.img || displayPro.verificacion?.docs?.selfie)
+                ? `url(${displayPro.photoURL || displayPro.profilePhoto || displayPro.img || displayPro.verificacion?.docs?.selfie})`
+                : 'url("https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?w=800&q=80")'
+          }}
+        />
+        <div className="pro-cover-overlay" />
+        <div className="pro-logo-overlay">
+          <img src={logoListo} alt="Listo Patrón Logo" className="pro-logo-img" />
+        </div>
+
+        {/* Card de Plan Superpuesto */}
+        <div className="pro-plan-card-overlay" style={{
+          backgroundImage: `url(${getPlanTemplate(displayPro.currentPlan || displayPro.planId || displayPro.plan)})`
+        }}>
+          <div className="pro-card-overlay-text">
+            <span className="pro-card-overlay-name">{formatFirstNameAndInitial(displayPro.name)}</span>
+            <span className="pro-card-overlay-profession">{formatProfession(displayPro.category || displayPro.categoryEs || displayPro.specEs)}</span>
+          </div>
+        </div>
+
+        {isOwnProfile && (
+          <div style={{ position: 'absolute', top: '12px', right: '12px', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '6px', zIndex: 10 }}>
+            <button className="edit-cover-btn-facebook" onClick={() => document.getElementById('pro-cover-upload').click()} title="Cambiar Foto de Portada">
+              📷 {lang === 'es' ? 'Portada' : 'Cover'}
+            </button>
+            {hasPendingCover && (
+              <span style={{ background: 'rgba(245, 158, 11, 0.95)', color: '#fff', fontSize: '10px', fontWeight: '800', padding: '3px 8px', borderRadius: '12px', backdropFilter: 'blur(4px)', boxShadow: '0 2px 6px rgba(0,0,0,0.3)' }}>
+                ⏳ {lang === 'es' ? 'Portada en revisión' : 'Cover pending'}
+              </span>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Info del profesional */}
+      <div className="pro-info-section">
+        <div className="pro-avatar-wrap" onClick={isOwnProfile ? () => setShowPhotoOptions(true) : undefined} style={{ cursor: isOwnProfile ? 'pointer' : 'default', position: 'relative' }}>
+          {(displayPro.photoURL || displayPro.profilePhoto || displayPro.img || displayPro.verificacion?.docs?.selfie) ? (
+            <img 
+              src={displayPro.photoURL || displayPro.profilePhoto || displayPro.img || displayPro.verificacion?.docs?.selfie} 
+              alt={displayPro.name} 
+              className="pro-avatar-large" 
+              style={{ objectFit: 'cover' }} 
+            />
+          ) : (
+            <div className="pro-avatar-large" style={{ background: proColor }}>
+              {displayPro.avatar || pro.avatar || (displayPro.name ? displayPro.name.substring(0,2).toUpperCase() : 'P')}
+            </div>
+          )}
+
+          {hasPendingPhoto && (
+            <span style={{ position: 'absolute', bottom: '-8px', left: '50%', transform: 'translateX(-50%)', background: '#F59E0B', color: '#fff', fontSize: '9px', fontWeight: '800', padding: '2px 7px', borderRadius: '10px', whiteSpace: 'nowrap', zIndex: 10, boxShadow: '0 2px 6px rgba(0,0,0,0.2)' }}>
+              ⏳ {lang === 'es' ? 'En revisión' : 'Pending'}
+            </span>
+          )}
+
+          {isOwnProfile ? (
+            <button className="edit-avatar-btn" onClick={(e) => { e.stopPropagation(); setShowPhotoOptions(true); }} title="Cambiar Foto de Perfil">
+              ✏️
+            </button>
+          ) : (
+            <button className="pro-chat-floating-btn" onClick={(e) => { e.stopPropagation(); navigate('chat', displayPro); }} title="Enviar mensaje">
+              💬
+            </button>
+          )}
+        </div>
+
+        <div className="pro-info-main">
+          <p className="pro-location">📍 {displayPro.location}</p>
+          <div className="pro-badges">
+            <span className={`pro-status-badge ${displayPro.available ? 'avail' : 'busy'}`}>
+              {displayPro.available ? T.available : T.busy}
+            </span>
+            <span className="pro-verified-badge">✓ {T.verifiedPro}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Stats */}
+      <div className="pro-stats-row">
+        <div className="pro-stat">
+          <span className="pro-stat-num">★ {avgRating}</span>
+          <span className="pro-stat-label">{lang === 'es' ? 'Calificación' : 'Rating'}</span>
+        </div>
+        <div className="pro-stat-divider" />
+        <div className="pro-stat">
+          <span className="pro-stat-num">{reviews.length}</span>
+          <span className="pro-stat-label">{T.reviews}</span>
+        </div>
+        <div className="pro-stat-divider" />
+        <div className="pro-stat">
+          <span className="pro-stat-num">{displayPro.price || pro.price || 'A convenir'}</span>
+          <span className="pro-stat-label">Tarifa</span>
+        </div>
+        <div className="pro-stat-divider" />
+        <div className="pro-stat">
+          <span className="pro-stat-num">{getProMemberSinceText(displayPro, lang)}</span>
+          <span className="pro-stat-label">{lang === 'es' ? 'Miembro desde' : 'Member since'}</span>
+        </div>
+      </div>
+
+      {/* Tabs */}
+      <div className="pro-tabs">
+        <button className={`pro-tab ${activeTab === 'photos' ? 'active' : ''}`} onClick={() => setActiveTab('photos')}>
+          📷 {T.photos}
+        </button>
+        <button className={`pro-tab ${activeTab === 'reviews' ? 'active' : ''}`} onClick={() => setActiveTab('reviews')}>
+          ⭐ {T.reviews} ({reviews.length})
+        </button>
+      </div>
+
+      <div className="pro-tab-content">
+        {/* FOTOS Y EVIDENCIAS */}
+        {activeTab === 'photos' && (
+          <PhotoGrid 
+            photos={finalPhotos} 
+            lang={lang} 
+            isOwnProfile={isOwnProfile}
+            onUploadPhoto={handleWorkUpload}
+            onDeletePhoto={handleDeleteWorkPhoto}
+            hasPendingWork={hasPendingWork}
+          />
+        )}
+
+        {/* RESEÑAS */}
+        {activeTab === 'reviews' && (
+          <div className="reviews-section">
+            {/* Rating summary */}
+            <div className="rating-summary">
+              <div className="rating-big">
+                <span className="rating-num">{avgRating}</span>
+                <Stars rating={Math.round(avgRating)} />
+                <span className="rating-count">{reviews.length} {T.reviews}</span>
+              </div>
+              <div className="rating-bars">
+                {ratingDist.map(({ n, count, pct }) => (
+                  <div key={n} className="rating-bar-row">
+                    <span className="rbar-label">{n}★</span>
+                    <div className="rbar-track">
+                      <div className="rbar-fill" style={{ width: `${pct}%` }} />
+                    </div>
+                    <span className="rbar-count">{count}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Botón escribir reseña */}
+            {!isOwnProfile && (
+              <button className="write-review-toggle" onClick={() => setShowWriteReview(v => !v)}>
+                ✏️ {T.writeReview}
+              </button>
+            )}
+
+            {showWriteReview && !isOwnProfile && (
+              <WriteReview lang={lang} proName={displayPro.name} onSubmit={handleNewReview} />
+            )}
+
+            {/* Lista de reseñas */}
+            <div className="reviews-list">
+              {loadingReviews && <p style={{textAlign: 'center', color: '#666', padding: '20px'}}>{lang === 'es' ? 'Cargando reseñas...' : 'Loading reviews...'}</p>}
+              {!loadingReviews && reviews.length === 0 && (
+                 <div style={{ textAlign: 'center', padding: '40px 20px' }}>
+                    <span style={{ fontSize: 40 }}>⭐</span>
+                    <p style={{ fontWeight: 'bold', margin: '12px 0 4px' }}>{T.noReviews}</p>
+                    <p style={{ color: '#666', fontSize: 14 }}>{T.noReviewsSub}</p>
+                 </div>
+              )}
+              {!loadingReviews && reviews.map(review => (
+                <ReviewCard key={review.id} review={review} />
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+      <div style={{ height: 110 }} />
+
+      {/* Sticky Bottom Actions */}
+      {!isOwnProfile && (
+        <div className="pro-actions-sticky slide-up-anim">
+          {(() => {
+            let planClass = 'btn-plan-estandar';
+            if (planInfo.label.includes('VIP')) {
+              planClass = 'btn-plan-vip';
+            } else if (planInfo.label.includes('PLATINUM')) {
+              planClass = 'btn-plan-platinum';
+            } else if (planInfo.label.includes('GOLD')) {
+              planClass = 'btn-plan-gold';
+            }
+            
+            let icon = planInfo.medal;
+
+            const planStr = (displayPro.currentPlan || displayPro.planId || displayPro.plan || '').toLowerCase()
+            const isUnlimited = planStr.includes('vip') || planStr.includes('platinum') || planStr.includes('platino') || planStr.includes('elite') || planStr.includes('ilimitado')
+            
+            if (!isUnlimited && typeof displayPro.contracts !== 'undefined' && displayPro.contracts <= 0) {
+              return (
+                <button className="book-btn-premium" style={{ background: '#E0E0E0', color: '#888', boxShadow: 'none', cursor: 'not-allowed' }} disabled>
+                  🚫 {lang === 'es' ? 'Sin turnos disponibles' : 'No available slots'}
+                </button>
+              )
+            }
+            return (
+              <button className={`book-btn-premium ${planClass}`} onClick={() => navigate('booking', displayPro)}>
+                <span className="btn-star-anim btn-star-anim-1">✦</span>
+                <span className="btn-star-anim btn-star-anim-2">★</span>
+                {icon} {T.book}
+              </button>
+            )
+          })()}
+        </div>
+      )}
+      {showPhotoOptions && (
+        <div className="modal-overlay" onClick={() => setShowPhotoOptions(false)}>
+          <div className="modal-card" onClick={e => e.stopPropagation()}>
+            <span className="modal-icon">📸</span>
+            <h3 className="modal-title">{lang === 'es' ? 'Foto de perfil y portada' : 'Profile & Cover photo'}</h3>
+            <button className="modal-btn danger" style={{ background:'linear-gradient(135deg,#F26000,#C24E00)' }}
+              onClick={() => { setShowPhotoOptions(false); document.getElementById('pro-avatar-upload').click(); }}>
+              {lang === 'es' ? '📷 Cambiar foto de perfil (Galería)' : '📷 Change profile photo (Gallery)'}
+            </button>
+            <button className="modal-btn danger" style={{ background:'linear-gradient(135deg,#3B82F6,#2563EB)', marginTop:8 }}
+              onClick={() => { setShowPhotoOptions(false); document.getElementById('pro-avatar-camera').click(); }}>
+              {lang === 'es' ? '🤳 Tomar foto de perfil (Cámara)' : '🤳 Take profile photo (Camera)'}
+            </button>
+            <button className="modal-btn danger" style={{ background:'linear-gradient(135deg,#10B981,#059669)', marginTop:8 }}
+              onClick={() => { setShowPhotoOptions(false); document.getElementById('pro-cover-upload').click(); }}>
+              {lang === 'es' ? '🖼️ Cambiar foto de portada' : '🖼️ Change cover photo'}
+            </button>
+            {(displayPro.photoURL || displayPro.coverURL) && (
+              <button className="modal-btn danger" style={{ background:'#EF4444', marginTop:8 }}
+                onClick={handleDeleteAvatar}>
+                {lang === 'es' ? '🗑️ Eliminar foto actual' : '🗑️ Delete current photo'}
+              </button>
+            )}
+            <button className="modal-btn ghost" onClick={() => setShowPhotoOptions(false)}>{lang === 'es' ? 'Cancelar' : 'Cancel'}</button>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}

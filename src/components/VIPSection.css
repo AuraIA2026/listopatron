@@ -1,0 +1,630 @@
+/* ═══════════════════════════════════════════════
+   VIPSection.css — Profesionales VIP (Foto Grande)
+   ═══════════════════════════════════════════════ */
+
+.vip-hero-section {
+  margin: 0 16px 0;
+  padding: 0;
+  position: relative;
+}
+
+.vip-sec-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0px;
+  margin-top: 0px;
+}
+
+.vip-sec-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.vip-sec-title {
+  font-size: 19px;
+  font-weight: 900;
+  color: #1A1A2E;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.vip-crown-badge {
+  background: linear-gradient(135deg, #FFD700, #FFA500);
+  color: #1A1A2E;
+  font-size: 10px;
+  font-weight: 900;
+  padding: 3px 8px;
+  border-radius: 0px;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 8px rgba(255, 215, 0, 0.4);
+  text-transform: uppercase;
+}
+
+.vip-cards-container {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  scroll-snap-type: x mandatory;
+  padding: 0 12px 0px;
+  margin: 0;
+  align-items: stretch;
+}
+
+.vip-cards-container::-webkit-scrollbar {
+  display: none;
+}
+
+.vip-card-hero {
+  flex: 0 0 240px;
+  max-width: 240px;
+  scroll-snap-align: start;
+  background: #ffffff;
+  border-radius: 0px;
+  overflow: hidden;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.08);
+  border: 1.5px solid rgba(242, 96, 0, 0.12);
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  cursor: pointer;
+  animation: amzCardSlideIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+@media (min-width: 480px) {
+  .vip-card-hero {
+    flex: 0 0 240px;
+  }
+}
+
+.vip-card-hero:hover {
+  transform: translateY(-8px) scale(1.02);
+  border-color: rgba(242, 96, 0, 0.4);
+  box-shadow: 0 20px 40px rgba(242, 96, 0, 0.22);
+}
+
+/* Effect Shimmer Wave for Amazon Hero Card */
+.amz-shimmer-effect {
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transform: skewX(-20deg);
+  animation: amzShimmerWave 3.5s infinite;
+  pointer-events: none;
+}
+
+@keyframes amzShimmerWave {
+  0% { left: -100%; }
+  35% { left: 200%; }
+  100% { left: 200%; }
+}
+
+/* Inner Auto-Sliding Photo Carousel for Amazon Blue Hero Card */
+.amz-inner-carousel-wrapper {
+  position: relative;
+  width: 100%;
+  height: 160px;
+  margin: 10px 0;
+  border-radius: 0px;
+  overflow: hidden;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: transparent;
+}
+
+.amz-inner-carousel-track {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.amz-inner-slide {
+  flex: 0 0 100%;
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.amz-inner-slide-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.amz-inner-slide-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 24px 12px 10px;
+  background: linear-gradient(180deg, transparent 0%, rgba(0, 43, 122, 0.75) 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  color: white;
+}
+
+.amz-inner-slide-badge {
+  font-size: 10px;
+  font-weight: 900;
+  color: #FFD700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.amz-inner-slide-title {
+  font-size: 13px;
+  font-weight: 800;
+  color: #ffffff;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.amz-inner-dots {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  display: flex;
+  gap: 5px;
+  z-index: 5;
+}
+
+.amz-inner-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.4);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.amz-inner-dot.active {
+  background: #FF7A1A;
+  width: 16px;
+  border-radius: 10px;
+  box-shadow: 0 0 8px rgba(255, 122, 26, 0.8);
+}
+
+@keyframes amzCardSlideIn {
+  from { opacity: 0; transform: translateX(20px) scale(0.95); }
+  to { opacity: 1; transform: translateX(0) scale(1); }
+}
+
+/* ── CONTENEDOR FOTO VERTICAL (MÁS LARGA QUE ANCHA 3:4), SIN ESQUINAS RECORTADAS ── */
+.vip-photo-wrapper {
+  position: relative;
+  width: 100%;
+  height: 280px;
+  aspect-ratio: 3 / 4;
+  background: #1a1a2e;
+  overflow: hidden;
+  border-radius: 0px;
+}
+
+.vip-photo-large {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.vip-card-hero:hover .vip-photo-large {
+  transform: scale(1.08);
+}
+
+.vip-card-hero:hover .vip-photo-large {
+  transform: scale(1.05);
+}
+
+/* Overlay sutil para legibilidad */
+.vip-photo-gradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0) 40%, rgba(26,26,46,0.85) 100%);
+  pointer-events: none;
+}
+
+/* Badges sobre la foto gran tamaño */
+.vip-top-badges {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  right: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 2;
+}
+
+.vip-tag-platinum {
+  background: linear-gradient(135deg, #1A1A2E, #2A2A4A);
+  color: #FFD700;
+  font-size: 10px;
+  font-weight: 900;
+  padding: 5px 10px;
+  border-radius: 0px;
+  border: 1px solid rgba(255, 215, 0, 0.5);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  text-transform: uppercase;
+  max-width: 125px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.vip-tag-platinum.plan-badge-vip {
+  background: linear-gradient(135deg, #1A1A2E, #2563EB);
+  color: #FFD700;
+  border: 1px solid rgba(255, 215, 0, 0.7);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+}
+
+.vip-tag-platinum.plan-badge-platinum {
+  background: linear-gradient(135deg, #1E293B, #475569);
+  color: #E2E8F0;
+  border: 1px solid #94A3B8;
+  box-shadow: 0 4px 12px rgba(71, 85, 105, 0.4);
+}
+
+.vip-tag-platinum.plan-badge-gold {
+  background: linear-gradient(135deg, #78350F, #D97706);
+  color: #FEF08A;
+  border: 1px solid #F59E0B;
+  box-shadow: 0 4px 12px rgba(217, 119, 6, 0.4);
+}
+
+.vip-tag-platinum.plan-badge-standard {
+  background: linear-gradient(135deg, #1E3A8A, #3B82F6);
+  color: #FFFFFF;
+  border: 1px solid #60A5FA;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+.vip-tag-platinum.plan-badge-basico {
+  background: linear-gradient(135deg, #374151, #6B7280);
+  color: #F3F4F6;
+  border: 1px solid #9CA3AF;
+  box-shadow: 0 4px 12px rgba(107, 114, 128, 0.4);
+}
+
+.vip-tag-online {
+  background: rgba(34, 197, 94, 0.9);
+  backdrop-filter: blur(4px);
+  color: white;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 0px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.vip-online-pulse {
+  width: 7px;
+  height: 7px;
+  background: #ffffff;
+  border-radius: 50%;
+  animation: vipPulse 1.5s infinite;
+}
+
+@keyframes vipPulse {
+  0% { transform: scale(0.9); opacity: 0.8; }
+  50% { transform: scale(1.3); opacity: 1; }
+  100% { transform: scale(0.9); opacity: 0.8; }
+}
+
+/* Info superpuesta al pie de la foto */
+.vip-photo-bottom-info {
+  position: absolute;
+  bottom: 12px;
+  left: 14px;
+  right: 14px;
+  z-index: 2;
+  color: white;
+}
+
+.vip-name-spec-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 6px;
+}
+
+.vip-pro-name {
+  font-size: 19px;
+  font-weight: 900;
+  color: #ffffff;
+  margin: 0;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7), 0 0 20px rgba(255, 215, 0, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  letter-spacing: -0.2px;
+}
+
+.epic-name-anim {
+  animation: epicNameGlow 3s ease-in-out infinite alternate;
+}
+
+@keyframes epicNameGlow {
+  0% {
+    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.8), 0 0 10px rgba(255, 215, 0, 0.2);
+    transform: translateY(0);
+  }
+  100% {
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.9), 0 0 18px rgba(255, 215, 0, 0.6), 0 0 30px rgba(242, 96, 0, 0.4);
+    transform: translateY(-1px);
+  }
+}
+
+.vip-epic-crown-icon {
+  font-size: 16px;
+  display: inline-block;
+  animation: crownBounce 2.4s ease-in-out infinite;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
+}
+
+@keyframes crownBounce {
+  0%, 100% { transform: translateY(0) rotate(0deg) scale(1); }
+  50% { transform: translateY(-3px) rotate(8deg) scale(1.15); }
+}
+
+.vip-pro-spec {
+  font-size: 12px;
+  color: #FFB366;
+  font-weight: 900;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+.epic-spec-anim {
+  background: linear-gradient(90deg, #FFB366 0%, #FFD700 50%, #FF8533 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: epicSpecShimmer 3s linear infinite;
+}
+
+@keyframes epicSpecShimmer {
+  0% { background-position: 0% center; }
+  100% { background-position: 200% center; }
+}
+
+.vip-rating-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.vip-stars-badge {
+  background: rgba(255, 255, 255, 0.95);
+  color: #1A1A2E;
+  padding: 3px 8px;
+  border-radius: 0px;
+  font-size: 12px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+/* Badge de 5 Estrellas Épico */
+.vip-stars-badge.epic-5star-badge {
+  background: linear-gradient(135deg, #1A1A2E 0%, #2A2A4A 100%);
+  color: #FFD700;
+  border: 1px solid rgba(255, 215, 0, 0.6);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4), 0 0 12px rgba(255, 215, 0, 0.4);
+  padding: 4px 10px;
+  border-radius: 0px;
+  position: relative;
+  overflow: hidden;
+}
+
+.vip-stars-badge.epic-5star-badge::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.4), transparent);
+  transform: skewX(-20deg);
+  animation: starSweep 3s infinite;
+  pointer-events: none;
+}
+
+@keyframes starSweep {
+  0% { left: -100%; }
+  40% { left: 200%; }
+  100% { left: 200%; }
+}
+
+.vip-animated-stars {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.vip-star-pop {
+  color: #FFD700;
+  font-size: 12px;
+  display: inline-block;
+  opacity: 0;
+  transform: scale(0) rotate(-45deg);
+  animation: epicStarPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  filter: drop-shadow(0 0 4px rgba(255, 215, 0, 0.8));
+}
+
+@keyframes epicStarPop {
+  0% {
+    opacity: 0;
+    transform: scale(0) rotate(-45deg);
+  }
+  70% {
+    opacity: 1;
+    transform: scale(1.4) rotate(10deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+.vip-rating-score {
+  font-size: 12px;
+  font-weight: 900;
+  color: #FFFFFF;
+  margin-left: 2px;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+}
+
+.vip-reviews-count {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.85);
+  font-weight: 600;
+}
+
+/* Body / Detalles de la tarjeta VIP */
+.vip-card-body {
+  padding: 12px 14px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: #ffffff;
+  flex: 1;
+  justify-content: space-between;
+}
+
+.vip-highlights-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  min-height: 56px;
+  align-content: flex-start;
+}
+
+.vip-pill {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  color: #475569;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 0px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.vip-actions-row {
+  display: flex;
+  gap: 8px;
+  margin-top: auto;
+}
+
+.vip-btn-book {
+  flex: 1.2;
+  background: linear-gradient(135deg, #FF7A1A 0%, #F26000 50%, #C24D00 100%);
+  color: white;
+  border: none;
+  border-radius: 0px;
+  padding: 10px 8px;
+  font-size: 13px;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(242, 96, 0, 0.3);
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.vip-btn-book:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(242, 96, 0, 0.4);
+}
+
+.vip-btn-book:active {
+  transform: scale(0.95);
+}
+
+.vip-btn-profile-secondary {
+  flex: 1;
+  background: #ffffff;
+  color: #F26000;
+  border: 1.5px solid #F26000;
+  border-radius: 0px;
+  padding: 10px 8px;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.vip-btn-profile-secondary:hover {
+  background: #FFF5EE;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(242, 96, 0, 0.15);
+}
+
+.vip-btn-profile-secondary:active {
+  transform: scale(0.95);
+}
+
+/* Botón "Ver Perfil" flotante sobre la foto */
+.vip-photo-view-profile-btn {
+  position: absolute;
+  top: 44px;
+  right: 12px;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 0px;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+  z-index: 4;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+  transition: all 0.25s ease;
+}
+
+.vip-photo-view-profile-btn:hover {
+  background: #F26000;
+  border-color: #FF8533;
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 6px 18px rgba(242, 96, 0, 0.5);
+}
+
+.vip-photo-view-profile-btn:active {
+  transform: scale(0.95);
+}
+

@@ -1,0 +1,729 @@
+import { useState, useEffect, useRef, useMemo } from 'react'
+import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from 'react-leaflet'
+import { collection, addDoc, serverTimestamp, doc, updateDoc, onSnapshot, orderBy, query, setDoc, getDoc, deleteDoc } from 'firebase/firestore'
+import { db, auth } from '../firebase'
+import { Capacitor } from '@capacitor/core'
+import { registerPlugin } from '@capacitor/core'
+const BackgroundGeolocation = registerPlugin('BackgroundGeolocation')
+import L from 'leaflet'
+import 'leaflet/dist/leaflet.css'
+import './TrackingPage.css'
+import vanImg from '../assets/van_topdown.png'
+import { ReportModal } from './ChatPage'
+import CallModal from '../components/CallModal'
+import FloatingChat from '../components/FloatingChat'
+
+delete L.Icon.Default.prototype._getIconUrl
+L.Icon.Default.mergeOptions({
+  iconUrl: "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7",
+  shadowUrl: "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7",
+  iconRetinaUrl: "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7",
+  iconSize: [0, 0], shadowSize: [0, 0],
+})
+
+const clientIcon = L.divIcon({
+  className: '',
+  html: `<div class="map-marker client-marker"><div class="marker-pulse" style="inset:-6px"></div><div class="marker-icon">🏠</div></div>`,
+  iconSize: [40, 40], iconAnchor: [20, 20],
+})
+const createVanIcon = (imgSrc) => L.divIcon({
+  className: 'leaflet-van-icon',
+  html: `
+    <div class="van-marker-container">
+      <div class="van-marker-pulse"></div>
+      <img src="${imgSrc}" alt="van" class="van-marker-img" />
+    </div>
+  `,
+  iconSize: [44, 44], iconAnchor: [22, 22], popupAnchor: [0, -22],
+})
+const createWorkerIcon = () => L.divIcon({
+  className: 'leaflet-worker-icon',
+  html: `<div style="background:white;border-radius:50%;padding:4px;border:2px solid #F26000;box-shadow:0 4px 12px rgba(242,96,0,0.4);display:flex;align-items:center;justify-content:center;overflow:hidden;width:50px;height:50px;"><span style="font-size:28px;line-height:1;animation:workerFloat 2s ease-in-out infinite alternate;">👨‍🔧</span></div>`,
+  iconSize: [60, 60], iconAnchor: [30, 30], popupAnchor: [0, -30],
+})
+
+const CLIENT_POS    = [18.4745, -69.9310]
+const PRO_START     = [18.4920, -69.9050]
+const PRO_WAYPOINTS = [
+  [18.4920, -69.9050],[18.4870, -69.9120],[18.4820, -69.9180],
+  [18.4780, -69.9230],[18.4760, -69.9270],[18.4750, -69.9290],[18.4745, -69.9310],
+]
+const RETREAT_WAYPOINTS = [
+  [18.4745, -69.9310],[18.4760, -69.9280],[18.4790, -69.9240],
+  [18.4830, -69.9180],[18.4880, -69.9110],[18.4930, -69.9040],[18.5000, -69.8950],
+]
+
+const getChatId = (uid1, uid2) => uid1 < uid2 ? `${uid1}_${uid2}` : `${uid2}_${uid1}`
+
+const playChatMsgSound = () => {
+  try {
+    const selectedSound = localStorage.getItem('listo_sound_notif') || 'notification_v3';
+    const audio = new Audio(`/audio/${selectedSound}.mp3`)
+    audio.volume = 0.5; audio.loop = false
+    audio.play().catch(() => {})
+    setTimeout(() => { try { audio.pause(); audio.currentTime = 0 } catch(e) {} }, 1500)
+  } catch(e) {}
+}
+
+function lerp(a, b, t) { return a + (b - a) * t }
+
+function getDistanceInMeters(coord1, coord2) {
+  if (!coord1 || !coord2) return Infinity
+  const [lat1, lon1] = coord1
+  const [lat2, lon2] = coord2
+  const R = 6371e3 // Earth radius in meters
+  const dLat = (lat2 - lat1) * Math.PI / 180
+  const dLon = (lon2 - lon1) * Math.PI / 180
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2)
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+  return R * c
+}
+
+function SmoothMarker({ targetPos, icon, children, visible = true, isVan = false }) {
+  const markerRef = useRef(null), currentPos = useRef(targetPos)
+  const animFrameRef = useRef(null), startTimeRef = useRef(null), fromPos = useRef(targetPos)
+  const rotationRef = useRef(0)
+
+  const getBearing = (lat1, lng1, lat2, lng2) => {
+    const y = Math.sin((lng2 - lng1)*Math.PI/180) * Math.cos(lat2*Math.PI/180)
+    const x = Math.cos(lat1*Math.PI/180) * Math.sin(lat2*Math.PI/180) -
+              Math.sin(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) * Math.cos((lng2 - lng1)*Math.PI/180)
+    return (Math.atan2(y, x) * 180 / Math.PI + 360) % 360
+  }
+
+  useEffect(() => {
+    fromPos.current = [...currentPos.current]; startTimeRef.current = null
+    if (fromPos.current[0] !== targetPos[0] || fromPos.current[1] !== targetPos[1]) {
+      rotationRef.current = getBearing(fromPos.current[0], fromPos.current[1], targetPos[0], targetPos[1])
+    }
+    
+    if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current)
+    const animate = (ts) => {
+      if (!startTimeRef.current) startTimeRef.current = ts
+      const t = Math.min((ts - startTimeRef.current) / 2500, 1)
+      const e = t < 0.5 ? 2*t*t : -1+(4-2*t)*t
+      const lat = lerp(fromPos.current[0], targetPos[0], e)
+      const lng = lerp(fromPos.current[1], targetPos[1], e)
+      currentPos.current = [lat, lng]
+      
+      if (markerRef.current) {
+        markerRef.current.setLatLng([lat, lng])
+      }
+      if (t < 1) animFrameRef.current = requestAnimationFrame(animate)
+    }
+    animFrameRef.current = requestAnimationFrame(animate)
+    return () => { if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current) }
+  }, [targetPos[0], targetPos[1]]) // eslint-disable-line
+  
+  if (!visible) return null
+  // eslint-disable-next-line react-hooks/refs
+  return <Marker ref={markerRef} position={currentPos.current} icon={icon}>{children}</Marker>
+}
+
+/* ── Componentes de estado ─────────────────────────────────────────────────── */
+function WorkingAnimation({ lang }) {
+  const marqueeText = lang === 'es' ? 'TRABAJANDO • ' : 'WORKING • '
+  const repeatedMarquee = Array(8).fill(marqueeText).join('')
+
+  return (
+    <>
+      <style>{`
+        @keyframes workingPulse {
+          0% { transform: scale(0.96); opacity: 0.85; text-shadow: 0 0 4px rgba(255,255,255,0.4); }
+          100% { transform: scale(1.04); opacity: 1; text-shadow: 0 0 16px rgba(255,255,255,0.8), 0 0 24px rgba(255,255,255,0.4); }
+        }
+        @keyframes marqueeScroll {
+          0% { transform: translate3d(0, 0, 0); }
+          100% { transform: translate3d(-50%, 0, 0); }
+        }
+        .working-marquee-track {
+          position: absolute;
+          top: 35%;
+          left: 0;
+          width: 200%;
+          display: flex;
+          overflow: hidden;
+          white-space: nowrap;
+          pointer-events: none;
+          z-index: 1;
+          opacity: 0.12;
+        }
+        .working-marquee-content {
+          display: flex;
+          flex-shrink: 0;
+          font-size: 48px;
+          font-weight: 900;
+          color: #fff;
+          letter-spacing: 4px;
+          animation: marqueeScroll 15s linear infinite;
+        }
+      `}</style>
+      <div className="working-anim-wrap">
+        <div className="working-marquee-track">
+          <div className="working-marquee-content">{repeatedMarquee}{repeatedMarquee}</div>
+        </div>
+        <div className="working-scene professional-scene" style={{ width:'auto', height:'140px' }}>
+          <div className="professional-worker-emoji" style={{ fontSize:'90px', animation:'workerFloat 2.5s ease-in-out infinite alternate' }}>👨‍🔧</div>
+          <div className="sparks"><span className="spark s1">✦</span><span className="spark s2">★</span><span className="spark s3">✦</span></div>
+        </div>
+        <div style={{
+          marginTop: '12px',
+          color: '#fff',
+          fontWeight: 900,
+          fontSize: '22px',
+          letterSpacing: '1.5px',
+          textTransform: 'uppercase',
+          animation: 'workingPulse 1.5s ease-in-out infinite alternate',
+          zIndex: 2,
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px'
+        }}>
+          🔧 {lang === 'es' ? 'TRABAJANDO' : 'WORKING'}
+        </div>
+      </div>
+    </>
+  )
+}
+function VanRetreatAnimation({ lang }) {
+  return (
+    <div className="van-retreat-wrap">
+      <div className="van-retreat-scene"><div className="retreat-dust"><span className="dust d1">·</span><span className="dust d2">·</span><span className="dust d3">·</span></div></div>
+      <p className="retreat-label">{lang==='es'?'El profesional se está retirando...':'Professional is leaving...'}</p>
+    </div>
+  )
+}
+
+/* ── TratoScreen — SOLO para el PRO ─────────────────────────────────────────
+   El cliente ya no ve botones aquí, solo el pro confirma el trato
+───────────────────────────────────────────────────────────────────────────── */
+function TratoScreenPro({ lang, proName, onAccept, onDecline }) {
+  const safeName = proName && proName !== 'undefined' ? proName : (lang==='es'?'El profesional':'The professional')
+  return (
+    <div className="trato-screen fade-up">
+      <div className="trato-icon">🤝</div>
+      <h3 className="trato-title">{lang==='es'?'¿Cerramos el trato?':'Close the deal?'}</h3>
+      <p className="trato-sub">{lang==='es'?`Confirma que acordaste el trabajo con el cliente`:`Confirm you agreed on the job with the client`}</p>
+      <div className="trato-buttons">
+        <button className="trato-btn accept" onClick={onAccept}>✅ {lang==='es'?'Trato hecho':'Deal made'}</button>
+        <button className="trato-btn decline" onClick={onDecline}>❌ {lang==='es'?'Declinado':'Declined'}</button>
+      </div>
+    </div>
+  )
+}
+
+function TratoScreenUser({ lang, proName }) {
+  const safeName = proName && proName !== 'undefined' ? proName : (lang==='es'?'El profesional':'The professional')
+  return (
+    <div className="trato-screen fade-up">
+      <div className="trato-icon">⏳</div>
+      <h3 className="trato-title" style={{ fontSize:18 }}>
+        {lang==='es'?'Esperando confirmación del profesional':'Waiting for professional confirmation'}
+      </h3>
+      <p className="trato-sub">
+        {lang==='es'
+          ? `${safeName} está acordando los detalles del trabajo contigo`
+          : `${safeName} is agreeing on the job details with you`}
+      </p>
+    </div>
+  )
+}
+
+/* ── Efecto de Resize para el Mapa al abrir Teclado/Chat ─────────────── */
+function MapResizer() {
+  const map = useMap()
+  useEffect(() => {
+    const interval = setInterval(() => { map.invalidateSize() }, 300)
+    return () => clearInterval(interval)
+  }, [map])
+  return null
+}
+
+/* ── Efecto de Cámara Inteligente Estilo Uber ─────────────── */
+function MapBoundsFitter({ pos1, pos2 }) {
+  const map = useMap()
+  useEffect(() => {
+    if (pos1 && pos2) {
+      if (pos1[0] === pos2[0] && pos1[1] === pos2[1]) return
+      try {
+        const bounds = L.latLngBounds([pos1, pos2])
+        map.fitBounds(bounds, { padding: [60, 60], maxZoom: 16, animate: true, duration: 1 })
+      } catch (e) {}
+    }
+  }, [map, pos1[0], pos1[1], pos2[0], pos2[1]])
+  return null
+}
+
+/* ── Página principal ──────────────────────────────────────────────────────── */
+export default function TrackingPage({ lang = 'es', navigate, professional, userRole }) {
+  const targetName = professional?.clientName || professional?.pro || professional?.proName || professional?.name || 'Cliente/Profesional'
+  const targetAvT  = professional?.clientName?.substring(0,2).toUpperCase() || professional?.avatar || '👤'
+  const targetCat  = professional?.specialty || professional?.proSpecialty || professional?.category || 'Servicio'
+
+  const pro = {
+    name:     targetName,
+    avatar:   targetAvT,
+    color:    professional?.color    || '#F26000',
+    category: targetCat,
+    rating:   professional?.rating   || 5.0,
+    phone:    professional?.phone    || professional?.clientPhone || professional?.proPhone || null,
+    uid:      userRole === 'pro' ? (professional?.clientId || professional?.otherUid) : (professional?.proId || professional?.otherUid || professional?.uid),
+  }
+
+  const fallbackClientPos = [18.4745, -69.9310] // S.D. solo si falla todo
+  const cPos = professional?.coords && professional.coords.lat ? [professional.coords.lat, professional.coords.lng] : fallbackClientPos
+  const pPos = professional?.proCoords && professional.proCoords.lat ? [professional.proCoords.lat, professional.proCoords.lng] : [cPos[0] + 0.005, cPos[1]]
+
+  const [clientLoc,      setClientLoc]      = useState(cPos)
+  const [proPos,         setProPos]         = useState(pPos)
+  const [mapCenter,      setMapCenter]      = useState(cPos)
+
+  const [eta,            setEta]            = useState(professional?.estimatedTime || 15)
+  const [status,         setStatus]         = useState('on_way')
+  const [workStatus,     setWorkStatus]     = useState('tracking')
+  const [vanVisible,     setVanVisible]     = useState(true)
+  const [showChat,       setShowChat]       = useState(false)
+  const [showArrivingAlert, setShowArrivingAlert] = useState(false)
+  const [alertDismissed, setAlertDismissed] = useState(false)
+  const [paymentStatus, setPaymentStatus] = useState(professional?.paymentStatus || null)
+
+  // Audio llegada y notificación
+  const arrivingAudioRef    = useRef(null)
+  const arrivingSoundPlayed = useRef(false)
+  const arrivingTimerRef    = useRef(null)
+  const notificationSent    = useRef(false)
+
+  const playArrivingSound = () => {
+    if (arrivingSoundPlayed.current) return
+    arrivingSoundPlayed.current = true
+    try {
+      const selectedSound = localStorage.getItem('listo_sound_notif') || 'notification_v3';
+      const audio = new Audio(`/audio/${selectedSound}.mp3`)
+      audio.volume = 0.7; audio.loop = true
+      audio.play().catch(() => {})
+      arrivingAudioRef.current = audio
+      arrivingTimerRef.current = setTimeout(() => stopArrivingSound(), 30000)
+    } catch (e) {}
+  }
+  const stopArrivingSound = () => {
+    if (arrivingTimerRef.current) { clearTimeout(arrivingTimerRef.current); arrivingTimerRef.current = null }
+    if (arrivingAudioRef.current) { arrivingAudioRef.current.pause(); arrivingAudioRef.current.currentTime = 0; arrivingAudioRef.current = null }
+  }
+  useEffect(() => { return () => stopArrivingSound() }, [])
+
+  const vanIcon    = useMemo(() => createVanIcon(vanImg), [])
+  const workerIcon = useMemo(() => createWorkerIcon(), [])
+  const intervalRef = useRef(null)
+
+  // Sincronizar con el documento de la orden en Firestore
+  useEffect(() => {
+    if (!professional?.id) return
+    const unsub = onSnapshot(doc(db, 'orders', professional.id), (docSnap) => {
+      if (docSnap.exists()) {
+        const d = docSnap.data()
+        if (d.status === 'working') setWorkStatus('working')
+        if (d.status === 'done') setWorkStatus('done')
+        if (d.status === 'cancelled') setWorkStatus('declined_done')
+        if (d.status === 'arrived') { setStatus('arrived'); setWorkStatus('awaiting_deal'); stopArrivingSound() }
+        if (d.estimatedTime !== undefined) setEta(d.estimatedTime)
+        if (d.paymentStatus !== undefined) setPaymentStatus(d.paymentStatus)
+        
+        // Use real GPS coordinates if available
+        if (d.proCoords) setProPos([d.proCoords.lat, d.proCoords.lng])
+      }
+    })
+    return () => unsub()
+  }, [professional?.id])
+
+  // Alerta y notificación cuando el profesional está a menos de 30 metros del cliente
+  useEffect(() => {
+    if (userRole !== 'pro' && workStatus === 'tracking' && status !== 'arrived') {
+      const distance = getDistanceInMeters(clientLoc, proPos)
+      if (distance > 0 && distance <= 30) {
+        if (!alertDismissed) {
+          setShowArrivingAlert(true)
+          playArrivingSound()
+          
+          // Guardar notificación en la base de datos (solo una vez)
+          if (!notificationSent.current && professional?.id) {
+            notificationSent.current = true
+            addDoc(collection(db, 'notificaciones'), {
+              userId: auth.currentUser?.uid || 'unknown',
+              orderId: professional.id,
+              type: 'pro_arriving',
+              title: lang === 'es' ? '🚐 ¡Tu profesional está muy cerca!' : '🚐 Your professional is very close!',
+              text: lang === 'es' 
+                ? `${pro.name} está a menos de 30 metros de tu ubicación.` 
+                : `${pro.name} is less than 30 meters away from your location.`,
+              read: false,
+              icon: '🚐',
+              createdAt: serverTimestamp(),
+            }).catch(() => {})
+          }
+        }
+      } else {
+        setShowArrivingAlert(false)
+        setAlertDismissed(false) // Reiniciar cuando el profesional se aleje
+      }
+    } else {
+      setShowArrivingAlert(false)
+    }
+  }, [clientLoc, proPos, userRole, workStatus, status, alertDismissed, professional, lang, pro.name])
+
+  // GPS Tracking Real para el Profesional (Soporta Segundo Plano en Native)
+  useEffect(() => {
+    if (userRole !== 'pro' || !professional?.id || workStatus !== 'tracking' || status === 'arrived') return
+    
+    let watcherId = null
+
+    const startTracking = async () => {
+      if (Capacitor.isNativePlatform()) {
+        try {
+          watcherId = await BackgroundGeolocation.addWatcher(
+            {
+              backgroundMessage: "Tracking activo en camino al cliente.",
+              backgroundTitle: "Listo Patrón - En camino",
+              requestPermissions: true,
+              stale: false,
+              distanceFilter: 10
+            },
+            (location, error) => {
+              if (error) return console.error('BgGeo Error:', error)
+              if (!location) return
+              const { latitude, longitude } = location
+              setProPos([latitude, longitude])
+              updateDoc(doc(db, 'orders', professional.id), {
+                proCoords: { lat: latitude, lng: longitude }
+              }).catch(()=>{})
+            }
+          )
+        } catch (e) {
+          console.error("No se pudo iniciar background geolocation", e)
+        }
+      } else if (navigator.geolocation) {
+        watcherId = navigator.geolocation.watchPosition(
+          (pos) => {
+            const { latitude, longitude } = pos.coords
+            setProPos([latitude, longitude])
+            updateDoc(doc(db, 'orders', professional.id), {
+              proCoords: { lat: latitude, lng: longitude }
+            }).catch(()=>{})
+          },
+          (err) => console.error("GPS Error:", err),
+          { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+        )
+      }
+    }
+
+    startTracking()
+
+    return () => {
+      if (watcherId !== null) {
+        if (Capacitor.isNativePlatform()) {
+          BackgroundGeolocation.removeWatcher({ id: watcherId }).catch(()=>{})
+        } else if (navigator.geolocation) {
+          navigator.geolocation.clearWatch(watcherId)
+        }
+      }
+    }
+  }, [userRole, professional?.id, workStatus, status])
+
+  useEffect(() => {
+    if (workStatus !== 'retreating') return
+    
+    // Generar ruta de retirada dinámica basada en la ubicación del cliente
+    // Para no teletransportarse a Santo Domingo si están en otra ciudad
+    const dynamicRetreatWaypoints = [
+      clientLoc,
+      [clientLoc[0] + 0.0015, clientLoc[1] + 0.003],
+      [clientLoc[0] + 0.0045, clientLoc[1] + 0.007],
+      [clientLoc[0] + 0.0085, clientLoc[1] + 0.012],
+      [clientLoc[0] + 0.0135, clientLoc[1] + 0.019],
+      [clientLoc[0] + 0.0200, clientLoc[1] + 0.028],
+    ]
+
+    let idx = 0
+    const interval = setInterval(() => {
+      idx += 1
+      if (idx >= dynamicRetreatWaypoints.length) { clearInterval(interval); setVanVisible(false); setWorkStatus('declined_done'); return }
+      setProPos(dynamicRetreatWaypoints[idx])
+    }, 1500)
+    return () => clearInterval(interval)
+  }, [workStatus, clientLoc])
+
+  // ── PRO confirma trato → notifica al cliente ──────────────────────────────
+  const [tratoConfirming, setTratoConfirming] = useState(false)
+
+  const handleAccept = async () => {
+    stopArrivingSound()
+    setTratoConfirming(true) // inicia animación
+    setWorkStatus('working')  // cambia estado — cliente ve WorkingAnimation
+
+    try {
+      if (professional?.id) {
+        await updateDoc(doc(db, 'orders', professional.id), {
+          status: 'working',
+          workingStartedAt: serverTimestamp(),
+        })
+      }
+      if (professional?.clientId) {
+        await addDoc(collection(db, 'notificaciones'), {
+          userId:    professional.clientId,
+          orderId:   professional?.id || 'unknown',
+          type:      'trato_confirmed',
+          title:     lang === 'es' ? '🤝 ¡Trato Confirmado!' : '🤝 Deal Confirmed!',
+          text:      lang === 'es'
+            ? `${pro.name} confirmó el trato y ya está trabajando en tu solicitud.`
+            : `${pro.name} confirmed the deal and is already working on your request.`,
+          read:      false,
+          icon:      '🔧',
+          createdAt: serverTimestamp(),
+        })
+      }
+    } catch(e) { console.error(e) }
+
+    // Esperar animación y navegar a pedidos
+    setTimeout(() => navigate('orders'), 1200)
+  }
+
+
+  const handleDecline = () => {
+    stopArrivingSound()
+    setWorkStatus('retreating')
+    setProPos(RETREAT_WAYPOINTS[0])
+  }
+
+  const statusInfo = {
+    on_way:   { label: userRole==='pro' ? (lang==='es'?'En ruta':'En route') : (lang==='es'?'En camino':'On the way'),   color:'#F26000', icon:'🚐' },
+    arriving: { label: lang==='es'?'¡Llegando!':'Arriving!',   color:'#FF8533', icon:'⚡' },
+    arrived:  { label: lang==='es'?'¡Llegó!':'Arrived!',       color:'#3DBA74', icon:'✅' },
+  }
+  const current        = statusInfo[status] || statusInfo['on_way']
+  const getStatusIcon  = () => ({ working:'🔧', awaiting_deal:'🤝', retreating:'🚐', declined_done:'❌', done:'🎉' }[workStatus] || current.icon)
+  const getStatusColor = () => ({ working:'#0EA5E9', awaiting_deal:'#059669', retreating:'#EF4444', declined_done:'#EF4444', done:'#10B981' }[workStatus] || current.color)
+  const getStatusLabel = () => ({
+    working:       lang==='es'?'🔧 Trabajando':'🔧 Working',
+    awaiting_deal: lang==='es'?'🤝 Cerrando trato...':'🤝 Closing deal...',
+    retreating:    lang==='es'?'🚐 Retirándose...':'🚐 Leaving...',
+    declined_done: lang==='es'?'❌ Trato declinado':'❌ Deal declined',
+    done:          lang==='es'?'🎉 ¡Trabajo completado!':'🎉 Work completed!',
+  }[workStatus] || current.label)
+
+  const getStatusDesc = () => {
+    const n = pro.name && pro.name !== 'undefined' ? pro.name : (lang==='es'?'El profesional':'The professional')
+    return ({
+      working:       userRole==='pro' ? (lang==='es'?'Trabajando en el área':'Working on site') : (lang==='es'?'Realizando la labor acordada en tu ubicación':'Performing the agreed service'),
+      awaiting_deal: userRole==='pro'
+        ? (lang==='es'?'Confirma el trato para comenzar a trabajar':'Confirm the deal to start working')
+        : (lang==='es'?`${n} está acordando los detalles del trabajo`:`${n} is closing the deal`),
+      retreating:    userRole==='pro' ? (lang==='es'?'Te retiras del lugar':'Leaving the location') : (lang==='es'?'El profesional está saliendo de tu ubicación':'Professional is leaving your location'),
+      declined_done: userRole==='pro' ? (lang==='es'?'Trato declinado. Van retirándose.':'Deal declined. Van retreating.') : (lang==='es'?'El trato fue declinado. La van se retiró.':'Deal was declined. The van left.'),
+      done:          lang==='es'?'¡El servicio fue completado exitosamente!':'Service completed successfully!',
+    }[workStatus] || (
+      status==='arrived'  ? (userRole==='pro' ? (lang==='es'?'Llegaste a la ubicación del cliente':'You arrived at the client location') : (lang==='es'?`${n} ha llegado a tu ubicación`:`${n} has arrived`)) :
+      status==='arriving' ? (userRole==='pro' ? (lang==='es'?'Tú estás llegando al destino':'You are arriving at the destination') : (lang==='es'?'¡Tu profesional está a la vuelta!':'Just around the corner!')) :
+      (userRole==='pro' ? (lang==='es'?`Te diriges hacia la ubicación de ${n}`:`Heading to ${n}'s location`) : (lang==='es'?`${n} está en camino`:`${n} is on the way`))
+    ))
+  }
+
+  const flowSteps = [
+    { key:'confirmed', labelEs:'Confirmado', labelEn:'Confirmed' },
+    { key:'onway',     labelEs:'En camino',  labelEn:'On the way' },
+    { key:'arrived',   labelEs:'Llegó',      labelEn:'Arrived' },
+    { key:'trato',     labelEs:'Acuerdo',    labelEn:'Agreement' },
+    { key:'working',   labelEs:'Trabajando', labelEn:'Working' },
+    { key:'done',      labelEs:'Listo',      labelEn:'Done' },
+  ]
+  const currentFlowIdx = () => workStatus==='done'?5:workStatus==='working'?4:workStatus==='awaiting_deal'?3:status==='arrived'?2:1
+
+  return (
+    <div className="tracking-page">
+      <div className="tracking-header">
+        <button className="tracking-back" onClick={() => navigate('orders')}>←</button>
+        <div>
+          <h2 className="tracking-title">{lang==='es'?'Seguimiento en vivo':'Live tracking'}</h2>
+          <p className="tracking-sub">{lang==='es'?'Actualizado en tiempo real':'Updated in real time'}</p>
+        </div>
+        <div className="tracking-live-badge"><span className="live-dot" />LIVE</div>
+      </div>
+
+      <div className="tracking-map-wrap">
+        {showArrivingAlert && (
+          <div className="arriving-alert-box">
+            <span className="arriving-alert-bell">🔔</span>
+            <div style={{ flex: 1 }}>
+              <p className="arriving-alert-title">
+                <span className="arriving-alert-dot" />
+                {lang === 'es' ? '¡PROFESIONAL CERCA!' : 'PROFESSIONAL NEARBY!'}
+              </p>
+              <p className="arriving-alert-desc">
+                {lang === 'es' ? 'El profesional está a menos de 30 metros de tu ubicación.' : 'The professional is less than 30 meters away.'}
+              </p>
+            </div>
+            <button 
+              className="arriving-alert-close"
+              onClick={() => { setAlertDismissed(true); stopArrivingSound(); }}
+            >
+              ✕
+            </button>
+          </div>
+        )}
+        <MapContainer center={mapCenter} zoom={14} className="tracking-map" zoomControl={false} attributionControl={false}>
+          <MapResizer />
+          <MapBoundsFitter pos1={clientLoc} pos2={proPos} />
+          <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+          <Marker position={clientLoc} icon={clientIcon}><Popup>{lang==='es'?'Tu ubicación':'Your location'}</Popup></Marker>
+          {vanVisible && <SmoothMarker targetPos={proPos} icon={workStatus==='working'?workerIcon:vanIcon} visible={vanVisible} isVan={workStatus!=='working'}><Popup>{pro.name}</Popup></SmoothMarker>}
+          {workStatus === 'tracking' && (
+            <Polyline 
+              positions={[proPos, clientLoc]} 
+              color="#F26000" 
+              weight={4} 
+              opacity={0.85} 
+              dashArray="8, 12" 
+              lineCap="round"
+            />
+          )}
+        </MapContainer>
+        {workStatus==='tracking' && (
+          <div className="map-eta-pill" style={{ background:getStatusColor()+'22', borderColor:getStatusColor()+'44' }}>
+            <span className="eta-icon">{getStatusIcon()}</span>
+            <span className="eta-text" style={{ color:getStatusColor() }}>{status==='arrived'?getStatusLabel():`${eta} min`}</span>
+          </div>
+        )}
+      </div>
+
+      <div className="tracking-card">
+        {workStatus !== 'working' && (
+          <div className="tracking-status-bar"
+            style={{ background:getStatusColor()+'15', borderColor:getStatusColor()+'30' }}>
+            <span className="status-icon">{getStatusIcon()}</span>
+            <div style={{ flex:1 }}>
+              <p className="status-label" style={{ color:getStatusColor() }}>{getStatusLabel()}</p>
+              <p className="status-desc">{getStatusDesc()}</p>
+            </div>
+            {workStatus==='tracking' && status!=='arrived' && (
+              <div className="eta-countdown"><span className="eta-number">{eta}</span><span className="eta-unit">min</span></div>
+            )}
+          </div>
+        )}
+
+        {/* ── Trato: PRO ve botones, CLIENTE solo mensaje ── */}
+        {(workStatus==='awaiting_deal' || tratoConfirming) && userRole==='pro' && (
+          <div style={{ transition:'all 1.1s cubic-bezier(.4,0,.2,1)', transform:tratoConfirming?'scale(0.05) translateY(200px)':'scale(1) translateY(0)', opacity:tratoConfirming?0:1, transformOrigin:'center bottom' }}><TratoScreenPro lang={lang} proName={pro.name} onAccept={handleAccept} onDecline={handleDecline} /></div>
+        )}
+        {workStatus==='awaiting_deal' && userRole!=='pro' && (
+          <TratoScreenUser lang={lang} proName={pro.name} />
+        )}
+
+        {workStatus==='working'    && <WorkingAnimation lang={lang} />}
+        {workStatus==='retreating' && <VanRetreatAnimation lang={lang} />}
+
+        {workStatus==='declined_done' && (
+          <div className="declined-screen fade-up">
+            <div className="declined-icon">❌</div>
+            <p className="declined-title">{lang==='es'?'Trato declinado':'Deal declined'}</p>
+            <p className="declined-sub">{lang==='es'?'La van de Listo se ha retirado de tu ubicación.':'The Listo van has left your location.'}</p>
+            <button className="declined-btn" onClick={() => navigate('search')}>{lang==='es'?'Buscar otro profesional':'Find another professional'}</button>
+          </div>
+        )}
+
+        {!['declined_done'].includes(workStatus) && (
+          <>
+            <div className="tracking-pro-info">
+              <div className="tracking-pro-left">
+                <div className="tracking-avatar" style={{ background:pro.color }}>{pro.avatar}</div>
+                <div>
+                  <p className="tracking-pro-name">{pro.name}</p>
+                  <p className="tracking-pro-cat">{userRole==='pro' ? (lang==='es'?'Cliente':'Client') : pro.category}</p>
+                  {userRole !== 'pro' && <div className="tracking-pro-rating">★ {pro.rating}<span className="tracking-verified">✓ {lang==='es'?'Verificado':'Verified'}</span></div>}
+                </div>
+              </div>
+              <div className="tracking-pro-actions">
+                <button className="track-action-btn call" onClick={() => setShowChat(true)} style={{ opacity: pro.phone ? 1 : 0.4 }}>📞</button>
+                <button className="track-action-btn chat" onClick={() => setShowChat(true)}>💬</button>
+              </div>
+            </div>
+
+            <div className="tracking-steps">
+              {flowSteps.map((step, i) => (
+                <div key={step.key} className={`track-step ${currentFlowIdx()>=i?'done':''}`}>
+                  <div className="track-step-dot" />
+                  {i<flowSteps.length-1 && <div className="track-step-line" />}
+                  <span className="track-step-label">{lang==='es'?step.labelEs:step.labelEn}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* ── Acciones de tracking para el Pro ── */}
+            {workStatus==='tracking' && userRole==='pro' && status !== 'arrived' && (
+              <div style={{ marginTop: 16, display: 'flex', gap: 10 }}>
+                <button onClick={async () => {
+                   let nextEta = eta + 10;
+                   if (nextEta > 90) nextEta = 10;
+                   setEta(nextEta);
+                   try { await updateDoc(doc(db, 'orders', professional.id), { estimatedTime: nextEta }) } catch {}
+                }} style={{ padding:'14px 10px', borderRadius:14, border:'2px solid #F26000', background:'transparent', color:'#F26000', fontWeight:800, fontSize:14, cursor:'pointer', transition:'all 0.2s', minWidth: 90 }}>⏱️ {lang==='es'?'+10m':'+10m'}</button>
+                
+                <button onClick={async () => {
+                   try { await updateDoc(doc(db, 'orders', professional.id), { status: 'arrived' }) } catch {}
+                   setStatus('arrived'); setWorkStatus('awaiting_deal'); stopArrivingSound()
+                }} style={{ flex:1, padding:14, borderRadius:14, border:'none', background:'#F26000', color:'#fff', fontWeight:900, fontSize:15, boxShadow:'0 8px 30px rgba(242,96,0,0.4)', cursor:'pointer', animation: 'timerPulse 2s infinite' }}>✅ {lang==='es'?'¡Llegué a la ubicación!':'I arrived!'}</button>
+              </div>
+            )}
+
+            {/* ── Trabajando: pro ve info, usuario ve info ── */}
+            {workStatus==='working' && (
+              <div className="tracking-info-box" style={{ background:'#F0FDF4', padding:16, borderRadius:12, textAlign:'center', border:'1px dashed #34D399' }}>
+                <p style={{ margin:0, fontSize:14, color:'#065F46', fontWeight:700 }}>
+                  {userRole==='pro'
+                    ? (lang==='es'?'🔧 Cuando termines ve a Pedidos → Ver orden activa → ¡Listo Patrón!':'🔧 When done go to Orders → View active order → Done Boss!')
+                    : (lang==='es'?'🔧 El profesional está trabajando. Te notificaremos cuando termine.':'🔧 Professional is working. We will notify you when done.')
+                  }
+                </p>
+              </div>
+            )}
+
+            {workStatus==='done' && userRole==='user' && (
+              <div className="tracking-done-actions">
+                {['approved', 'pending_cash', 'paid', 'verifying'].includes(paymentStatus) ? (
+                  <button className="tracking-flow-btn pay-btn" style={{ background: '#94A3B8', cursor: 'not-allowed' }} disabled>
+                    💳 {lang==='es'?'Trabajo Pago':'Work Paid'}
+                  </button>
+                ) : (
+                  <button className="tracking-flow-btn pay-btn" onClick={() => navigate('payment', professional)}>
+                    💳 {lang==='es'?'Pagar ahora':'Pay now'}
+                  </button>
+                )}
+              </div>
+            )}
+
+            {workStatus==='done' && userRole==='pro' && (
+              <div className="tracking-done-actions">
+                <div className="tracking-info-box" style={{ background:'#ECFDF5', padding:16, borderRadius:12, textAlign:'center', border:'1px dashed #34D399', color:'#065F46' }}>
+                  <p style={{ margin:0, fontSize:15, fontWeight:'bold' }}>{lang==='es'?'🎉 ¡Trabajo Completado!':'🎉 Work Completed!'}</p>
+                  <p style={{ margin:'4px 0 0', fontSize:13 }}>{lang==='es'?'Esperando que el cliente realice el pago.':'Waiting for client to process payment.'}</p>
+                </div>
+              </div>
+            )}
+          </>
+        )}
+      </div>
+
+      {showChat && (
+        <FloatingChat 
+          otherUid={pro.uid} 
+          otherName={pro.name} 
+          otherColor={pro.color} 
+          otherPhone={pro.phone} 
+          lang={lang} 
+          onClose={() => setShowChat(false)} 
+          zIndex={5000}
+        />
+      )}
+    </div>
+  )
+}

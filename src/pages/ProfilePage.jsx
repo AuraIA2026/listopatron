@@ -977,7 +977,20 @@ export default function ProfilePage({ lang, setLang, navigate, onLogout, initial
             
             {(!hideUpgrade && (!userData?.planId || userData?.planId === 'basico' || userData?.currentPlan === 'basico' || localStorage.getItem('showUpgradeOverride_Listo_' + userData?.uid) === 'true')) && (
               <div style={{ position: 'relative', marginTop: '12px' }}>
-                <button data-tour="comprar-plan" className="perf-action" onClick={() => navigate('profile', { screen: 'verification' })} style={{ margin: 0, width: '100%' }}>
+                <button data-tour="comprar-plan" className="perf-action" onClick={(e) => {
+                  if (e) {
+                    if (e.stopPropagation) e.stopPropagation();
+                    if (e.preventDefault) e.preventDefault();
+                  }
+                  const webUrl = 'https://listopatron.vercel.app/#planes';
+                  try {
+                    if (typeof window !== 'undefined' && window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()) {
+                      window.open(webUrl, '_system');
+                      return;
+                    }
+                  } catch (err) {}
+                  window.location.href = webUrl;
+                }} style={{ margin: 0, width: '100%', cursor: 'pointer' }}>
                   <span>💎 {lang === 'es' ? 'Certificación & Verificación' : 'Certification & Verification'}</span>
                   <span style={{ fontSize: '18px' }}>›</span>
                 </button>

@@ -1,0 +1,466 @@
+// src/locales/CrearLocal.jsx
+import { useState } from 'react'
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore'
+import { db } from '../firebase'
+import './Locales.css'
+
+const compressImage = (file, maxRes = 600) => new Promise((resolve, reject) => {
+  const reader = new FileReader()
+  reader.onload = (e) => {
+    const img = new Image()
+    img.onload = () => {
+      let { width, height } = img
+      if (width > height) { if (width > maxRes) { height = Math.round(height * maxRes / width); width = maxRes } }
+      else { if (height > maxRes) { width = Math.round(width * maxRes / height); height = maxRes } }
+      const canvas = document.createElement('canvas')
+      canvas.width = width; canvas.height = height
+      canvas.getContext('2d').drawImage(img, 0, 0, width, height)
+      resolve(canvas.toDataURL('image/jpeg', 0.7))
+    }
+    img.onerror = reject; img.src = e.target.result
+  }
+  reader.onerror = reject; reader.readAsDataURL(file)
+})
+
+const ICONOS_SERVICIOS = ['🔧','🪛','🔨','🚿','⚡','🧹','🌿','🎨','🚗','💻','📦','🏗️','🔑','🪟','❄️']
+const METODOS_PAGO_OPTS = [
+  { id: 'transferencia', label: 'Transferencia 🏦' },
+  { id: 'tarjeta', label: 'Tarjeta 💳' }
+]
+
+export default function CrearLocal({ lang = 'es', navigate, userData }) {
+  const [step, setStep] = useState(1) // 1: Formulario, 2: Pago VIP
+  const [paymentType, setPaymentType] = useState('tarjeta')
+
+  const [nombre,        setNombre]        = useState('')
+  const [categoria,     setCategoria]     = useState('')
+  const [descripcion,   setDescripcion]   = useState('')
+  const [logoFile,      setLogoFile]      = useState(null)
+  const [logoPreview,   setLogoPreview]   = useState(null)
+  const [portadaFile,   setPortadaFile]   = useState(null)
+  const [portadaPreview,setPortadaPreview]= useState(null)
+  const [galeriaFiles,  setGaleriaFiles]  = useState([])
+  
+  const [whatsapp,      setWhatsapp]      = useState('')
+  const [instagram,     setInstagram]     = useState('')
+  const [horario,       setHorario]       = useState('Lunes a Viernes, 8:00 AM - 6:00 PM')
+  const [pagos,         setPagos]         = useState(['transferencia', 'tarjeta'])
+
+  const [servicios,     setServicios]     = useState([
+    { nombre: '', descripcion: '', tipoPrecio: 'fijo', precio: '', icono: '🔧' }
+  ])
+  const [profesionales, setProfesionales] = useState([])
+
+  const addProfesional = () => setProfesionales(prev => [...prev, { nombre: '', especialidad: '', whatsapp: '', fotoURL: '' }])
+  const removeProfesional = (idx) => setProfesionales(prev => prev.filter((_, i) => i !== idx))
+  const updateProfesional = (idx, field, value) => setProfesionales(prev => prev.map((p, i) => i === idx ? { ...p, [field]: value } : p))
+  
+  const [saving,  setSaving]  = useState(false)
+  const [error,   setError]   = useState(null)
+
+  const handleLogoChange = (e) => {
+    const file = e.target.files[0]; if (!file) return;
+    setLogoFile(file); setLogoPreview(URL.createObjectURL(file))
+  }
+  const handlePortadaChange = (e) => {
+    const file = e.target.files[0]; if (!file) return;
+    setPortadaFile(file); setPortadaPreview(URL.createObjectURL(file))
+  }
+  const handleGaleriaChange = (e) => {
+    const files = Array.from(e.target.files)
+    if (!files.length) return
+    const newItems = files.map(file => ({ file, preview: URL.createObjectURL(file) }))
+    setGaleriaFiles(prev => [...prev, ...newItems].slice(0, 6)) // Máx 6
+    e.target.value = ''
+  }
+  const removeGaleria = (idx) => {
+    setGaleriaFiles(prev => prev.filter((_, i) => i !== idx))
+  }
+  const handlePagoToggle = (id) => {
+    setPagos(prev => prev.includes(id) ? prev.filter(p => p !== id) : [...prev, id])
+  }
+  const addServicio = () => setServicios(prev => [...prev, { nombre: '', descripcion: '', tipoPrecio: 'fijo', precio: '', icono: '🔧' }])
+  const removeServicio = (idx) => setServicios(prev => prev.filter((_, i) => i !== idx))
+  const updateServicio = (idx, field, value) => setServicios(prev => prev.map((s, i) => i === idx ? { ...s, [field]: value } : s))
+
+  const irAlPago = () => {
+    if (!nombre.trim()) { setError(lang === 'es' ? 'El nombre es obligatorio' : 'Name is required'); return }
+    if (!userData?.uid) { setError(lang === 'es' ? 'Debes iniciar sesión' : 'You must be logged in'); return }
+    setError(null)
+    setStep(2)
+  }
+
+  const handleGuardar = async () => {
+    setSaving(true)
+    setError(null)
+    try {
+      let logoURL = null, portadaURL = null
+      
+      if (logoFile) {
+        logoURL = await compressImage(logoFile, 400)
+      }
+      if (portadaFile) {
+        portadaURL = await compressImage(portadaFile, 800)
+      }
+
+      const galeriaURLs = []
+      for (let i = 0; i < galeriaFiles.length; i++) {
+        const url = await compressImage(galeriaFiles[i].file, 800)
+        galeriaURLs.push(url)
+      }
+
+      await addDoc(collection(db, 'locales'), {
+        proId:        userData.uid,
+        proNombre:    userData.name || userData.displayName || 'Profesional',
+        nombre:       nombre.trim(),
+        categoria:    categoria.trim(),
+        descripcion:  descripcion.trim(),
+        logoURL, portadaURL,
+        whatsapp:     whatsapp.trim(),
+        instagram:    instagram.trim(),
+        horario:      horario.trim(),
+        pagos:        pagos,
+        servicios:    servicios.filter(s => s.nombre.trim()),
+        profesionales: profesionales.filter(p => p.nombre.trim()),
+        fotosTrabajos: galeriaURLs,
+        activo:       false, // Requiere aprobación del administrador
+        plan:         'vip',
+        suscripcionPaida: true,
+        rating:       userData.rating  || 5,
+        contratos:    userData.reviews || 0,
+        totalResenas: userData.reviews || 0,
+        createdAt:    serverTimestamp(),
+      })
+
+      // Enviar notificación al administrador
+      await addDoc(collection(db, 'notificaciones'), {
+        userId: 'admin',
+        type: 'new_vip_local_request',
+        title: '🏬 NUEVO LOCAL VIP REGISTRADO',
+        text: `El profesional ${userData.name || 'Un VIP'} ha registrado su Local VIP "${nombre.trim()}". Requiere aprobación de fotos.`,
+        read: false,
+        createdAt: serverTimestamp(),
+        date: new Date().toISOString()
+      })
+
+      alert(lang === 'es'
+        ? "¡Tu Local VIP ha sido registrado! Tu logo, portada y fotos del catálogo pasarán por una revisión de la Central de Mando antes de ser publicadas en la plataforma."
+        : "Your VIP Local has been registered! Your logo, cover, and catalog photos will undergo admin approval before being published."
+      )
+
+      navigate('profile')
+    } catch (e) {
+      console.error('Error creando local:', e)
+      setError(lang === 'es' ? 'Error al guardar. Intenta de nuevo.' : 'Error saving. Please try again.')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  if (step === 2) {
+    return (
+      <div className="crear-local-page">
+        <div className="crear-local-header" style={{ paddingBottom:20 }}>
+          <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:4 }}>
+            <button onClick={() => setStep(1)} className="crear-local-back">←</button>
+            <div className="crear-local-header-title">
+              <span style={{ fontSize: 24 }}>💳</span>
+              <h1>Suscripción VIP</h1>
+            </div>
+          </div>
+          <p className="crear-local-header-sub">Estás a un paso de activar tu Local VIP. Membresía: RD$ 10,000 / mes.</p>
+        </div>
+
+        <div className="crear-local-form">
+          <div className="crear-local-section" style={{ textAlign:'center', background:'linear-gradient(135deg, rgba(212,175,55,0.08), rgba(212,175,55,0.02))' }}>
+            <h2 style={{ fontSize:32, color:'var(--vip-gold)', margin:'0 0 8px', fontWeight:900 }}>RD$ 10,000</h2>
+            <p style={{ color:'var(--vip-text-secondary)', fontSize:13, margin:0, fontWeight:600 }}>/ Mensual</p>
+          </div>
+
+          <div className="crear-local-section">
+            <h2 className="cls-title">Método de pago de Listo Patrón</h2>
+            <div style={{ display:'flex', gap:10, marginBottom:16 }}>
+               <button onClick={() => setPaymentType('tarjeta')} style={{ flex:1, padding:12, borderRadius:12, border:paymentType==='tarjeta' ? '2px solid var(--vip-gold)' : '1px solid rgba(255,255,255,0.08)', background:paymentType==='tarjeta'?'rgba(212,175,55,0.08)':'rgba(255,255,255,0.02)', color:paymentType==='tarjeta'?'var(--vip-gold)':'#ccc', fontWeight:800, cursor:'pointer', transition:'all 0.2s' }}>💳 Tarjeta</button>
+               <button onClick={() => setPaymentType('transferencia')} style={{ flex:1, padding:12, borderRadius:12, border:paymentType==='transferencia' ? '2px solid var(--vip-gold)' : '1px solid rgba(255,255,255,0.08)', background:paymentType==='transferencia'?'rgba(212,175,55,0.08)':'rgba(255,255,255,0.02)', color:paymentType==='transferencia'?'var(--vip-gold)':'#ccc', fontWeight:800, cursor:'pointer', transition:'all 0.2s' }}>🏦 Transferencia</button>
+            </div>
+
+            {paymentType === 'tarjeta' ? (
+              <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
+                
+                {/* Credit Card Mockup */}
+                <div className="premium-card-mockup">
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div className="card-mock-chip"></div>
+                    <span className="card-mock-type">VIP MEMBER</span>
+                  </div>
+                  <div className="card-mock-number">•••• •••• •••• ••••</div>
+                  <div className="card-mock-footer">
+                    <div>
+                      <div className="card-mock-label">Titular de Tarjeta</div>
+                      <div className="card-mock-val">{nombre.trim().toUpperCase() || (userData?.name || 'VIP Member').toUpperCase()}</div>
+                    </div>
+                    <div>
+                      <div className="card-mock-label">Vence</div>
+                      <div className="card-mock-val">MM/AA</div>
+                    </div>
+                    <div className="card-mock-logo-text">👑 LISTO</div>
+                  </div>
+                </div>
+
+                <input className="crear-local-input" placeholder="Número de Tarjeta (Ej: 4111 2222 3333 4444)" />
+                <div style={{ display:'flex', gap:10 }}>
+                  <input className="crear-local-input" placeholder="MM/AA" style={{ flex:1 }} />
+                  <input className="crear-local-input" placeholder="CVC" style={{ flex:1 }} />
+                </div>
+                <input className="crear-local-input" placeholder="Nombre en la Tarjeta" />
+              </div>
+            ) : (
+              <div style={{ background:'rgba(255,255,255,0.02)', padding:16, borderRadius:12, border:'1px solid rgba(255,255,255,0.06)' }}>
+                <p style={{ fontSize:13, color:'var(--vip-text-secondary)', margin:'0 0 12px', lineHeight:1.5 }}>
+                  Realiza el depósito de <strong>RD$ 10,000</strong> a la siguiente cuenta y envía tu comprobante a nuestro soporte. Tu Local VIP se publicará inmediatamente.
+                </p>
+                <div style={{ background:'rgba(0,0,0,0.2)', padding:12, borderRadius:8, border:'1px solid rgba(212,175,55,0.15)' }}>
+                  <p style={{ margin:'0 0 6px', fontSize:14, fontWeight:800, color:'var(--vip-gold)' }}>Banco Popular</p>
+                  <p style={{ margin:'0 0 4px', fontSize:13, color:'var(--vip-text-secondary)' }}>Cuenta Corriente: <strong style={{ color:'#fff' }}>123456789</strong></p>
+                  <p style={{ margin:0, fontSize:13, color:'var(--vip-text-secondary)' }}>A nombre de: <strong style={{ color:'#fff' }}>Listo Patrón SRL</strong></p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {error && <div className="cl-error-toast">⚠️ {error}</div>}
+
+          <button className="crear-local-save-btn glow" onClick={handleGuardar} disabled={saving}>
+            {saving ? '⏳ Procesando...' : '🚀 Pagar y Publicar Local VIP'}
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="crear-local-page">
+      <div className="crear-local-header">
+        <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:4 }}>
+          <button onClick={() => navigate('profile')} className="crear-local-back">←</button>
+          <div className="crear-local-header-title">
+            <span style={{ fontSize: 24 }}>🏢</span>
+            <h1>{lang === 'es' ? 'Mi Local VIP' : 'My VIP Shop'}</h1>
+          </div>
+        </div>
+        <p className="crear-local-header-sub">
+          {lang === 'es' ? 'Paso 1: Diseña tu escaparate profesional.' : 'Step 1: Design your storefront.'}
+        </p>
+      </div>
+
+      <div className="crear-local-form">
+        <div className="crear-local-section">
+          <h2 className="cls-title">🎨 {lang === 'es' ? 'Identidad Visual' : 'Visual Identity'}</h2>
+          <div className="cls-grid">
+            <div className="crear-local-field">
+              <label className="crear-local-label">🖼️ Logo del negocio</label>
+              <label className="crear-local-upload">
+                {logoPreview ? <img src={logoPreview} alt="logo" className="cl-preview-img-logo" /> : <><span className="cl-upload-ico">📷</span><span className="cl-upload-txt">Subir Logo</span></>}
+                <input type="file" accept="image/*" style={{ display:'none' }} onChange={handleLogoChange} />
+              </label>
+            </div>
+            <div className="crear-local-field">
+              <label className="crear-local-label">🏞️ Foto de Portada</label>
+              <label className="crear-local-upload covertop">
+                {portadaPreview ? <img src={portadaPreview} alt="portada" className="cl-preview-img-cover" /> : <><span className="cl-upload-ico">🏞️</span><span className="cl-upload-txt">Subir Portada</span></>}
+                <input type="file" accept="image/*" style={{ display:'none' }} onChange={handlePortadaChange} />
+              </label>
+            </div>
+          </div>
+        </div>
+
+        {/* SECCIÓN 1.5: GALERÍA DE TRABAJOS */}
+        <div className="crear-local-section">
+          <h2 className="cls-title">📷 {lang === 'es' ? 'Trabajos Realizados' : 'Completed Work'}</h2>
+          <p className="cls-subtitle">{lang === 'es' ? 'Sube fotos del "antes y después" o de tus mejores proyectos (Máx. 6).' : 'Upload photos of your best previous works (Max 6)'}</p>
+          <div className="cl-galeria-grid">
+            {galeriaFiles.map((fObj, i) => (
+              <div key={i} className="cl-galeria-item">
+                <img src={fObj.preview} alt={`Trabajo ${i+1}`} className="cl-galeria-img" />
+                <button className="cl-galeria-del" onClick={() => removeGaleria(i)}>✕</button>
+              </div>
+            ))}
+            {galeriaFiles.length < 6 && (
+              <label className="cl-galeria-add">
+                <span style={{ fontSize: 24, marginBottom: 2 }}>+</span>
+                <span style={{ fontSize: 11, fontWeight: 700, textAlign: 'center' }}>Añadir Foto<br/>({galeriaFiles.length}/6)</span>
+                <input type="file" multiple accept="image/*" style={{ display:'none' }} onChange={handleGaleriaChange} />
+              </label>
+            )}
+          </div>
+        </div>
+
+        <div className="crear-local-section">
+          <h2 className="cls-title">📝 {lang === 'es' ? 'Información General' : 'General Info'}</h2>
+          <div className="crear-local-field">
+            <label className="crear-local-label">Nombre del local</label>
+            <input className="crear-local-input" placeholder="Ej: Plomería Express RD" value={nombre} onChange={e => setNombre(e.target.value)} />
+          </div>
+          <div className="crear-local-field">
+            <label className="crear-local-label">Categoría Especializada</label>
+            <input className="crear-local-input" placeholder="Ej: Instalaciones Eléctricas, Tutorías..." value={categoria} onChange={e => setCategoria(e.target.value)} />
+          </div>
+          <div className="crear-local-field">
+            <label className="crear-local-label">Descripción Atractiva</label>
+            <textarea className="crear-local-textarea" placeholder="Convence a tus clientes por qué eres el mejor..." value={descripcion} onChange={e => setDescripcion(e.target.value)} />
+          </div>
+        </div>
+
+        <div className="crear-local-section">
+          <h2 className="cls-title">⚙️ {lang === 'es' ? 'Operaciones y Contacto' : 'Operations & Contact'}</h2>
+          <div className="crear-local-field">
+            <label className="crear-local-label">🕒 Horarios de Atención</label>
+            <input className="crear-local-input" placeholder="Ej: Lun-Vie 8am - 6pm, Sábados 9am - 2pm" value={horario} onChange={e => setHorario(e.target.value)} />
+          </div>
+          <div className="crear-local-field">
+            <label className="crear-local-label">📱 WhatsApp del Negocio (Opcional)</label>
+            <input className="crear-local-input" placeholder="+1 809-000-0000" value={whatsapp} onChange={e => setWhatsapp(e.target.value)} />
+          </div>
+          <div className="crear-local-field">
+            <label className="crear-local-label">📸 Usuario de Instagram (Opcional)</label>
+            <input className="crear-local-input" placeholder="@tu_negocio_rd" value={instagram} onChange={e => setInstagram(e.target.value)} />
+          </div>
+          <div className="crear-local-field">
+            <label className="crear-local-label">💳 Métodos de Pago Aceptados</label>
+            <div className="cl-pagos-grid">
+              {METODOS_PAGO_OPTS.map(p => (
+                <label key={p.id} className={`cl-pago-opt ${pagos.includes(p.id) ? 'active' : ''}`}>
+                  <input type="checkbox" checked={pagos.includes(p.id)} onChange={() => handlePagoToggle(p.id)} style={{ display:'none' }} />
+                  {p.label}
+                </label>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="crear-local-section">
+          <h2 className="cls-title">🛠️ {lang === 'es' ? 'Catálogo de Servicios' : 'Service Catalog'}</h2>
+          <p className="cls-subtitle">Ofrece opciones claras. Agrega desde productos físicos hasta servicios por hora.</p>
+          <div className="cl-servicios-list">
+            {servicios.map((srv, idx) => (
+              <div key={idx} className="cl-servicio-card">
+                {servicios.length > 1 && <button className="cl-servicio-delete" onClick={() => removeServicio(idx)}>✕</button>}
+                
+                <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+                  <label className="cl-service-photo-upload" style={{
+                    width: 70, height: 70, borderRadius: 10, border: '2px dashed #ccc',
+                    display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                    cursor: 'pointer', overflow: 'hidden', flexShrink: 0, background: '#fafafa', position: 'relative'
+                  }}>
+                    {srv.fotoURL ? (
+                      <img src={srv.fotoURL} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="Srv" />
+                    ) : (
+                      <div style={{ textAlign: 'center', display:'flex', flexDirection:'column', alignItems:'center' }}>
+                        <span style={{ fontSize: 16 }}>📷</span>
+                        <span style={{ fontSize: 9, fontWeight: 700, color: '#888', marginTop: 2 }}>Foto</span>
+                      </div>
+                    )}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      style={{ display: 'none' }}
+                      onChange={async (e) => {
+                        const file = e.target.files[0]
+                        if (file) {
+                          try {
+                            const base64 = await compressImage(file, 400)
+                            updateServicio(idx, 'fotoURL', base64)
+                          } catch (err) { console.error(err) }
+                        }
+                      }}
+                    />
+                  </label>
+                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4 }}>
+                    <input className="crear-local-input slim" placeholder="Nombre del producto/servicio" value={srv.nombre} onChange={e => updateServicio(idx, 'nombre', e.target.value)} />
+                    <input className="crear-local-input slim text-sm" placeholder="Descripción breve (opcional)" value={srv.descripcion} onChange={e => updateServicio(idx, 'descripcion', e.target.value)} />
+                  </div>
+                </div>
+
+                <div className="cls-ico-scroll" style={{ marginTop: 4 }}>
+                  {ICONOS_SERVICIOS.map(ico => (
+                    <button key={ico} className={`cls-ico-btn ${srv.icono === ico ? 'active' : ''}`} onClick={() => updateServicio(idx, 'icono', ico)}>{ico}</button>
+                  ))}
+                </div>
+                
+                <div className="cl-price-row">
+                  <select className="cl-price-select" value={srv.tipoPrecio} onChange={e => updateServicio(idx, 'tipoPrecio', e.target.value)}>
+                    <option value="fijo">Precio Fijo</option>
+                    <option value="desde">A partir de</option>
+                    <option value="convenir">A convenir</option>
+                  </select>
+                  {srv.tipoPrecio !== 'convenir' && (
+                    <input className="crear-local-input slim cl-money" placeholder="RD$ 1,500" value={srv.precio} onChange={e => updateServicio(idx, 'precio', e.target.value)} />
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+          <button className="cl-add-servicio-btn" onClick={addServicio}>+ {lang === 'es' ? 'Añadir otro servicio' : 'Add service'}</button>
+        </div>
+
+        {/* 👥 SECCIÓN: EQUIPO DE PROFESIONALES */}
+        <div className="crear-local-section">
+          <h2 className="cls-title">👥 {lang === 'es' ? 'Equipo de Profesionales (Máx. 3)' : 'Team of Professionals (Max 3)'}</h2>
+          <p className="cls-subtitle">{lang === 'es' ? 'Agrega a los profesionales que trabajan en tu local para permitir que los clientes reserven con ellos.' : 'Add professionals working at your shop to let clients book with them.'}</p>
+          <div className="cl-servicios-list">
+            {profesionales.map((prof, idx) => (
+              <div key={idx} className="cl-servicio-card">
+                <button className="cl-servicio-delete" onClick={() => removeProfesional(idx)}>✕</button>
+                
+                <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+                  <label className="cl-service-photo-upload" style={{
+                    width: 70, height: 70, borderRadius: '50%', border: '2px dashed #ccc',
+                    display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                    cursor: 'pointer', overflow: 'hidden', flexShrink: 0, background: '#fafafa', position: 'relative'
+                  }}>
+                    {prof.fotoURL ? (
+                      <img src={prof.fotoURL} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="Avatar" />
+                    ) : (
+                      <div style={{ textAlign: 'center', display:'flex', flexDirection:'column', alignItems:'center' }}>
+                        <span style={{ fontSize: 16 }}>📷</span>
+                        <span style={{ fontSize: 9, fontWeight: 700, color: '#888', marginTop: 2 }}>Foto</span>
+                      </div>
+                    )}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      style={{ display: 'none' }}
+                      onChange={async (e) => {
+                        const file = e.target.files[0]
+                        if (file) {
+                          try {
+                            const base64 = await compressImage(file, 400)
+                            updateProfesional(idx, 'fotoURL', base64)
+                          } catch (err) { console.error(err) }
+                        }
+                      }}
+                    />
+                  </label>
+                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4 }}>
+                    <input className="crear-local-input slim" placeholder={lang === 'es' ? 'Nombre del profesional' : 'Professional name'} value={prof.nombre} onChange={e => updateProfesional(idx, 'nombre', e.target.value)} />
+                    <input className="crear-local-input slim text-sm" placeholder={lang === 'es' ? 'Especialidad (Ej: Barbero, Manicurista)' : 'Specialty (e.g. Barber, Manicurist)'} value={prof.especialidad} onChange={e => updateProfesional(idx, 'especialidad', e.target.value)} />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          {profesionales.length < 3 && (
+            <button className="cl-add-servicio-btn" onClick={addProfesional}>+ {lang === 'es' ? 'Añadir profesional' : 'Add professional'}</button>
+          )}
+        </div>
+
+        {error && <div className="cl-error-toast">⚠️ {error}</div>}
+
+        <button className="crear-local-save-btn glow" onClick={irAlPago}>
+          Siguiente: Método de Pago ➔
+        </button>
+      </div>
+      <div style={{ height: 60 }} />
+    </div>
+  )
+}

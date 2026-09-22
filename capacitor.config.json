@@ -1,0 +1,22 @@
+{
+  "appId": "com.listopatron.app",
+  "appName": "Listo Patrón",
+  "webDir": "dist",
+  "ios": {
+    "isInspectable": true
+  },
+  "server": {
+    "allowNavigation": [
+      "pruebas.azul.com.do",
+      "pagos.azul.com.do",
+      "*.googleapis.com",
+      "*.firebaseapp.com",
+      "*.firebasestorage.app"
+    ]
+  },
+  "plugins": {
+    "PushNotifications": {
+      "presentationOptions": ["badge", "sound", "alert"]
+    }
+  }
+}

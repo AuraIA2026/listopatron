@@ -1,0 +1,130 @@
+/* ── Categorías acordeón ── */
+.categories-accordion {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 0 16px;
+  margin-bottom: 12px;
+}
+
+.cat-accordion-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.cat-main-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  background: #fff;
+  border: 1.5px solid #F0F0F0;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  transition: all 0.2s;
+  text-align: left;
+  width: 100%;
+}
+
+.cat-main-btn.active {
+  background: #FFF3EC;
+  border-color: #F26000;
+  color: #F26000;
+}
+
+.cat-main-btn:active {
+  transform: scale(0.98);
+}
+
+.cat-icon {
+  font-size: 18px;
+  width: 24px;
+  text-align: center;
+}
+
+.cat-main-label {
+  flex: 1;
+}
+
+.cat-arrow {
+  font-size: 20px;
+  color: #999;
+  transition: transform 0.3s;
+  line-height: 1;
+}
+
+.cat-arrow.open {
+  transform: rotate(90deg);
+  color: #F26000;
+}
+
+/* Subcategorías */
+.cat-subcategories {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 4px 0 4px 16px;
+  padding-left: 12px;
+  border-left: 2px solid #FFD5B8;
+  animation: slideDown 0.2s ease;
+}
+
+.cat-sub-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: #FAFAFA;
+  border: 1px solid #F0F0F0;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  color: #555;
+  transition: all 0.2s;
+  text-align: left;
+}
+
+.cat-sub-btn.active {
+  background: #FFF3EC;
+  border-color: #F26000;
+  color: #F26000;
+  font-weight: 700;
+}
+
+.cat-sub-btn:active {
+  transform: scale(0.97);
+}
+
+/* Badge subcategoría activa */
+.active-sub-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 16px 12px;
+  padding: 8px 14px;
+  background: #FFF3EC;
+  border: 1.5px solid #F26000;
+  border-radius: 99px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #F26000;
+}
+
+.active-sub-badge button {
+  background: none;
+  border: none;
+  color: #F26000;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 0;
+  margin-left: auto;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
