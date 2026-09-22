@@ -95,8 +95,35 @@ export function UserProvider({ children }) {
     } catch { return '—' }
   }
 
-  const userRole     = (userData?.type === 'pro' || userData?.role === 'professional' || userData?.verificacion?.estado === 'aprobada') ? 'pro' : 'user'
-  const profileComplete = userData?.profileComplete || userData?.verificacion?.estado === 'aprobada' || false
+  const userRole = (userData?.type === 'pro' || userData?.role === 'professional' || userData?.role === 'pro' || userData?.verificacion?.estado === 'aprobada' || userData?.verificacion?.estado === 'verificado') ? 'pro' : 'user'
+
+  const isPro = Boolean(
+    userData?.type === 'pro' || 
+    userData?.role === 'professional' || 
+    userData?.role === 'pro' ||
+    userData?.verificacion || 
+    userData?.category || 
+    userData?.especialidad
+  );
+
+  let profileComplete = false;
+
+  if (isPro) {
+    const vf = userData?.verificacion || {};
+    const vfDocs = vf.docs || {};
+    const hasCedulaFront = Boolean(vfDocs.cedulaFrontal || userData?.cedulaFrontal);
+    const hasCedulaBack  = Boolean(vfDocs.cedulaTrasera || userData?.cedulaTrasera);
+    const hasSelfie      = Boolean(vfDocs.selfie || userData?.selfie);
+    const hasConducta    = Boolean(vfDocs.buenaConducta || userData?.buenaConducta);
+    const hasProfession  = Boolean(userData?.category || vf.especialidad || userData?.especialidad);
+
+    const hasAllRequirements = hasCedulaFront && hasCedulaBack && hasSelfie && hasConducta && hasProfession;
+    const isApproved = vf.estado === 'aprobada' || vf.estado === 'verificado' || userData?.approved === true;
+
+    profileComplete = Boolean(hasAllRequirements && isApproved);
+  } else {
+    profileComplete = Boolean(userData?.profileComplete || (userData?.name && userData?.phone));
+  }
 
   const value = {
     userData,
