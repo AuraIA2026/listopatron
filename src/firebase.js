@@ -1,8 +1,8 @@
 import { initializeApp } from "firebase/app";
-import { getAuth, initializeAuth, browserLocalPersistence } from "firebase/auth";
+import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
-import { Capacitor } from "@capacitor/core";
+import { getFunctions } from "firebase/functions";
 
 const firebaseConfig = {
   apiKey: "AIzaSyB4z90F946H6BP6hyq8gAv--RLirXdBtYE",
@@ -17,10 +17,8 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-// Initialize Authentication with local persistence for Capacitor native platforms and Web
-export const auth = Capacitor.isNativePlatform()
-  ? initializeAuth(app, { persistence: browserLocalPersistence })
-  : getAuth(app);
+// Initialize Authentication
+export const auth = getAuth(app);
 
 // Initialize Firestore Database
 export const db = getFirestore(app);
@@ -29,7 +27,6 @@ export const db = getFirestore(app);
 export const storage = getStorage(app);
 
 // Initialize Cloud Functions
-import { getFunctions } from "firebase/functions";
 export const functions = getFunctions(app);
 
 export default app;
