@@ -194,54 +194,7 @@ export default function LandingPage({ navigate, lang }) {
     <a href="#planes" onClick={(e) => { e.preventDefault(); setShowPlanModal(true); }}>Planes</a>
     <a href="#faq">FAQ</a>
     <a onClick={() => navigate('shop')} style={{cursor: "pointer", display: "inline-flex", alignItems: "center", gap: "4px"}}>Tienda 🛒</a>
-    <button 
-      onClick={() => setShowDeliveryModal(true)} 
-      className="nav-btn-delivery-mamey" 
-      style={{
-        background: '#F26000', 
-        color: '#FFFFFF', 
-        fontWeight: '900', 
-        padding: '12px 24px', 
-        borderRadius: '6px', 
-        border: 'none', 
-        cursor: 'pointer',
-        boxShadow: '0 4px 16px rgba(242, 96, 0, 0.45)',
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: '8px',
-        fontSize: '15px',
-        letterSpacing: '0.5px',
-        textTransform: 'uppercase',
-        transition: 'transform 0.2s ease, background 0.2s ease'
-      }}
-      onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
-      onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
-    >
-      🛵 Ir a Delivery Partner
-    </button>
-    <button 
-      onClick={() => setShowPlanModal(true)} 
-      className="nav-btn-plan" 
-      style={{
-        background: '#10B981', 
-        color: '#FFFFFF', 
-        fontWeight: '900', 
-        padding: '8px 18px', 
-        borderRadius: '50px', 
-        border: 'none', 
-        cursor: 'pointer',
-        boxShadow: '0 4px 12px rgba(16, 185, 129, 0.4)',
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: '6px',
-        fontSize: '13px',
-        transition: 'transform 0.2s ease, background 0.2s ease'
-      }}
-      onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
-      onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
-    >
-      💳 COMPRAR UN PLAN
-    </button>
+
     <a onClick={() => navigate('login')} className="nav-btn" style={{cursor: "pointer", "color": "#FFFFFF", "fontWeight": "bold"}}>Abrir app →</a>
   </div>
   <button className="burger" id="burger"><span></span><span></span><span></span></button>

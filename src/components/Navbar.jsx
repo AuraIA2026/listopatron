@@ -16,27 +16,7 @@ export default function Navbar({ navigate, currentPage, lang, setLang }) {
         </div>
 
         <div className="navbar-actions">
-          <button
-            className="btn-delivery-mamey"
-            onClick={() => navigate('register')}
-            style={{
-              background: '#F26000',
-              color: '#fff',
-              border: 'none',
-              borderRadius: '6px',
-              padding: '10px 22px',
-              fontWeight: '900',
-              fontSize: '14px',
-              cursor: 'pointer',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '8px',
-              textTransform: 'uppercase',
-              boxShadow: '0 4px 16px rgba(242,96,0,0.45)'
-            }}
-          >
-            🛵 Ir a Delivery Partner
-          </button>
+
           <button
             className={`lang-toggle ${lang === 'es' ? 'active' : ''}`}
             onClick={() => setLang(lang === 'es' ? 'en' : 'es')}
