@@ -22,11 +22,93 @@ const portadaImages = [
   './assets/portada_4.png'
 ];
 
+function DeliveryPartnerModal({ onClose, onNavigate }) {
+  return (
+    <div style={{ position: 'fixed', inset: 0, zIndex: 10000, background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }} onClick={onClose}>
+      <div style={{ background: '#FFFFFF', borderRadius: '24px', maxWidth: '540px', width: '100%', overflow: 'hidden', boxShadow: '0 25px 50px rgba(0,0,0,0.35)', position: 'relative' }} onClick={e => e.stopPropagation()}>
+        
+        {/* Header Banner estilo Partner Portal */}
+        <div style={{ background: 'linear-gradient(135deg, #EA1D2C, #F26000)', padding: '28px 24px', color: '#FFFFFF', position: 'relative' }}>
+          <button onClick={onClose} style={{ position: 'absolute', top: '16px', right: '16px', background: 'rgba(255,255,255,0.2)', border: 'none', color: '#FFFFFF', width: '32px', height: '32px', borderRadius: '50%', fontSize: '16px', cursor: 'pointer', fontWeight: 'bold' }}>✕</button>
+          
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'rgba(255,255,255,0.25)', padding: '4px 12px', borderRadius: '20px', fontSize: '11px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '10px' }}>
+            🛵 Partner Portal · Listo Patrón
+          </div>
+          <h2 style={{ fontFamily: "'Fredoka One', cursive, sans-serif", fontSize: '26px', margin: '0 0 8px', lineHeight: 1.2 }}>
+            ¡Un nuevo canal para vender más y despegar tu negocio! 🚀
+          </h2>
+          <p style={{ fontSize: '14px', margin: 0, opacity: 0.95 }}>
+            Únete a la red de repartidores y negocios en Listo Patrón (República Dominicana).
+          </p>
+        </div>
+
+        {/* Modal Body */}
+        <div style={{ padding: '24px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '20px' }}>
+            <div style={{ background: '#FFF5F5', border: '1.5px solid #FFE2E2', borderRadius: '16px', padding: '16px 14px', textAlign: 'center' }}>
+              <span style={{ fontSize: '32px' }}>🏬</span>
+              <h4 style={{ fontSize: '15px', fontWeight: '800', color: '#1A1A2E', margin: '8px 0 4px' }}>Locales y Tiendas</h4>
+              <p style={{ fontSize: '12px', color: '#666', margin: 0, lineHeight: 1.4 }}>Registra tu local para ofrecer envíos con nuestros repartidores.</p>
+            </div>
+            <div style={{ background: '#FFF8F3', border: '1.5px solid #FFE9D6', borderRadius: '16px', padding: '16px 14px', textAlign: 'center' }}>
+              <span style={{ fontSize: '32px' }}>🛵</span>
+              <h4 style={{ fontSize: '15px', fontWeight: '800', color: '#1A1A2E', margin: '8px 0 4px' }}>Soy Repartidor</h4>
+              <p style={{ fontSize: '12px', color: '#666', margin: 0, lineHeight: 1.4 }}>Genera ingresos entregando pedidos en tu moto en tu zona.</p>
+            </div>
+          </div>
+
+          <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '16px', padding: '16px', marginBottom: '20px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+              <span style={{ color: '#10B981', fontWeight: 'bold', fontSize: '18px' }}>✓</span>
+              <span style={{ fontSize: '13.5px', color: '#334155', fontWeight: '600' }}>10% de comisión estática + Registros verificados</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+              <span style={{ color: '#10B981', fontWeight: 'bold', fontSize: '18px' }}>✓</span>
+              <span style={{ fontSize: '13.5px', color: '#334155', fontWeight: '600' }}>Rastreo GPS en tiempo real para todos tus envíos</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <span style={{ color: '#10B981', fontWeight: 'bold', fontSize: '18px' }}>✓</span>
+              <span style={{ fontSize: '13.5px', color: '#334155', fontWeight: '600' }}>Pago directo a tu cuenta o billetera</span>
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <button
+              onClick={() => { onClose(); if (onNavigate) onNavigate('login') }}
+              style={{
+                width: '100%',
+                padding: '14px',
+                background: 'linear-gradient(135deg, #EA1D2C, #F26000)',
+                color: '#FFFFFF',
+                border: 'none',
+                borderRadius: '14px',
+                fontSize: '15px',
+                fontWeight: '800',
+                cursor: 'pointer',
+                boxShadow: '0 6px 18px rgba(234, 29, 44, 0.35)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px'
+              }}
+            >
+              📝 Registrar mi negocio o repartidor ahora
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  )
+}
+
 export default function HomePage({ onNavigate }) {
   useListoLogic();
 
   // ESTADOS Y MÉTODOS DE COMPRA DE PLANES DESDE WEB
   const [showPlanesModal, setShowPlanesModal] = useState(false);
+  const [showDeliveryModal, setShowDeliveryModal] = useState(false);
   const [selectedPlanForBenefits, setSelectedPlanForBenefits] = useState(null);
   const [selectedPlanForCheckout, setSelectedPlanForCheckout] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -815,6 +897,33 @@ export default function HomePage({ onNavigate }) {
           <span className="mobile-text">💳 COMPRAR UN PLAN</span>
         </span>
       </button>
+      <button 
+        onClick={() => setShowDeliveryModal(true)} 
+        className="nav-action-btn nav-btn-partner-portal"
+        style={{
+          background: '#F26000',
+          color: 'white',
+          border: 'none',
+          borderRadius: '50px',
+          padding: '8px 18px',
+          fontSize: '14px',
+          fontWeight: '800',
+          cursor: 'pointer',
+          boxShadow: '0 4px 12px rgba(242,96,0,0.35)',
+          marginLeft: '4px',
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '6px',
+          transition: 'transform 0.2s'
+        }}
+        onMouseDown={e => e.currentTarget.style.transform = 'scale(0.95)'}
+        onMouseUp={e => e.currentTarget.style.transform = 'scale(1)'}
+      >
+        <span>
+          <span className="desktop-text">Ir a Partner Portal</span>
+          <span className="mobile-text">Partner Portal</span>
+        </span>
+      </button>
     </div>
   </div>
 
@@ -838,7 +947,7 @@ export default function HomePage({ onNavigate }) {
         fontWeight: '700',
         cursor: 'pointer',
         boxShadow: '0 4px 10px rgba(16,185,129,0.3)',
-        marginBottom: '20px', 
+        marginBottom: '10px', 
         width: '100%',
         display: 'flex',
         alignItems: 'center',
@@ -847,6 +956,33 @@ export default function HomePage({ onNavigate }) {
       }}
     >
       <span>💳 COMPRAR UN PLAN</span>
+    </button>
+    <button 
+      onClick={() => {
+        setShowDeliveryModal(true);
+        const navLinksEl = document.getElementById('navLinks');
+        if (navLinksEl) navLinksEl.classList.remove('open');
+      }} 
+      className="nav-action-btn nav-links-mobile-only" 
+      style={{
+        background: '#F26000',
+        color: 'white',
+        border: 'none',
+        borderRadius: '50px',
+        padding: '12px',
+        fontSize: '13px',
+        fontWeight: '800',
+        cursor: 'pointer',
+        boxShadow: '0 4px 10px rgba(242,96,0,0.3)',
+        marginBottom: '20px', 
+        width: '100%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '6px'
+      }}
+    >
+      <span>Ir a Partner Portal</span>
     </button>
     
     <a href="#servicios">Servicios</a>
@@ -3398,6 +3534,13 @@ export default function HomePage({ onNavigate }) {
             </button>
           </div>
         </div>
+      )}
+
+      {showDeliveryModal && (
+        <DeliveryPartnerModal 
+          onClose={() => setShowDeliveryModal(false)} 
+          onNavigate={onNavigate} 
+        />
       )}
 
     </>
