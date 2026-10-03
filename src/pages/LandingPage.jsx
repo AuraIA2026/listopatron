@@ -1161,7 +1161,7 @@ export default function LandingPage({ navigate, lang }) {
         <div style={{"fontWeight": "800", "fontSize": "15px", "color": "#222"}}>Los planes se contratan desde la app</div>
         <div style={{"fontSize": "13px", "color": "var(--gray)", "marginTop": "2px"}}>Descarga Listo Patrón, crea tu perfil de profesional y elige tu plan en segundos.</div>
       </div>
-      <a onClick={() => navigate('login')} style={{cursor: "pointer", "background": "var(--orange)", "color": "#fff", "padding": "10px 22px", "borderRadius": "50px", "fontWeight": "800", "fontSize": "14px", "textDecoration": "none", "whiteSpace": "nowrap", "boxShadow": "0 4px 14px rgba(242,96,0,0.35)", "transition": "transform .2s,box-shadow .2s"}} onMouseOver={() => { this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(242,96,0,0.5)' }} onMouseOut={() => { this.style.transform='';this.style.boxShadow='0 4px 14px rgba(242,96,0,0.35)' }}>🚀 Descargar app</a>
+
     </div>
     <div className="planes-wrap" style={{"gridTemplateColumns": "repeat(auto-fit,minmax(220px,1fr))", "maxWidth": "1100px"}}>
     {/*  styles extracted  */}
