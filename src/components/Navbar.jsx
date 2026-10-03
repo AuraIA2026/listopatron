@@ -17,6 +17,26 @@ export default function Navbar({ navigate, currentPage, lang, setLang }) {
 
         <div className="navbar-actions">
           <button
+            className="btn-delivery"
+            onClick={() => navigate('register')}
+            style={{
+              background: 'linear-gradient(135deg, #EA1D2C, #F26000)',
+              color: '#fff',
+              border: 'none',
+              borderRadius: '50px',
+              padding: '8px 16px',
+              fontWeight: '800',
+              fontSize: '13px',
+              cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              boxShadow: '0 4px 12px rgba(234,29,44,0.3)'
+            }}
+          >
+            🛵 Servicio de Delivery
+          </button>
+          <button
             className={`lang-toggle ${lang === 'es' ? 'active' : ''}`}
             onClick={() => setLang(lang === 'es' ? 'en' : 'es')}
           >

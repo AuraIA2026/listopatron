@@ -13,9 +13,107 @@ import pro23 from '../assets/landing/extracted_23.jpeg';
 import pro24 from '../assets/landing/extracted_24.jpeg';
 import pro25 from '../assets/landing/extracted_25.jpeg';
 
+function DeliveryPartnerModal({ onClose, navigate }) {
+  return (
+    <div style={{ position: 'fixed', inset: 0, zIndex: 10000, background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }} onClick={onClose}>
+      <div style={{ background: '#FFFFFF', borderRadius: '24px', maxWidth: '540px', width: '100%', overflow: 'hidden', boxShadow: '0 25px 50px rgba(0,0,0,0.35)', position: 'relative' }} onClick={e => e.stopPropagation()}>
+        
+        {/* Header Banner estilo PedidosYa Partner */}
+        <div style={{ background: 'linear-gradient(135deg, #EA1D2C, #F26000)', padding: '28px 24px', color: '#FFFFFF', position: 'relative' }}>
+          <button onClick={onClose} style={{ position: 'absolute', top: '16px', right: '16px', background: 'rgba(255,255,255,0.2)', border: 'none', color: '#FFFFFF', width: '32px', height: '32px', borderRadius: '50%', fontSize: '16px', cursor: 'pointer', fontWeight: 'bold' }}>✕</button>
+          
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'rgba(255,255,255,0.25)', padding: '4px 12px', borderRadius: '20px', fontSize: '11px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '10px' }}>
+            🛵 Servicio de Delivery Partner
+          </div>
+          <h2 style={{ fontFamily: "'Fredoka One', cursive, sans-serif", fontSize: '26px', margin: '0 0 8px', lineHeight: 1.2 }}>
+            ¡Un nuevo canal para vender más y despegar tu negocio! 🚀
+          </h2>
+          <p style={{ fontSize: '14px', margin: 0, opacity: 0.95 }}>
+            Únete a la red de repartidores y negocios de Delivery en Listo Patrón (República Dominicana).
+          </p>
+        </div>
+
+        {/* Modal Body */}
+        <div style={{ padding: '24px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '20px' }}>
+            <div style={{ background: '#FFF5F5', border: '1.5px solid #FFE2E2', borderRadius: '16px', padding: '16px 14px', textAlign: 'center' }}>
+              <span style={{ fontSize: '32px' }}>🏬</span>
+              <h4 style={{ fontSize: '15px', fontWeight: '800', color: '#1A1A2E', margin: '8px 0 4px' }}>Locales y Tiendas</h4>
+              <p style={{ fontSize: '12px', color: '#666', margin: 0, lineHeight: 1.4 }}>Registra tu local para ofrecer envíos con nuestros repartidores.</p>
+            </div>
+            <div style={{ background: '#FFF8F3', border: '1.5px solid #FFE9D6', borderRadius: '16px', padding: '16px 14px', textAlign: 'center' }}>
+              <span style={{ fontSize: '32px' }}>🛵</span>
+              <h4 style={{ fontSize: '15px', fontWeight: '800', color: '#1A1A2E', margin: '8px 0 4px' }}>Soy Repartidor</h4>
+              <p style={{ fontSize: '12px', color: '#666', margin: 0, lineHeight: 1.4 }}>Genera ingresos entregando pedidos en tu moto en tu zona.</p>
+            </div>
+          </div>
+
+          <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '16px', padding: '16px', marginBottom: '20px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+              <span style={{ color: '#10B981', fontWeight: 'bold', fontSize: '18px' }}>✓</span>
+              <span style={{ fontSize: '13.5px', color: '#334155', fontWeight: '600' }}>10% de comisión estática + Registros verificados</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+              <span style={{ color: '#10B981', fontWeight: 'bold', fontSize: '18px' }}>✓</span>
+              <span style={{ fontSize: '13.5px', color: '#334155', fontWeight: '600' }}>Rastreo GPS en tiempo real para todos tus pedidos</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <span style={{ color: '#10B981', fontWeight: 'bold', fontSize: '18px' }}>✓</span>
+              <span style={{ fontSize: '13.5px', color: '#334155', fontWeight: '600' }}>Pago directo a tu cuenta o billetera</span>
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <button
+              onClick={() => { onClose(); if (navigate) navigate('register') }}
+              style={{
+                width: '100%',
+                padding: '14px',
+                background: 'linear-gradient(135deg, #EA1D2C, #F26000)',
+                color: '#FFFFFF',
+                border: 'none',
+                borderRadius: '14px',
+                fontSize: '15px',
+                fontWeight: '800',
+                cursor: 'pointer',
+                boxShadow: '0 6px 18px rgba(234, 29, 44, 0.35)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px'
+              }}
+            >
+              📝 Registrar mi negocio o repartidor ahora
+            </button>
+            <button
+              onClick={() => { onClose(); if (navigate) navigate('search', { catToSelect: 'delivery' }) }}
+              style={{
+                width: '100%',
+                padding: '12px',
+                background: '#F1F5F9',
+                color: '#475569',
+                border: 'none',
+                borderRadius: '14px',
+                fontSize: '14px',
+                fontWeight: '700',
+                cursor: 'pointer'
+              }}
+            >
+              🔍 Ver lista de repartidores y locales activos
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  )
+}
+
 export default function LandingPage({ navigate, lang }) {
   useLandingLogic();
   const [showPlanModal, setShowPlanModal] = useState(false);
+  const [showDeliveryModal, setShowDeliveryModal] = useState(false);
 
   useEffect(() => {
     const checkUrlForPlan = () => {
@@ -96,6 +194,29 @@ export default function LandingPage({ navigate, lang }) {
     <a href="#planes" onClick={(e) => { e.preventDefault(); setShowPlanModal(true); }}>Planes</a>
     <a href="#faq">FAQ</a>
     <a onClick={() => navigate('shop')} style={{cursor: "pointer", display: "inline-flex", alignItems: "center", gap: "4px"}}>Tienda 🛒</a>
+    <button 
+      onClick={() => setShowDeliveryModal(true)} 
+      className="nav-btn-delivery" 
+      style={{
+        background: 'linear-gradient(135deg, #EA1D2C, #F26000)', 
+        color: '#FFFFFF', 
+        fontWeight: '900', 
+        padding: '8px 18px', 
+        borderRadius: '50px', 
+        border: 'none', 
+        cursor: 'pointer',
+        boxShadow: '0 4px 12px rgba(234, 29, 44, 0.4)',
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: '6px',
+        fontSize: '13px',
+        transition: 'transform 0.2s ease, background 0.2s ease'
+      }}
+      onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+      onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
+    >
+      🛵 Servicio de Delivery
+    </button>
     <button 
       onClick={() => setShowPlanModal(true)} 
       className="nav-btn-plan" 
@@ -1664,6 +1785,13 @@ export default function LandingPage({ navigate, lang }) {
       navigate('login');
     }} 
   />
+
+  {showDeliveryModal && (
+    <DeliveryPartnerModal 
+      onClose={() => setShowDeliveryModal(false)} 
+      navigate={navigate} 
+    />
+  )}
 
 </div>
 );
