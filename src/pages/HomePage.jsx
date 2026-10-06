@@ -898,7 +898,7 @@ export default function HomePage({ onNavigate }) {
         </span>
       </button>
       <button 
-        onClick={() => setShowDeliveryModal(true)} 
+        onClick={() => window.location.href = '/merchant.html'} 
         className="nav-action-btn nav-btn-partner-portal"
         style={{
           background: '#F26000',
@@ -920,7 +920,7 @@ export default function HomePage({ onNavigate }) {
         onMouseUp={e => e.currentTarget.style.transform = 'scale(1)'}
       >
         <span>
-          <span className="desktop-text">Ir a Partner Portal</span>
+          <span className="desktop-text">🏪 Ir a Partner Portal</span>
           <span className="mobile-text">Partner Portal</span>
         </span>
       </button>
@@ -959,9 +959,7 @@ export default function HomePage({ onNavigate }) {
     </button>
     <button 
       onClick={() => {
-        setShowDeliveryModal(true);
-        const navLinksEl = document.getElementById('navLinks');
-        if (navLinksEl) navLinksEl.classList.remove('open');
+        window.location.href = '/merchant.html';
       }} 
       className="nav-action-btn nav-links-mobile-only" 
       style={{
@@ -982,7 +980,7 @@ export default function HomePage({ onNavigate }) {
         gap: '6px'
       }}
     >
-      <span>Ir a Partner Portal</span>
+      <span>🏪 Ir a Partner Portal</span>
     </button>
     
     <a href="#servicios">Servicios</a>
@@ -990,7 +988,7 @@ export default function HomePage({ onNavigate }) {
     <a href="#profesionales">Para profesionales</a>
     <a href="#planes">Planes</a>
     <a href="#faq">FAQ</a>
-    <a href="https://listopatron.vercel.app/" className="nav-btn" style={{"color": "#FFFFFF", "fontWeight": "bold"}}>Abrir app →</a>
+    <a href="/index.html" className="nav-btn" style={{"color": "#FFFFFF", "fontWeight": "bold"}}>Abrir app →</a>
   </div>
   <button className="burger" id="burger"><span></span><span></span><span></span></button>
 </nav>
