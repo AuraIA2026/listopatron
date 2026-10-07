@@ -206,7 +206,7 @@ export default function LandingPage({ navigate, lang }) {
         <span>💳 COMPRAR UN PLAN</span>
       </button>
 
-      {/* BOTÓN PEDIDOS LISTO PARTNER - PRUEBA GITHUB DESKTOP */}
+      {/* BOTÓN PEDIDOS LISTO PARTNER CON INSIGNIA MAMEY CURVADA */}
       <button
         onClick={() => window.location.href = '/merchant.html'}
         className="nav-action-btn partner-btn-glow"
