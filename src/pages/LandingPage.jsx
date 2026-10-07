@@ -190,14 +190,6 @@ export default function LandingPage({ navigate, lang }) {
     <img className="nav-logo" src="./assets/logo_listo.png" alt="Listo Patrón" style={{"height": "40px", "objectFit": "contain"}} />
     
     <div className="nav-header-buttons" style={{ display: 'flex', alignItems: 'center', gap: '8px', marginLeft: '10px' }}>
-      <button className="nav-action-btn" style={{ background: '#F26000', color: 'white', border: 'none', borderRadius: '50px', padding: '8px 16px', fontSize: '13px', fontWeight: '800', cursor: 'pointer' }}>
-        <span>Descargar App ▾</span>
-      </button>
-
-      <button className="nav-action-btn" style={{ background: '#F26000', color: 'white', border: 'none', borderRadius: '50px', padding: '8px 16px', fontSize: '13px', fontWeight: '800', cursor: 'pointer' }}>
-        <span>Hacer un pedido</span>
-      </button>
-
       <button onClick={() => navigate('shop')} className="nav-action-btn nav-shop-highlight-btn nav-btn-shop" style={{ background: '#F26000', color: 'white', border: 'none', borderRadius: '50px', padding: '8px 16px', fontSize: '13px', fontWeight: '800', cursor: 'pointer' }}>
         <span>Tienda 🛒</span>
       </button>
