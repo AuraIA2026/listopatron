@@ -190,8 +190,29 @@ export default function LandingPage({ navigate, lang }) {
     <img className="nav-logo" src="./assets/logo_listo.png" alt="Listo Patrón" style={{"height": "40px", "objectFit": "contain"}} />
     
     <div className="nav-header-buttons" style={{ display: 'flex', alignItems: 'center', gap: '8px', marginLeft: '10px' }}>
-      <button onClick={() => navigate('shop')} className="nav-action-btn nav-shop-highlight-btn nav-btn-shop" style={{ background: '#F26000', color: 'white', border: 'none', borderRadius: '50px', padding: '8px 16px', fontSize: '13px', fontWeight: '800', cursor: 'pointer' }}>
-        <span>Tienda 🛒</span>
+      <button
+        onClick={() => navigate('shop')}
+        className="nav-action-btn nav-shop-highlight-btn nav-btn-shop"
+        style={{
+          background: 'linear-gradient(135deg, #FF5500 0%, #FF0055 100%)',
+          color: '#FFFFFF',
+          border: '2px solid #FFE600',
+          borderRadius: '50px',
+          padding: '8px 20px',
+          fontSize: '14px',
+          fontWeight: '900',
+          cursor: 'pointer',
+          boxShadow: '0 4px 18px rgba(255, 85, 0, 0.65), 0 0 14px rgba(255, 0, 85, 0.5)',
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '6px',
+          textTransform: 'uppercase',
+          letterSpacing: '0.5px',
+          transition: 'all 0.3s ease-in-out'
+        }}
+      >
+        <span style={{ fontSize: '16px' }}>🛒</span>
+        <span>TIENDA ONLINE</span>
       </button>
 
       <button onClick={() => setShowPlanModal(true)} className="nav-action-btn" style={{ background: 'linear-gradient(135deg, #10B981, #059669)', color: 'white', border: 'none', borderRadius: '50px', padding: '8px 16px', fontSize: '13px', fontWeight: '800', cursor: 'pointer', boxShadow: '0 4px 10px rgba(16,185,129,0.3)' }}>
