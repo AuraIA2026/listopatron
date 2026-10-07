@@ -864,13 +864,22 @@ export default function HomePage({ onNavigate }) {
   <div style={{"display": "flex", "alignItems": "center"}}>
     <img className="nav-logo" src="./assets/logo_listo.png" alt="Listo Patrón" style={{"height": "40px", "objectFit": "contain"}} />
     
-    <div className="nav-header-buttons" style={{"display": "flex", "alignItems": "center", "gap": "10px"}}>
-      <button onClick={() => onNavigate('shop')} className="nav-action-btn nav-shop-highlight-btn nav-btn-shop">
+    <div className="nav-header-buttons" style={{"display": "flex", "alignItems": "center", "gap": "8px"}}>
+      <button className="nav-action-btn" style={{ background: '#F26000', color: 'white', border: 'none', borderRadius: '50px', padding: '8px 16px', fontSize: '13px', fontWeight: '800', cursor: 'pointer' }}>
+        <span>Descargar App ▾</span>
+      </button>
+
+      <button className="nav-action-btn" style={{ background: '#F26000', color: 'white', border: 'none', borderRadius: '50px', padding: '8px 16px', fontSize: '13px', fontWeight: '800', cursor: 'pointer' }}>
+        <span>Hacer un pedido</span>
+      </button>
+
+      <button onClick={() => onNavigate('shop')} className="nav-action-btn nav-shop-highlight-btn nav-btn-shop" style={{ background: '#F26000', color: 'white', border: 'none', borderRadius: '50px', padding: '8px 16px', fontSize: '13px', fontWeight: '800', cursor: 'pointer' }}>
         <span>
-          <span className="desktop-text">VISITAR TIENDA 🛒</span>
+          <span className="desktop-text">Tienda 🛒</span>
           <span className="mobile-text">Tienda 🛒</span>
         </span>
       </button>
+      
       <button 
         onClick={() => setShowPlanesModal(true)} 
         className="nav-action-btn nav-btn-buy-plan"
@@ -880,24 +889,22 @@ export default function HomePage({ onNavigate }) {
           border: 'none',
           borderRadius: '50px',
           padding: '8px 16px',
-          fontSize: '14px',
-          fontWeight: '700',
+          fontSize: '13px',
+          fontWeight: '800',
           cursor: 'pointer',
           boxShadow: '0 4px 10px rgba(16,185,129,0.3)',
-          marginLeft: '4px',
+          marginLeft: '2px',
           display: 'inline-flex',
           alignItems: 'center',
-          gap: '6px',
-          transition: 'transform 0.2s'
+          gap: '6px'
         }}
-        onMouseDown={e => e.currentTarget.style.transform = 'scale(0.95)'}
-        onMouseUp={e => e.currentTarget.style.transform = 'scale(1)'}
       >
         <span>
           <span className="desktop-text">💳 COMPRAR UN PLAN</span>
           <span className="mobile-text">💳 COMPRAR UN PLAN</span>
         </span>
       </button>
+      
       <button 
         onClick={() => window.location.href = '/merchant.html'} 
         className="nav-action-btn nav-btn-partner-portal"
@@ -907,18 +914,16 @@ export default function HomePage({ onNavigate }) {
           border: '1.5px solid rgba(255, 107, 0, 0.4)',
           borderRadius: '12px',
           padding: '6px 14px',
-          fontSize: '14px',
+          fontSize: '13px',
           fontWeight: '800',
           cursor: 'pointer',
           boxShadow: '0 4px 14px rgba(255,107,0,0.25)',
-          marginLeft: '4px',
+          marginLeft: '2px',
           display: 'inline-flex',
           alignItems: 'center',
           gap: '8px',
           transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)'
         }}
-        onMouseDown={e => e.currentTarget.style.transform = 'scale(0.95)'}
-        onMouseUp={e => e.currentTarget.style.transform = 'scale(1)'}
       >
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
           <span style={{ fontWeight: '900', fontStyle: 'italic', fontSize: '15px', color: '#ffffff', letterSpacing: '-0.3px', fontFamily: "'Outfit', sans-serif" }}>
@@ -944,7 +949,7 @@ export default function HomePage({ onNavigate }) {
   </div>
 
   <div className="nav-links" id="navLinks">
-    {/* Botones móviles (solo se muestran en pantallas pequeñas mediante CSS) */}
+    {/* Botones móviles */}
     <button onClick={() => onNavigate('shop')} className="nav-action-btn nav-links-mobile-only nav-shop-highlight-btn" style={{"marginBottom": "10px", "width": "100%"}}>VISITAR TIENDA 🛒</button>
     <button 
       onClick={() => {
@@ -1025,8 +1030,90 @@ export default function HomePage({ onNavigate }) {
 </nav>
 
 
-{/*  PORTADA PRINCIPAL / INTRO ESTATICO  */}
-<div id="intro-portada-container" style={{"width": "100%", "background": "#F26000", "paddingTop": "70px", "display": "flex", "flexDirection": "column", "alignItems": "center", "position": "relative"}}>
+{/*  HERO PLATINUM SLATE CARD BANNER ESTILO FOTO 2  */}
+<section style={{ background: '#2B3445', padding: '60px 5% 40px 5%', position: 'relative', overflow: 'hidden' }}>
+  <div style={{ maxWidth: '1100px', margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1.2fr', gap: '30px', alignItems: 'center', position: 'relative' }}>
+    
+    {/* LOGO CIRCULAR ESQUINA DERECHA SUPERIOR */}
+    <img src="./assets/logo_esquina.png" alt="Listo Logo" style={{
+      position: 'absolute',
+      top: '-40px',
+      right: '20px',
+      width: '90px',
+      height: '90px',
+      objectFit: 'contain',
+      filter: 'drop-shadow(0 6px 14px rgba(0,0,0,0.4))',
+      zIndex: '10'
+    }} />
+
+    {/* LADO IZQUIERDO: DETALLES DEL PLAN PLATINUM */}
+    <div>
+      <div style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: '6px',
+        background: 'rgba(255,255,255,0.12)',
+        color: '#ffffff',
+        padding: '4px 14px',
+        borderRadius: '20px',
+        fontSize: '11px',
+        fontWeight: '800',
+        letterSpacing: '1px',
+        textTransform: 'uppercase',
+        marginBottom: '16px'
+      }}>
+        <span>⏰</span> ACTIVO
+      </div>
+
+      <h1 style={{ fontFamily: 'var(--font-heading)', fontWeight: '900', fontSize: '42px', margin: '0 0 8px 0', color: '#ffffff', lineHeight: '1.1' }}>
+        Plan Platinum
+      </h1>
+
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
+        <span style={{ fontSize: '40px', fontWeight: '900', color: '#ffffff' }}>RD$1,500</span>
+        <span style={{ fontSize: '15px', color: '#94a3b8', fontWeight: '700' }}>/mes</span>
+      </div>
+    </div>
+
+    {/* LADO DERECHO: CARACTERÍSTICAS Y BOTONES DE TIENDA */}
+    <div style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '20px', padding: '24px', position: 'relative' }}>
+      <ul style={{ listStyle: 'none', padding: '0', margin: '0 0 20px 0', display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '13px', color: '#e2e8f0' }}>
+        <li style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+          <span style={{ background: '#10b981', color: 'white', borderRadius: '50%', width: '18px', height: '18px', display: 'flex', alignItems: 'center', justify: 'center', fontSize: '11px', fontWeight: '900', flexShrink: '0', marginTop: '2px' }}>✓</span>
+          <span>12 contratos al mes incluidos (¡Ideal para profesionales muy activos!).</span>
+        </li>
+        <li style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+          <span style={{ background: '#10b981', color: 'white', borderRadius: '50%', width: '18px', height: '18px', display: 'flex', alignItems: 'center', justify: 'center', fontSize: '11px', fontWeight: '900', flexShrink: '0', marginTop: '2px' }}>✓</span>
+          <span>Insignia de "Profesional Recomendado" visible en tu perfil.</span>
+        </li>
+        <li style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+          <span style={{ background: '#10b981', color: 'white', borderRadius: '50%', width: '18px', height: '18px', display: 'flex', alignItems: 'center', justify: 'center', fontSize: '11px', fontWeight: '900', flexShrink: '0', marginTop: '2px' }}>✓</span>
+          <span>Posicionamiento de búsqueda prioritario sobre Estándar y Gold.</span>
+        </li>
+        <li style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+          <span style={{ background: '#10b981', color: 'white', borderRadius: '50%', width: '18px', height: '18px', display: 'flex', alignItems: 'center', justify: 'center', fontSize: '11px', fontWeight: '900', flexShrink: '0', marginTop: '2px' }}>✓</span>
+          <span>Notificaciones de solicitudes en tiempo real con 5 mins de ventaja.</span>
+        </li>
+      </ul>
+
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '14px', flexWrap: 'wrap' }}>
+        <button onClick={() => setShowPlanesModal(true)} style={{ background: '#ffffff', color: '#1e293b', border: 'none', padding: '12px 22px', borderRadius: '30px', fontWeight: '900', fontSize: '13px', cursor: 'pointer', boxShadow: '0 4px 14px rgba(0,0,0,0.15)' }}>
+          Obtener Plan Platinum →
+        </button>
+
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <a href="https://play.google.com/store/apps/details?id=com.pedidoslisto.app" target="_blank" rel="noopener noreferrer">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" alt="Google Play" style={{ height: '38px' }} />
+          </a>
+          <a href="https://www.apple.com/app-store/" target="_blank" rel="noopener noreferrer">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Download_on_the_App_Store_Badge.svg" alt="App Store" style={{ height: '38px' }} />
+          </a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
     <div style={{"position": "relative", "width": "100%", "maxWidth": "1000px", "boxShadow": "0 0 40px rgba(0,0,0,0.3)", "overflow": "hidden", "background": "#000", "borderRadius": "16px", "margin": "0 15px 15px"}}>
       
       {/* Carrusel de imágenes con transición suave (cross-fade) adaptada a cada aspecto sin recortar */}
