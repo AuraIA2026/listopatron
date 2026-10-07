@@ -190,30 +190,49 @@ export default function LandingPage({ navigate, lang }) {
     <img className="nav-logo" src="./assets/logo_listo.png" alt="Listo Patrón" style={{"height": "40px", "objectFit": "contain"}} />
     
     <div className="nav-header-buttons" style={{ display: 'flex', alignItems: 'center', gap: '8px', marginLeft: '10px' }}>
-      <button
+      {/* BANNER EQUIPATE EN NUESTRA TIENDA PEDIDOS LISTO */}
+      <div
         onClick={() => navigate('shop')}
-        className="nav-action-btn nav-shop-highlight-btn nav-btn-shop"
+        className="nav-action-btn shop-banner-glow"
         style={{
-          background: 'linear-gradient(135deg, #FF5500 0%, #FF0055 100%)',
-          color: '#FFFFFF',
-          border: '2px solid #FFE600',
+          background: '#0d0e15',
+          color: '#ffffff',
+          border: '1.5px solid #ff6b00',
           borderRadius: '50px',
-          padding: '8px 20px',
-          fontSize: '14px',
-          fontWeight: '900',
+          padding: '6px 14px 6px 16px',
           cursor: 'pointer',
-          boxShadow: '0 4px 18px rgba(255, 85, 0, 0.65), 0 0 14px rgba(255, 0, 85, 0.5)',
           display: 'inline-flex',
           alignItems: 'center',
-          gap: '6px',
-          textTransform: 'uppercase',
-          letterSpacing: '0.5px',
+          gap: '12px',
+          boxShadow: '0 0 18px rgba(255, 107, 0, 0.45)',
           transition: 'all 0.3s ease-in-out'
         }}
       >
-        <span style={{ fontSize: '16px' }}>🛒</span>
-        <span>TIENDA ONLINE</span>
-      </button>
+        <span style={{ fontSize: '22px' }}>🛍️</span>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', lineHeight: '1.2' }}>
+          <span style={{ fontSize: '13px', fontWeight: '800', color: '#ffffff' }}>
+            Equípate en nuestra tienda <span style={{ color: '#ff6b00', fontWeight: '900' }}>Pedidos Listo</span>
+          </span>
+          <span style={{ fontSize: '10.5px', color: '#94A3B8', fontWeight: '500' }}>
+            Herramientas, equipos e insumos de seguridad con envío rápido a todo el país
+          </span>
+        </div>
+        <span style={{
+          background: 'linear-gradient(135deg, #ff6b00 0%, #ff3d00 100%)',
+          color: '#ffffff',
+          fontWeight: '900',
+          fontSize: '12px',
+          padding: '6px 14px',
+          borderRadius: '50px',
+          boxShadow: '0 2px 10px rgba(255,107,0,0.5)',
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '4px',
+          whiteSpace: 'nowrap'
+        }}>
+          🛒 Visitar Tienda ›
+        </span>
+      </div>
 
       <button onClick={() => setShowPlanModal(true)} className="nav-action-btn" style={{ background: 'linear-gradient(135deg, #10B981, #059669)', color: 'white', border: 'none', borderRadius: '50px', padding: '8px 16px', fontSize: '13px', fontWeight: '800', cursor: 'pointer', boxShadow: '0 4px 10px rgba(16,185,129,0.3)' }}>
         <span>💳 COMPRAR UN PLAN</span>
