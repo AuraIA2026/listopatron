@@ -920,8 +920,8 @@ export default function HomePage({ onNavigate }) {
         onMouseUp={e => e.currentTarget.style.transform = 'scale(1)'}
       >
         <span>
-          <span className="desktop-text">🏪 Ir a Partner Portal</span>
-          <span className="mobile-text">Partner Portal</span>
+          <span className="desktop-text">🏪 Comercio</span>
+          <span className="mobile-text">Comercio</span>
         </span>
       </button>
     </div>
@@ -980,7 +980,7 @@ export default function HomePage({ onNavigate }) {
         gap: '6px'
       }}
     >
-      <span>🏪 Ir a Partner Portal</span>
+      <span>🏪 Comercio</span>
     </button>
     
     <a href="#servicios">Servicios</a>
