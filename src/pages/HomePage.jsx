@@ -1,3 +1,4 @@
+// Vercel Live Sync 2026-10-06
 import React, { useState } from 'react';
 import useListoLogic from '../useListoLogic';
 import { db, storage, functions } from '../firebase';
