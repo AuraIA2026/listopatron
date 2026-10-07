@@ -206,12 +206,39 @@ export default function LandingPage({ navigate, lang }) {
         <span>💳 COMPRAR UN PLAN</span>
       </button>
 
-      <button onClick={() => window.location.href = '/merchant.html'} className="nav-action-btn" style={{ background: '#0a0e1a', color: 'white', border: '1.5px solid rgba(255, 107, 0, 0.4)', borderRadius: '12px', padding: '6px 14px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+      <button
+        onClick={() => window.location.href = '/merchant.html'}
+        className="nav-action-btn"
+        style={{
+          background: '#0d0e15',
+          color: 'white',
+          border: '1.5px solid #ff6b00',
+          borderRadius: '50px',
+          padding: '4px 6px 4px 16px',
+          cursor: 'pointer',
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '8px',
+          boxShadow: '0 4px 14px rgba(255, 107, 0, 0.25)',
+          transition: 'transform 0.2s ease, boxShadow 0.2s ease'
+        }}
+      >
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
           <span style={{ fontWeight: '900', fontStyle: 'italic', fontSize: '15px', color: '#ffffff', letterSpacing: '-0.3px', fontFamily: "'Outfit', sans-serif" }}>
             Pedidos<span style={{ color: '#ff6b00' }}>Listo</span>
           </span>
-          <span style={{ background: 'linear-gradient(135deg, #ff6b00 0%, #ff8533 100%)', color: 'white', fontFamily: "'Outfit', sans-serif", fontWeight: '900', fontSize: '11px', padding: '3px 10px', borderRadius: '6px 12px 12px 6px', boxShadow: '0 2px 8px rgba(255,107,0,0.4)', letterSpacing: '0.3px' }}>
+          <span style={{
+            background: 'linear-gradient(135deg, #ff6b00 0%, #ff8533 100%)',
+            color: '#ffffff',
+            fontFamily: "'Outfit', sans-serif",
+            fontWeight: '900',
+            fontSize: '12px',
+            padding: '4px 14px',
+            borderRadius: '50px',
+            boxShadow: '0 2px 8px rgba(255,107,0,0.4)',
+            letterSpacing: '0.2px',
+            display: 'inline-block'
+          }}>
             Partner
           </span>
         </span>
