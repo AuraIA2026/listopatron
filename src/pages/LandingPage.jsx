@@ -186,15 +186,45 @@ export default function LandingPage({ navigate, lang }) {
 
 {/*  NAV  */}
 <nav id="nav">
-  <img className="nav-logo" src="./assets/logo_listo.png" alt="Listo Patrón" style={{"height": "40px", "objectFit": "contain"}} />
+  <div style={{ display: 'flex', alignItems: 'center' }}>
+    <img className="nav-logo" src="./assets/logo_listo.png" alt="Listo Patrón" style={{"height": "40px", "objectFit": "contain"}} />
+    
+    <div className="nav-header-buttons" style={{ display: 'flex', alignItems: 'center', gap: '8px', marginLeft: '10px' }}>
+      <button className="nav-action-btn" style={{ background: '#F26000', color: 'white', border: 'none', borderRadius: '50px', padding: '8px 16px', fontSize: '13px', fontWeight: '800', cursor: 'pointer' }}>
+        <span>Descargar App ▾</span>
+      </button>
+
+      <button className="nav-action-btn" style={{ background: '#F26000', color: 'white', border: 'none', borderRadius: '50px', padding: '8px 16px', fontSize: '13px', fontWeight: '800', cursor: 'pointer' }}>
+        <span>Hacer un pedido</span>
+      </button>
+
+      <button onClick={() => navigate('shop')} className="nav-action-btn nav-shop-highlight-btn nav-btn-shop" style={{ background: '#F26000', color: 'white', border: 'none', borderRadius: '50px', padding: '8px 16px', fontSize: '13px', fontWeight: '800', cursor: 'pointer' }}>
+        <span>Tienda 🛒</span>
+      </button>
+
+      <button onClick={() => setShowPlanModal(true)} className="nav-action-btn" style={{ background: 'linear-gradient(135deg, #10B981, #059669)', color: 'white', border: 'none', borderRadius: '50px', padding: '8px 16px', fontSize: '13px', fontWeight: '800', cursor: 'pointer', boxShadow: '0 4px 10px rgba(16,185,129,0.3)' }}>
+        <span>💳 COMPRAR UN PLAN</span>
+      </button>
+
+      <button onClick={() => window.location.href = '/merchant.html'} className="nav-action-btn" style={{ background: '#0a0e1a', color: 'white', border: '1.5px solid rgba(255, 107, 0, 0.4)', borderRadius: '12px', padding: '6px 14px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+          <span style={{ fontWeight: '900', fontStyle: 'italic', fontSize: '15px', color: '#ffffff', letterSpacing: '-0.3px', fontFamily: "'Outfit', sans-serif" }}>
+            Pedidos<span style={{ color: '#ff6b00' }}>Listo</span>
+          </span>
+          <span style={{ background: 'linear-gradient(135deg, #ff6b00 0%, #ff8533 100%)', color: 'white', fontFamily: "'Outfit', sans-serif", fontWeight: '900', fontSize: '11px', padding: '3px 10px', borderRadius: '6px 12px 12px 6px', boxShadow: '0 2px 8px rgba(255,107,0,0.4)', letterSpacing: '0.3px' }}>
+            Partner
+          </span>
+        </span>
+      </button>
+    </div>
+  </div>
+
   <div className="nav-links" id="navLinks">
     <a href="#servicios">Servicios</a>
     <a href="#como-funciona">Cómo funciona</a>
     <a href="#profesionales">Para profesionales</a>
     <a href="#planes" onClick={(e) => { e.preventDefault(); setShowPlanModal(true); }}>Planes</a>
     <a href="#faq">FAQ</a>
-    <a onClick={() => navigate('shop')} style={{cursor: "pointer", display: "inline-flex", alignItems: "center", gap: "4px"}}>Tienda 🛒</a>
-
     <a onClick={() => navigate('login')} className="nav-btn" style={{cursor: "pointer", "color": "#FFFFFF", "fontWeight": "bold"}}>Abrir app →</a>
   </div>
   <button className="burger" id="burger"><span></span><span></span><span></span></button>

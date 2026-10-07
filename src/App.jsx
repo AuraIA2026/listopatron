@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import HomePage from './pages/HomePage'
+import LandingPage from './pages/LandingPage'
 import ShopPage from './pages/ShopPage'
 import './index.css'
 import './premium.css'
@@ -13,9 +13,9 @@ function App() {
   return (
     <>
       {currentPage === 'home' ? (
-        <HomePage onNavigate={setCurrentPage} />
+        <LandingPage navigate={(page) => setCurrentPage(page)} />
       ) : (
-        <ShopPage onNavigate={setCurrentPage} />
+        <ShopPage navigate={(page) => setCurrentPage(page)} />
       )}
     </>
   )
