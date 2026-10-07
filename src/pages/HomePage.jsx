@@ -901,27 +901,42 @@ export default function HomePage({ onNavigate }) {
         onClick={() => window.location.href = '/merchant.html'} 
         className="nav-action-btn nav-btn-partner-portal"
         style={{
-          background: '#F26000',
+          background: '#0a0e1a',
           color: 'white',
-          border: 'none',
-          borderRadius: '50px',
-          padding: '8px 18px',
+          border: '1.5px solid rgba(255, 107, 0, 0.4)',
+          borderRadius: '12px',
+          padding: '6px 14px',
           fontSize: '14px',
           fontWeight: '800',
           cursor: 'pointer',
-          boxShadow: '0 4px 12px rgba(242,96,0,0.35)',
+          boxShadow: '0 4px 14px rgba(255,107,0,0.25)',
           marginLeft: '4px',
           display: 'inline-flex',
           alignItems: 'center',
-          gap: '6px',
-          transition: 'transform 0.2s'
+          gap: '8px',
+          transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)'
         }}
         onMouseDown={e => e.currentTarget.style.transform = 'scale(0.95)'}
         onMouseUp={e => e.currentTarget.style.transform = 'scale(1)'}
       >
-        <span>
-          <span className="desktop-text">🏪 Comercio</span>
-          <span className="mobile-text">Comercio</span>
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+          <span style={{ fontWeight: '900', fontStyle: 'italic', fontSize: '15px', color: '#ffffff', letterSpacing: '-0.3px', fontFamily: "'Outfit', sans-serif" }}>
+            Pedidos<span style={{ color: '#ff6b00' }}>Listo</span>
+          </span>
+          <span style={{
+            background: 'linear-gradient(135deg, #ff6b00 0%, #ff8533 100%)',
+            color: 'white',
+            fontFamily: "'Outfit', sans-serif",
+            fontWeight: '900',
+            fontSize: '11px',
+            padding: '3px 10px',
+            borderRadius: '6px 12px 12px 6px',
+            boxShadow: '0 2px 8px rgba(255,107,0,0.4)',
+            letterSpacing: '0.3px',
+            textTransform: 'capitalize'
+          }}>
+            Partner
+          </span>
         </span>
       </button>
     </div>
@@ -963,24 +978,39 @@ export default function HomePage({ onNavigate }) {
       }} 
       className="nav-action-btn nav-links-mobile-only" 
       style={{
-        background: '#F26000',
+        background: '#0a0e1a',
         color: 'white',
-        border: 'none',
-        borderRadius: '50px',
-        padding: '12px',
-        fontSize: '13px',
-        fontWeight: '800',
+        border: '1.5px solid rgba(255, 107, 0, 0.4)',
+        borderRadius: '12px',
+        padding: '10px 14px',
         cursor: 'pointer',
-        boxShadow: '0 4px 10px rgba(242,96,0,0.3)',
+        boxShadow: '0 4px 14px rgba(255,107,0,0.25)',
         marginBottom: '20px', 
         width: '100%',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: '6px'
+        gap: '8px'
       }}
     >
-      <span>🏪 Comercio</span>
+      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+        <span style={{ fontWeight: '900', fontStyle: 'italic', fontSize: '15px', color: '#ffffff', letterSpacing: '-0.3px', fontFamily: "'Outfit', sans-serif" }}>
+          Pedidos<span style={{ color: '#ff6b00' }}>Listo</span>
+        </span>
+        <span style={{
+          background: 'linear-gradient(135deg, #ff6b00 0%, #ff8533 100%)',
+          color: 'white',
+          fontFamily: "'Outfit', sans-serif",
+          fontWeight: '900',
+          fontSize: '11px',
+          padding: '3px 10px',
+          borderRadius: '6px 12px 12px 6px',
+          boxShadow: '0 2px 8px rgba(255,107,0,0.4)',
+          letterSpacing: '0.3px'
+        }}>
+          Partner
+        </span>
+      </span>
     </button>
     
     <a href="#servicios">Servicios</a>
