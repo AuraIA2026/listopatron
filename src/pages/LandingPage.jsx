@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import './LandingPage.css';
 import useLandingLogic from '../useLandingLogic';
 import PlanSelectionModal from '../components/PlanSelectionModal';
+import { collection, addDoc } from 'firebase/firestore';
+import { db } from '../firebase';
 import ad15 from '../assets/landing/extracted_15.png';
 import ad16 from '../assets/landing/extracted_16.png';
 import ad17 from '../assets/landing/extracted_17.png';
@@ -28,10 +30,36 @@ function DeliveryPartnerModal({ onClose, navigate }) {
     city: 'Santo Domingo'
   });
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setSubmitted(true);
+    setSubmitting(true);
+    try {
+      // 1. Guardar la solicitud en la colección 'partner_requests'
+      const docRef = await addDoc(collection(db, 'partner_requests'), {
+        ...formData,
+        status: 'pending',
+        createdAt: new Date().toISOString()
+      });
+
+      // 2. Notificar al administrador en la colección 'notificaciones'
+      await addDoc(collection(db, 'notificaciones'), {
+        userId: 'admin',
+        type: 'partner_request',
+        requestId: docRef.id,
+        title: '🏬 Nueva Solicitud de Comercio Partner',
+        text: `${formData.businessName || 'Comercio'} (${formData.ownerName} ${formData.ownerLastName}) ha solicitado registrar su negocio. Tel: ${formData.phone}, Email: ${formData.email}`,
+        read: false,
+        createdAt: new Date().toISOString(),
+        date: new Date().toISOString()
+      });
+    } catch (err) {
+      console.error("Error enviando solicitud de comercio:", err);
+    } finally {
+      setSubmitting(false);
+      setSubmitted(true);
+    }
   };
 
   return (
@@ -172,20 +200,21 @@ function DeliveryPartnerModal({ onClose, navigate }) {
 
                   <button
                     type="submit"
+                    disabled={submitting}
                     style={{
                       marginTop: '10px',
                       padding: '14px',
-                      background: 'linear-gradient(135deg, #ff6b00 0%, #ff3d00 100%)',
+                      background: submitting ? '#94A3B8' : 'linear-gradient(135deg, #ff6b00 0%, #ff3d00 100%)',
                       color: '#FFFFFF',
                       border: 'none',
                       borderRadius: '12px',
                       fontSize: '15px',
                       fontWeight: '900',
-                      cursor: 'pointer',
-                      boxShadow: '0 4px 15px rgba(255, 107, 0, 0.4)'
+                      cursor: submitting ? 'not-allowed' : 'pointer',
+                      boxShadow: submitting ? 'none' : '0 4px 15px rgba(255, 107, 0, 0.4)'
                     }}
                   >
-                    🚀 Enviar solicitud de registro
+                    {submitting ? '⏳ Enviando solicitud...' : '🚀 Enviar solicitud de registro'}
                   </button>
                 </form>
               </div>

@@ -505,6 +505,7 @@ export default function AdminPage({ navigate }) {
   const [editRequests, setEditRequests] = useState([]); // Solicitudes de Edición
   const [alerts, setAlerts]     = useState([]); // Alertas de plan
   const [vipLocales, setVipLocales] = useState([]); // Locales VIP
+  const [partnerRequests, setPartnerRequests] = useState([]); // Solicitudes de Comercios Partner
   const [toast, setToast]       = useState('');
   const [confirm, setConfirm]   = useState(null); // { type, obj }
   const [viewDocs, setViewDocs] = useState(null); // Usuario a inspeccionar documentos
@@ -585,7 +586,13 @@ export default function AdminPage({ navigate }) {
       setVipLocales(arr);
     });
 
-    return () => { unsubPay(); unsubUsers(); unsubVerif(); unsubReps(); unsubEdits(); unsubAlerts(); unsubLocales(); };
+    // 8. Escuchar Solicitudes de Comercios Partner
+    const unsubPartnerReqs = onSnapshot(query(collection(db, 'partner_requests'), orderBy('createdAt', 'desc')), (snap) => {
+      const arr = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      setPartnerRequests(arr);
+    });
+
+    return () => { unsubPay(); unsubUsers(); unsubVerif(); unsubReps(); unsubEdits(); unsubAlerts(); unsubLocales(); unsubPartnerReqs(); };
   }, []);
 
   const prevUnreadCount = useRef(0);
@@ -1031,6 +1038,16 @@ export default function AdminPage({ navigate }) {
          await batch.commit();
          showToast('✅ Todas las alertas marcadas como leídas');
       }
+
+      if (type === 'approve_partner_request') {
+         await updateDoc(doc(db, 'partner_requests', obj.id), { status: 'approved', processedAt: new Date().toISOString() });
+         showToast(`✅ Comercio "${obj.businessName}" marcado como contactado / aprobado`);
+      }
+
+      if (type === 'reject_partner_request') {
+         await updateDoc(doc(db, 'partner_requests', obj.id), { status: 'rejected', processedAt: new Date().toISOString() });
+         showToast(`🔴 Solicitud de "${obj.businessName}" archivada`);
+      }
     } catch(err) {
       console.error(err);
       showToast('❌ Ocurrió un error en la base de datos');
@@ -1090,8 +1107,8 @@ export default function AdminPage({ navigate }) {
           <div className="topbar-left">
             <button className="admin-back" onClick={() => navigate && navigate('profile')}>‹</button>
             <span className="admin-title">🛡️ Admin</span>
-            {(pendienteCount + bloqueadoCount + alerts.filter(a => !a.read).length) > 0 && (
-              <span className="admin-badge">{pendienteCount + bloqueadoCount + alerts.filter(a => !a.read).length} alertas</span>
+            {(pendienteCount + bloqueadoCount + partnerRequests.filter(r => r.status === 'pending').length + alerts.filter(a => !a.read).length) > 0 && (
+              <span className="admin-badge">{pendienteCount + bloqueadoCount + partnerRequests.filter(r => r.status === 'pending').length + alerts.filter(a => !a.read).length} alertas</span>
             )}
           </div>
           <div className="topbar-right">
@@ -1126,6 +1143,7 @@ export default function AdminPage({ navigate }) {
         {/* TABS */}
         <div className="admin-tabs" style={{overflowX:'auto', paddingBottom:4}}>
           {[
+            { id:'comercios',     icon:'🏪', label:'Comercio', count: partnerRequests.filter(r => r.status === 'pending').length },
             { id:'postulaciones', icon:'🛡️', label:'Nuevos', count:verifications.length },
             { id:'locales',      icon:'🏬', label:'Locales VIP', count: vipLocales.filter(l => !l.activo).length },
             { id:'alertas',      icon:'🔔', label:'Alertas', count: alerts.filter(a => !a.read).length },
@@ -1143,6 +1161,71 @@ export default function AdminPage({ navigate }) {
             </button>
           ))}
         </div>
+
+        {/* ── TAB: COMERCIOS (Solicitudes de PedidosListo Partner) ── */}
+        {tab === 'comercios' && (
+          <div className="admin-section" style={{marginTop:16}}>
+            <div className="section-header">
+              <span className="section-title">Solicitudes de Comercio Partner ({partnerRequests.length})</span>
+            </div>
+            {partnerRequests.length === 0 && (
+              <div className="empty-admin"><p>No hay solicitudes de comercios por el momento.</p></div>
+            )}
+            {partnerRequests.map((req, i) => {
+              const cleanPhone = (req.phone || '').replace(/\D/g, '');
+              const waLink = cleanPhone ? `https://wa.me/1${cleanPhone.length === 10 ? cleanPhone : cleanPhone.slice(-10)}` : null;
+              return (
+                <div className="payment-card" key={req.id} style={{animationDelay:`${i*.06}s`, borderColor: req.status === 'pending' ? 'rgba(242,96,0,0.4)' : 'var(--border)'}}>
+                  <div className="pc-top" style={{alignItems:'flex-start'}}>
+                    <div className="pc-avatar" style={{background:'linear-gradient(135deg, #F26000, #ff3d00)', fontSize:'20px'}}>
+                      🏪
+                    </div>
+                    <div className="pc-info">
+                      <div className="pc-name" style={{fontSize:'16px', color:'var(--text)'}}>{req.businessName || 'Comercio Sin Nombre'}</div>
+                      <div className="pc-detail" style={{fontWeight:'700', color:'var(--text)', marginTop:2}}>
+                        👤 Propietario: {req.ownerName} {req.ownerLastName}
+                      </div>
+                      <div style={{fontSize:'12.5px', color:'var(--muted)', marginTop:4, display:'flex', flexWrap:'wrap', gap:'12px'}}>
+                        <span>📧 {req.email || 'Sin correo'}</span>
+                        <span>📞 {req.phone}</span>
+                        <span>📍 {req.city || 'Santo Domingo'}</span>
+                      </div>
+                      <div style={{fontSize:'12px', color:'var(--muted)', marginTop:6, display:'flex', gap:'8px', flexWrap:'wrap'}}>
+                        <span style={{background:'var(--surface2)', padding:'2px 8px', borderRadius:'6px', fontWeight:'700'}}>🏷️ {req.businessType}</span>
+                        <span style={{background:'var(--surface2)', padding:'2px 8px', borderRadius:'6px', fontWeight:'700'}}>🏢 Sucursales: {req.branches || 1}</span>
+                        <span style={{background:'var(--surface2)', padding:'2px 8px', borderRadius:'6px', fontWeight:'700'}}>🚪 Calle: {req.isStreetStore}</span>
+                      </div>
+                    </div>
+                    <div className="pc-right">
+                      <span className={`status-pill ${req.status === 'approved' ? 'paid' : req.status === 'rejected' ? 'blocked' : 'waiting'}`}>
+                        {req.status === 'approved' ? '✅ Contactado' : req.status === 'rejected' ? '🔴 Archivado' : '⏳ Pendiente'}
+                      </span>
+                      <div style={{fontSize:'10px', color:'var(--muted)', marginTop:6}}>{fmtDate(req.createdAt)}</div>
+                    </div>
+                  </div>
+
+                  <div className="cc-actions" style={{marginTop:14}}>
+                    {waLink && (
+                      <a href={waLink} target="_blank" rel="noreferrer" className="cc-btn remind" style={{background:'#25D366', color:'#FFF', textDecoration:'none', textAlign:'center', display:'flex', alignItems:'center', justifyContent:'center', gap:4}}>
+                        💬 Contactar WhatsApp
+                      </a>
+                    )}
+                    {req.status !== 'approved' && (
+                      <button className="cc-btn paid" onClick={() => setConfirm({type:'approve_partner_request', obj: req})}>
+                        ✅ Marcar Contactado
+                      </button>
+                    )}
+                    {req.status !== 'rejected' && (
+                      <button className="cc-btn block" onClick={() => setConfirm({type:'reject_partner_request', obj: req})}>
+                        🔴 Archivar
+                      </button>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
 
         {/* ── TAB: POSTULACIONES (Aprobar Nuevos Profesionales) ── */}
         {tab === 'postulaciones' && (
