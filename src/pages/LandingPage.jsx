@@ -122,9 +122,16 @@ function DeliveryPartnerModal({ onClose, navigate }) {
 
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                     <div>
+                      <label style={{ display: 'block', fontSize: '12px', fontWeight: '800', color: '#334155', marginBottom: '4px' }}>Correo electrónico *</label>
+                      <input required type="email" placeholder="ejemplo@correo.com" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} style={{ width: '100%', padding: '10px 14px', border: '1.5px solid #CBD5E1', borderRadius: '10px', fontSize: '14px' }} />
+                    </div>
+                    <div>
                       <label style={{ display: 'block', fontSize: '12px', fontWeight: '800', color: '#334155', marginBottom: '4px' }}>Teléfono / WhatsApp *</label>
                       <input required type="tel" placeholder="809-000-0000" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} style={{ width: '100%', padding: '10px 14px', border: '1.5px solid #CBD5E1', borderRadius: '10px', fontSize: '14px' }} />
                     </div>
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                     <div>
                       <label style={{ display: 'block', fontSize: '12px', fontWeight: '800', color: '#334155', marginBottom: '4px' }}>Ciudad / Provincia *</label>
                       <select value={formData.city} onChange={e => setFormData({...formData, city: e.target.value})} style={{ width: '100%', padding: '10px 14px', border: '1.5px solid #CBD5E1', borderRadius: '10px', fontSize: '14px', background: '#FFF' }}>
@@ -136,31 +143,32 @@ function DeliveryPartnerModal({ onClose, navigate }) {
                         <option value="Punta Cana / Bávaro">Punta Cana / Bávaro</option>
                       </select>
                     </div>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '12px', fontWeight: '800', color: '#334155', marginBottom: '4px' }}>Tipo de negocio *</label>
+                      <select value={formData.businessType} onChange={e => setFormData({...formData, businessType: e.target.value})} style={{ width: '100%', padding: '10px 14px', border: '1.5px solid #CBD5E1', borderRadius: '10px', fontSize: '14px', background: '#FFF' }}>
+                        <option value="Restaurante / Comida">Restaurante / Comida</option>
+                        <option value="Colmado / Minimarket">Colmado / Minimarket</option>
+                        <option value="Farmacia">Farmacia</option>
+                        <option value="Tienda / Ropa">Tienda / Ropa</option>
+                        <option value="Repuestos / Herramientas">Repuestos / Herramientas</option>
+                        <option value="Otro">Otro</option>
+                      </select>
+                    </div>
                   </div>
 
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                        <div>
-                          <label style={{ display: 'block', fontSize: '12px', fontWeight: '800', color: '#334155', marginBottom: '4px' }}>Tipo de negocio *</label>
-                          <select value={formData.businessType} onChange={e => setFormData({...formData, businessType: e.target.value})} style={{ width: '100%', padding: '10px 14px', border: '1.5px solid #CBD5E1', borderRadius: '10px', fontSize: '14px', background: '#FFF' }}>
-                            <option value="Restaurante / Comida">Restaurante / Comida</option>
-                            <option value="Colmado / Minimarket">Colmado / Minimarket</option>
-                            <option value="Farmacia">Farmacia</option>
-                            <option value="Tienda / Ropa">Tienda / Ropa</option>
-                            <option value="Repuestos / Herramientas">Repuestos / Herramientas</option>
-                            <option value="Otro">Otro</option>
-                          </select>
-                        </div>
-                        <div>
-                          <label style={{ display: 'block', fontSize: '12px', fontWeight: '800', color: '#334155', marginBottom: '4px' }}>Sucursales *</label>
-                          <input type="number" min="1" value={formData.branches} onChange={e => setFormData({...formData, branches: e.target.value})} style={{ width: '100%', padding: '10px 14px', border: '1.5px solid #CBD5E1', borderRadius: '10px', fontSize: '14px' }} />
-                        </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', alignItems: 'center' }}>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '12px', fontWeight: '800', color: '#334155', marginBottom: '4px' }}>Sucursales *</label>
+                      <input type="number" min="1" value={formData.branches} onChange={e => setFormData({...formData, branches: e.target.value})} style={{ width: '100%', padding: '10px 14px', border: '1.5px solid #CBD5E1', borderRadius: '10px', fontSize: '14px' }} />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '12px', fontWeight: '800', color: '#334155', marginBottom: '4px' }}>¿Es local a la calle?</label>
+                      <div style={{ display: 'flex', gap: '16px', alignItems: 'center', height: '42px' }}>
+                        <label style={{ fontSize: '13px', display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer' }}><input type="radio" name="street" value="Si" checked={formData.isStreetStore === 'Si'} onChange={e => setFormData({...formData, isStreetStore: e.target.value})} /> Sí</label>
+                        <label style={{ fontSize: '13px', display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer' }}><input type="radio" name="street" value="No" checked={formData.isStreetStore === 'No'} onChange={e => setFormData({...formData, isStreetStore: e.target.value})} /> No</label>
                       </div>
-
-                      <div style={{ display: 'flex', gap: '20px', alignItems: 'center', marginTop: '4px' }}>
-                        <label style={{ fontSize: '12px', fontWeight: '800', color: '#334155' }}>¿Es local a la calle?</label>
-                        <label style={{ fontSize: '13px', display: 'flex', alignItems: 'center', gap: '4px' }}><input type="radio" name="street" value="Si" checked={formData.isStreetStore === 'Si'} onChange={e => setFormData({...formData, isStreetStore: e.target.value})} /> Sí</label>
-                        <label style={{ fontSize: '13px', display: 'flex', alignItems: 'center', gap: '4px' }}><input type="radio" name="street" value="No" checked={formData.isStreetStore === 'No'} onChange={e => setFormData({...formData, isStreetStore: e.target.value})} /> No</label>
-                      </div>
+                    </div>
+                  </div>
 
                   <button
                     type="submit"
