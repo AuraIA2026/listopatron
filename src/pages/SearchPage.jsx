@@ -1,14 +1,34 @@
 import { useState, useEffect, useRef } from 'react'
 import { collection, query, where, getDocs, doc, getDoc, addDoc, serverTimestamp } from 'firebase/firestore'
 import { db } from '../firebase'
-import { CATEGORIES, FILTERS, ALL_SUBCATEGORIES } from '../categories'
+import { CATEGORIES, FILTERS, ALL_SUBCATEGORIES, PROVINCES_LIST } from '../categories'
+import { detectGpsLocation } from '../utils/gpsLocation'
 import LocalesCarrusel from '../locales/LocalesCarrusel'  // ✅ importado
-import VIPSection, { isProVip } from '../components/VIPSection'
+import VIPSection, { isProVip, getProTier } from '../components/VIPSection'
 import HistoriasCarrusel from '../components/HistoriasCarrusel'
+import HistoriasViewerModal from '../components/HistoriasViewerModal'
+import StoryAvatar from '../components/StoryAvatar'
+import { useStories } from '../hooks/useStories'
+import { getProPlanTheme } from '../planTheme'
+import ProPlanAlertWidget from '../components/ProPlanAlertWidget'
+import PlanSelectionModal from '../components/PlanSelectionModal'
+import EstimadorPreciosModal from '../components/EstimadorPreciosModal'
+import SolicitudExpressModal from '../components/SolicitudExpressModal'
+import CalculadoraMaterialesModal from '../components/CalculadoraMaterialesModal'
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
+import 'leaflet/dist/leaflet.css'
+import L from 'leaflet'
 import recomendarIcon from '../assets/icons/recomendar.png'
 import opinionesIcon from '../assets/icons/opiniones.png'
 import compartirIcon from '../assets/icons/compartir.png'
+import logoListo from '../assets/logo_listo.png'
 import './SearchPage.css'
+
+const customProIcon = new L.Icon({
+  iconUrl: 'https://cdn-icons-png.flaticon.com/512/3203/3203071.png',
+  iconSize: [36, 36],
+  iconAnchor: [18, 36],
+})
 
 const txt = {
   es: {
@@ -511,7 +531,7 @@ function ProDelMes({ lang, navigate, userRole }) {
                     <div className="pdm-resena-content">
                       <p className="pdm-client-name">{r.clientName}</p>
                       <div className="pdm-resena-stars">
-                        {'★'.repeat(r.score)}{'☆'.repeat(5 - r.score)}
+                        {'★'.repeat(Math.max(0, Math.min(5, Math.floor(r.score || 0))))}{'☆'.repeat(Math.max(0, Math.min(5, 5 - Math.floor(r.score || 0))))}
                       </div>
                       <p className="pdm-resena-text">"{r.comment}"</p>
                     </div>
@@ -541,16 +561,54 @@ function ProDelMes({ lang, navigate, userRole }) {
   )
 }
 
-export default function SearchPage({ lang = 'es', navigate, initialCategory = 'all', userRole = 'client', userData }) {
+export default function SearchPage({ lang = 'es', navigate, initialCategory = 'all', initialProvince = 'all', userRole = 'client', userData }) {
   const [activeCategory,    setActiveCategory]    = useState(initialCategory || 'all')
   const [activeSubcategory, setActiveSubcategory] = useState('all')
   const [openCategory,      setOpenCategory]      = useState(null)
+  const [activeProvince,    setActiveProvince]    = useState(initialProvince || 'all')
+  const [isLocatingGps,     setIsLocatingGps]     = useState(false)
+
+  const handleDetectGps = async () => {
+    setIsLocatingGps(true)
+    try {
+      const location = await detectGpsLocation()
+      setActiveProvince(location.provinceId)
+      setToastMessage(lang === 'es' 
+        ? `📍 GPS Detectado: ${location.provinceLabel}. Mostrando profesionales cercanos.` 
+        : `📍 GPS Detected: ${location.provinceLabel}. Showing nearby professionals.`
+      )
+      setShowToast(true)
+      setTimeout(() => setShowToast(false), 4000)
+    } catch (err) {
+      alert(`⚠️ ${err.message || 'No se pudo obtener la ubicación por GPS.'}`)
+    } finally {
+      setIsLocatingGps(false)
+    }
+  }
+  const [showPlanModal,     setShowPlanModal]     = useState(false)
+  const [showEstimadorModal, setShowEstimadorModal] = useState(false)
+  const [showSolicitudExpress, setShowSolicitudExpress] = useState(false)
+  const [showCalcModal,     setShowCalcModal]     = useState(false)
+  const [viewMode,           setViewMode]          = useState('list') // 'list' | 'map'
+  
+  // Hook para historias de 24h activas en tiempo real
+  const { stories: allStories, getProStoryData } = useStories()
+  const [storyViewerOpen, setStoryViewerOpen] = useState(false)
+  const [activeStoryIndex, setActiveStoryIndex] = useState(0)
+
+  const handleOpenStoryViewer = (index) => {
+    setActiveStoryIndex(index)
+    setStoryViewerOpen(true)
+  }
   
   useEffect(() => {
     if (initialCategory) {
       setActiveCategory(initialCategory)
     }
-  }, [initialCategory])
+    if (initialProvince) {
+      setActiveProvince(initialProvince)
+    }
+  }, [initialCategory, initialProvince])
   const [search,            setSearch]            = useState('')
   const [quickFilter,       setQuickFilter]       = useState('all')
   const [sortBy,            setSortBy]            = useState('all')
@@ -677,6 +735,20 @@ export default function SearchPage({ lang = 'es', navigate, initialCategory = 'a
     const fetchProfessionals = async () => {
       setLoading(true)
       try {
+        const isProComplete = (d) => {
+          if (!d) return false;
+          const vf = d.verificacion || {};
+          const vfDocs = vf.docs || {};
+          const hasFront = Boolean(vfDocs.cedulaFrontal || d.cedulaFrontal);
+          const hasBack  = Boolean(vfDocs.cedulaTrasera || d.cedulaTrasera);
+          const hasSelfie = Boolean(vfDocs.selfie || d.selfie);
+          const hasConducta = Boolean(vfDocs.buenaConducta || d.buenaConducta);
+          const hasProf = Boolean(d.category || vf.especialidad || d.especialidad);
+          const hasAllDocs = hasFront && hasBack && hasSelfie && hasConducta && hasProf;
+          const isApproved = vf.estado === 'aprobada' || vf.estado === 'verificado' || d.approved === true;
+          return Boolean(hasAllDocs && isApproved);
+        };
+
         const q = query(collection(db, 'users'), where('type', '==', 'pro'))
         const querySnapshot = await getDocs(q)
         const prosList = []
@@ -684,7 +756,7 @@ export default function SearchPage({ lang = 'es', navigate, initialCategory = 'a
           const data = docSnap.data()
 
           // ─ Filtro estricto: Solo mostrar si completó el perfil y tiene plan activo o contratos
-          const isComplete = Boolean(data.profileComplete || data.verificacion?.estado === 'aprobada')
+          const isComplete = isProComplete(data)
           const hasPlan = Boolean(data.planStatus === 'active')
           const hasContracts = Boolean(data.contracts && data.contracts > 0)
           if (!isComplete || (!hasPlan && !hasContracts)) return;
@@ -695,7 +767,7 @@ export default function SearchPage({ lang = 'es', navigate, initialCategory = 'a
           prosList.push({
             id:         docSnap.id,
             name:       data.name       || 'Sin nombre',
-            category:   data.category   || 'unknown',
+            category:   data.category   || data.especialidad || data.verificacion?.especialidad || '',
             rating:     realRating,
             reviews:    reviewsCount,
             location:   data.verificacion?.municipio || data.verificacion?.provincia || data.city || data.location || 'República Dominicana',
@@ -749,17 +821,36 @@ export default function SearchPage({ lang = 'es', navigate, initialCategory = 'a
       const matchCat   = activeCategory === 'all' || mappedCat === activeCategory || mappedCat === activeSubcategory || isSubInMain
       const matchSearch = p.name.toLowerCase().includes(search.toLowerCase()) || p.location.toLowerCase().includes(search.toLowerCase())
       
+      const matchProvince = activeProvince === 'all' || 
+        p.location.toLowerCase().includes(activeProvince.toLowerCase()) ||
+        (p.verificacion?.provincia && p.verificacion.provincia.toLowerCase().includes(activeProvince.toLowerCase())) ||
+        (p.verificacion?.municipio && p.verificacion.municipio.toLowerCase().includes(activeProvince.toLowerCase()))
+      
       let matchPill = true
       if (quickFilter === 'available') matchPill = p.available === true
-      if (quickFilter === 'topRated') matchPill = Number(p.rating || 0) >= 4.8
+      if (quickFilter === 'topRated' || quickFilter === 'stars45') matchPill = Number(p.rating || 0) >= 4.5
       if (quickFilter === 'premium') matchPill = (p.currentPlan || '').toLowerCase().includes('vip') || (p.currentPlan || '').toLowerCase().includes('platinum') || (p.currentPlan || '').toLowerCase().includes('elite')
 
-      return matchCat && matchSearch && matchPill
+      return matchCat && matchSearch && matchPill && matchProvince
     })
     .sort((a, b) => {
-      if (sortBy === 'topRated') return b.rating - a.rating
-      if (sortBy === 'nearest')  return a.location.localeCompare(b.location)
-      return 0
+      if (quickFilter === 'mostHired' || sortBy === 'mostHired') {
+        const jobsA = (a.contractsUsed || 0) + (a.reviews || 0)
+        const jobsB = (b.contractsUsed || 0) + (b.reviews || 0)
+        return jobsB - jobsA
+      }
+      if (quickFilter === 'stars45' || quickFilter === 'topRated' || sortBy === 'topRated') {
+        return (b.rating || 0) - (a.rating || 0)
+      }
+      if (quickFilter === 'nearest' || sortBy === 'nearest') {
+        if (activeProvince !== 'all') {
+          const matchA = a.location.toLowerCase().includes(activeProvince.toLowerCase()) ? 1 : 0
+          const matchB = b.location.toLowerCase().includes(activeProvince.toLowerCase()) ? 1 : 0
+          if (matchA !== matchB) return matchB - matchA
+        }
+        return a.location.localeCompare(b.location)
+      }
+      return (b.rating || 0) - (a.rating || 0)
     })
 
   const vipProsList = professionals
@@ -805,6 +896,7 @@ export default function SearchPage({ lang = 'es', navigate, initialCategory = 'a
           const proObj = (professionals || []).find(p => p.id === proId) || { id: proId }; 
           navigate('proProfile', proObj); 
         }} 
+        navigate={navigate}
       />
 
       {/* ── CARRUSEL ÉPICO VIP DE PROFESIONALES DESTACADOS (ENCIMA DEL CUADRO MAMEY) ── */}
@@ -816,24 +908,104 @@ export default function SearchPage({ lang = 'es', navigate, initialCategory = 'a
         sectionSub={lang === 'es' ? 'Profesionales preparados para cumplir todas tus necesidades' : 'Professionals ready to fulfill all your needs'}
         showSeeAll={false}
         strictVipOnly={true}
+        getProStoryData={getProStoryData}
+        onOpenStory={handleOpenStoryViewer}
       />
 
       <PromoBanner lang={lang} userRole={userRole} />
       <ProDelMes lang={lang} navigate={navigate} userRole={userRole} />
 
-      <div className="pill-filters">
+      {/* ── ALERTA INTELIGENTE DE PLAN Y CONTRATOS PARA PROFESIONALES ── */}
+      <ProPlanAlertWidget userData={userData} onOpenPlanModal={() => setShowPlanModal(true)} />
+
+      <div className="pill-filters" style={{ display: 'flex', gap: '8px', overflowX: 'auto', alignItems: 'center' }}>
         <button className={`pill-btn ${quickFilter === 'all' ? 'active' : ''}`} onClick={() => setQuickFilter('all')}>
           🌐 {lang === 'es' ? 'Todos' : 'All'}
+        </button>
+        <button className={`pill-btn ${quickFilter === 'stars45' ? 'active' : ''}`} onClick={() => setQuickFilter('stars45')}>
+          🌟 {lang === 'es' ? '4.5+ Estrellas' : '4.5+ Stars'}
+        </button>
+        <button className={`pill-btn ${quickFilter === 'mostHired' ? 'active' : ''}`} onClick={() => setQuickFilter('mostHired')}>
+          🔥 {lang === 'es' ? 'Más contratados' : 'Most hired'}
+        </button>
+        <button className={`pill-btn ${quickFilter === 'nearest' ? 'active' : ''}`} onClick={() => setQuickFilter('nearest')}>
+          📍 {lang === 'es' ? 'Más cercanos' : 'Nearest'}
         </button>
         <button className={`pill-btn ${quickFilter === 'available' ? 'active' : ''}`} onClick={() => setQuickFilter('available')}>
           ⚡ {lang === 'es' ? 'Disponibles' : 'Available'}
         </button>
-        <button className={`pill-btn ${quickFilter === 'topRated' ? 'active' : ''}`} onClick={() => setQuickFilter('topRated')}>
-          ⭐ {lang === 'es' ? 'Mejores' : 'Top Rated'}
-        </button>
         <button className={`pill-btn ${quickFilter === 'premium' ? 'active' : ''}`} onClick={() => setQuickFilter('premium')}>
           💎 {lang === 'es' ? 'Premium' : 'Premium'}
         </button>
+        <button className="pill-btn" onClick={() => setShowEstimadorModal(true)} style={{ background: '#ECFDF5', color: '#059669', borderColor: '#A7F3D0', fontWeight: '800' }}>
+          📊 {lang === 'es' ? 'Precios RD$' : 'RD$ Prices'}
+        </button>
+        <button className="pill-btn" onClick={() => setShowCalcModal(true)} style={{ background: '#F0FDF4', color: '#059669', borderColor: '#BBF7D0', fontWeight: '900' }}>
+          🧰 {lang === 'es' ? 'Calculadora RD$' : 'Calculator RD$'}
+        </button>
+        <button className="pill-btn" onClick={() => setShowSolicitudExpress(true)} style={{ background: 'linear-gradient(135deg, #FFF7ED, #FFEDD5)', color: '#C2410C', borderColor: '#FDBA74', fontWeight: '900' }}>
+          ⚡ {lang === 'es' ? 'Cotización Flash' : 'Flash Quote'}
+        </button>
+        <button className="pill-btn" onClick={() => setViewMode(v => v === 'list' ? 'map' : 'list')} style={{ background: viewMode==='map' ? '#F26000' : '#1E293B', color: '#fff', border: 'none', fontWeight: '800' }}>
+          {viewMode === 'list' ? '🗺️ Mapa GPS' : '📋 Lista'}
+        </button>
+      </div>
+
+      {/* ── FILTRO POR PROVINCIA Y SECTOR (UBICACIÓN EXACTA CON GPS 1-CLIC) ── */}
+      <div className="province-filters-scroll" style={{ display: 'flex', gap: '8px', overflowX: 'auto', padding: '0 16px 14px', scrollbarWidth: 'none', alignItems: 'center' }}>
+        <button
+          onClick={handleDetectGps}
+          disabled={isLocatingGps}
+          style={{
+            whiteSpace: 'nowrap',
+            padding: '7px 16px',
+            borderRadius: '20px',
+            fontSize: '12px',
+            fontWeight: '900',
+            border: '1.5px solid #F26000',
+            background: isLocatingGps ? '#FEF3EC' : 'linear-gradient(135deg, #FF7A1A, #F26000)',
+            color: isLocatingGps ? '#F26000' : '#FFFFFF',
+            boxShadow: '0 4px 12px rgba(242, 96, 0, 0.35)',
+            cursor: isLocatingGps ? 'wait' : 'pointer',
+            flexShrink: 0,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            transition: 'all 0.2s ease'
+          }}
+          title={lang === 'es' ? 'Detectar mi provincia y zona automáticamente por GPS' : 'Detect GPS location'}
+        >
+          <span style={{ fontSize: '14px', animation: isLocatingGps ? 'spin 1s linear infinite' : 'none' }}>
+            {isLocatingGps ? '🔄' : '🎯'}
+          </span>
+          {isLocatingGps 
+            ? (lang === 'es' ? 'Detectando GPS...' : 'Detecting GPS...') 
+            : (lang === 'es' ? 'Mi Ubicación GPS' : 'My GPS Location')}
+        </button>
+
+        {PROVINCES_LIST.map(prov => (
+          <button 
+            key={prov.id} 
+            className={`pill-btn ${activeProvince === prov.id ? 'active' : ''}`}
+            onClick={() => setActiveProvince(prov.id)}
+            style={{
+              whiteSpace: 'nowrap',
+              padding: '7px 14px',
+              borderRadius: '20px',
+              fontSize: '12px',
+              fontWeight: '800',
+              border: activeProvince === prov.id ? 'none' : '1.5px solid #E2E8F0',
+              background: activeProvince === prov.id ? '#1E293B' : '#FFFFFF',
+              color: activeProvince === prov.id ? '#FFFFFF' : '#475569',
+              boxShadow: activeProvince === prov.id ? '0 4px 12px rgba(30, 41, 59, 0.25)' : 'none',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              flexShrink: 0
+            }}
+          >
+            {lang === 'es' ? prov.labelEs : prov.labelEn}
+          </button>
+        ))}
       </div>
 
       <div className="categories-wrapper">
@@ -868,7 +1040,34 @@ export default function SearchPage({ lang = 'es', navigate, initialCategory = 'a
         {!loading && <span className="results-count">{filtered.length} {T.results}</span>}
       </div>
 
-      {loading ? (
+      {viewMode === 'map' ? (
+        <div style={{ margin: '0 16px 20px', height: '450px', borderRadius: '20px', overflow: 'hidden', boxShadow: '0 8px 30px rgba(0,0,0,0.15)', border: '2px solid #F26000' }}>
+          <MapContainer center={[18.7357, -70.1627]} zoom={9} style={{ height: '100%', width: '100%' }}>
+            <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+            {filtered.map(pro => {
+              const lat = pro.coords?.lat || 18.4861 + (Math.random() * 0.1 - 0.05)
+              const lng = pro.coords?.lng || -69.9312 + (Math.random() * 0.1 - 0.05)
+              return (
+                <Marker key={pro.id} position={[lat, lng]} icon={customProIcon}>
+                  <Popup>
+                    <div style={{ textAlign: 'center', padding: '6px' }}>
+                      <h4 style={{ margin: '0 0 4px', fontSize: '14px', fontWeight: '800', color: '#1A1A2E' }}>{pro.name}</h4>
+                      <p style={{ margin: '0 0 6px', fontSize: '12px', color: '#F26000', fontWeight: '700' }}>{pro.category}</p>
+                      <p style={{ margin: '0 0 8px', fontSize: '11px', color: '#64748B' }}>📍 {pro.location}</p>
+                      <button 
+                        onClick={() => navigate('proProfile', pro)}
+                        style={{ background: '#F26000', color: '#fff', border: 'none', padding: '6px 12px', borderRadius: '12px', fontSize: '11px', fontWeight: '800', cursor: 'pointer' }}
+                      >
+                        Ver Perfil →
+                      </button>
+                    </div>
+                  </Popup>
+                </Marker>
+              )
+            })}
+          </MapContainer>
+        </div>
+      ) : loading ? (
         <div className="professionals-grid">
           {[1,2,3,4,5,6,7,8].map(n => (
             <div key={n} className="skeleton-card pro-card-skel">
@@ -891,28 +1090,74 @@ export default function SearchPage({ lang = 'es', navigate, initialCategory = 'a
           const mainCat   = CATEGORIES.find(c => c.id === mappedCat || c.subcategories.some(s => s.id === mappedCat))
           const isTopRated = Number(pro.rating || 0) >= 4.8;
           
-          const planStr = (pro.currentPlan || '').toLowerCase()
-          const isVip = planStr.includes('vip') || planStr.includes('elite') || planStr.includes('ilimitado')
-          const isPlatinum = planStr.includes('platinum') || planStr.includes('platino')
-          const isPremium = isVip || isPlatinum
+          const proTier = getProTier(pro);
+          const isVip = proTier === 'vip';
+          const isPlatinum = proTier === 'platinum';
+          const isGold = proTier === 'gold';
 
-          if (isPremium) {
+          // ── FOTOS GRANDES RESERVADAS EXCLUSIVAMENTE PARA PROFESIONALES VIP ──
+          if (isVip) {
+            const sData = getProStoryData(pro)
+            const hasStory = Boolean(sData && sData.stories && sData.stories.length > 0)
+
             return (
               <div key={pro.id} className="pro-card-premium" style={{ animationDelay:`${i * 0.06}s` }} onClick={() => navigate('proProfile', pro)}>
-                <div className="premium-photo-wrap">
-                  {isPlatinum && <div className="premium-badges-top">
-                    <span className="premium-amz-badge" style={{background: 'linear-gradient(135deg, #B0BEC5, #78909C)'}}>💎 Selección Platinum</span>
-                    <span className="premium-amz-badge badge-urgent" style={{background: '#E11D48'}}>🔥 Alta demanda</span>
-                  </div>}
-                  {isVip && <div className="premium-badges-top">
+                <div className="premium-photo-wrap" style={{ position: 'relative' }}>
+                  <div className="listo-brand-watermark" style={{ top: '12px', right: '12px' }}>
+                    <img src={logoListo} alt="Pedidos Listo" className="listo-brand-watermark-img" />
+                  </div>
+                  <div className="premium-badges-top">
                     <span className="premium-amz-badge" style={{background: 'linear-gradient(135deg, #FF6B00, #FF3D00)'}}>✨ Exclusivo VIP</span>
                     <span className="premium-amz-badge badge-urgent" style={{background: '#E11D48'}}>⚡ Responde al instante</span>
-                  </div>}
+                  </div>
                   
-                  {pro.photoURL
-                    ? <img src={pro.photoURL} alt={pro.name} className="premium-photo" />
-                    : <div className="premium-avatar" style={{ background: avatarColors[(Array.from(pro.id).reduce((acc, char) => acc + char.charCodeAt(0), 0)) % avatarColors.length] }}>{pro.avatar}</div>
-                  }
+                  <img 
+                    src={pro.photoURL || pro.img} 
+                    alt={pro.name} 
+                    className="premium-photo" 
+                  />
+
+                  {hasStory && (() => {
+                    const planTheme = getProPlanTheme(pro.currentPlan || pro.planName || pro.plan || pro.planId, pro.rating);
+                    return (
+                      <>
+                        <div 
+                          style={{
+                            position: 'absolute',
+                            inset: 0,
+                            background: `radial-gradient(circle at center, ${planTheme.color}22 0%, rgba(15, 23, 42, 0.25) 70%, rgba(0,0,0,0.5) 100%)`,
+                            zIndex: 4,
+                            pointerEvents: 'none'
+                          }}
+                        />
+                        <div 
+                          style={{
+                            position: 'absolute',
+                            top: '50%',
+                            left: '50%',
+                            transform: 'translate(-50%, -50%)',
+                            zIndex: 12,
+                            filter: `drop-shadow(0 4px 14px ${planTheme.color}55)`
+                          }}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            handleOpenStoryViewer(sData.firstIndex)
+                          }}
+                        >
+                          <StoryAvatar 
+                            pro={pro}
+                            src={pro.photoURL || pro.img}
+                            alt={pro.name}
+                            size={110}
+                            storyData={sData}
+                            onOpenStory={handleOpenStoryViewer}
+                            fallbackAvatar={pro.avatar || (pro.name || 'P').charAt(0)}
+                          />
+                        </div>
+                      </>
+                    );
+                  })()}
+
                   {pro.rating && pro.rating > 0 && pro.reviews > 0 && (
                     <div style={{ position: 'absolute', bottom: '16px', right: '16px', background: 'rgba(26, 26, 46, 0.85)', backdropFilter: 'blur(4px)', borderRadius: '8px', padding: '4px 8px', display: 'flex', alignItems: 'center', gap: '4px', border: '1.5px solid #FFD700', boxShadow: '0 4px 10px rgba(0,0,0,0.15)', zIndex: 10 }}>
                       <span style={{ fontSize: '11px', color: '#FFD700', fontWeight: 'bold' }}>⭐</span>
@@ -944,6 +1189,7 @@ export default function SearchPage({ lang = 'es', navigate, initialCategory = 'a
                     <p className="premium-cat">
                       {(subCat?.image || mainCat?.image) ? <img src={subCat?.image || mainCat?.image} style={{ width: '16px', height: '16px', objectFit: 'contain', verticalAlign: 'middle', marginRight: '4px' }} alt="" /> : (subCat?.icon || mainCat?.icon || '🔧')} 
                       {lang === 'es' ? (subCat?.labelEs || mainCat?.labelEs || pro.category) : (subCat?.labelEn || mainCat?.labelEn || pro.category)}
+                      <span style={{marginLeft: '6px', fontSize: '10px', textTransform: 'uppercase', background: 'linear-gradient(135deg, #FF6B00, #FF3D00)', color: '#fff', padding: '2px 8px', borderRadius: '6px', fontWeight: '900', boxShadow: '0 2px 8px rgba(255,107,0,0.4)', textShadow: '0 1px 2px rgba(0,0,0,0.3)'}}>✨ VIP</span>
                     </p>
                   </div>
                   <div style={{ textAlign: 'right' }}>
@@ -953,7 +1199,10 @@ export default function SearchPage({ lang = 'es', navigate, initialCategory = 'a
                 </div>
 
                 <div className="premium-rating-row">
-                  <span className="premium-stars">{'★'.repeat(Math.round(pro.rating || 0))}{'☆'.repeat(5 - Math.round(pro.rating || 0))}</span>
+                  {(() => {
+                    const validStars = Math.max(0, Math.min(5, Math.round(pro.rating || 0)));
+                    return <span className="premium-stars">{'★'.repeat(validStars)}{'☆'.repeat(5 - validStars)}</span>;
+                  })()}
                   <span className="premium-rating-text">{Number(pro.rating || 0).toFixed(1)} ({pro.reviews || 0} {lang==='es'?'valoraciones':'ratings'})</span>
                 </div>
 
@@ -974,30 +1223,107 @@ export default function SearchPage({ lang = 'es', navigate, initialCategory = 'a
                   <button className="premium-btn-profile" onClick={(e) => { e.stopPropagation(); navigate('proProfile', pro); }}>
                     👤 {T.profile}
                   </button>
-                  <button className="premium-btn-book" onClick={(e) => { e.stopPropagation(); navigate('booking', pro); }} style={{ background: isVip ? 'linear-gradient(135deg, #FF6B00, #FF3D00)' : 'linear-gradient(135deg, #B0BEC5, #78909C)', boxShadow: isVip ? '0 4px 15px rgba(255, 107, 0, 0.4)' : '0 4px 15px rgba(120, 144, 156, 0.4)' }}>
-                    {isVip ? '✨' : '💎'} {lang === 'es' ? 'Contratar' : 'Hire'}
+                  <button className="premium-btn-book" onClick={(e) => { e.stopPropagation(); navigate('booking', pro); }} style={{ background: 'linear-gradient(135deg, #FF6B00, #FF3D00)', boxShadow: '0 4px 15px rgba(255, 107, 0, 0.4)' }}>
+                    ✨ {lang === 'es' ? 'Contratar' : 'Hire'}
                   </button>
                 </div>
               </div>
             )
           }
 
+          // ── PROFESIONALES NO VIP (PLATINUM, GOLD, ESTÁNDAR) ──
+          const sDataStd = getProStoryData(pro)
+          const hasStoryStd = Boolean(sDataStd && sDataStd.stories && sDataStd.stories.length > 0)
+
+          let cardTierClass = 'standard-card';
+          let badgeMarkup = null;
+          let btnBookClass = 'btn-book standard-plan';
+          let btnBookIcon = '🔹';
+
+          if (isPlatinum) {
+            cardTierClass = 'platinum-card';
+            badgeMarkup = <span className="pro-tier-badge badge-platinum">💎 PLATINUM</span>;
+            btnBookClass = 'btn-book platinum-plan';
+            btnBookIcon = '💎';
+          } else if (isGold) {
+            cardTierClass = 'gold-card';
+            badgeMarkup = <span className="pro-tier-badge badge-gold">⭐ GOLD</span>;
+            btnBookClass = 'btn-book gold-plan';
+            btnBookIcon = '⭐';
+          } else {
+            cardTierClass = 'standard-card';
+            badgeMarkup = <span className="pro-tier-badge badge-standard">🔹 ESTÁNDAR</span>;
+            btnBookClass = 'btn-book standard-plan';
+            btnBookIcon = '🔹';
+          }
+
           return (
-            <div key={pro.id} className={`pro-card ${isTopRated ? 'top-rated' : ''}`} style={{ animationDelay:`${i * 0.06}s` }}>
-              <div className="card-photo">
-                {pro.photoURL
-                  ? <img src={pro.photoURL} alt={pro.name} className="pro-photo" />
-                  : <div className="pro-avatar-big" style={{ background: avatarColors[(Array.from(pro.id).reduce((acc, char) => acc + char.charCodeAt(0), 0)) % avatarColors.length] }}>{pro.avatar}</div>
-                }
+            <div key={pro.id} className={`pro-card ${cardTierClass} ${isTopRated ? 'top-rated' : ''}`} style={{ animationDelay:`${i * 0.06}s` }}>
+              <div className="card-photo" style={{ position: 'relative' }}>
+                <div className="listo-brand-watermark">
+                  <img src={logoListo} alt="Pedidos Listo" className="listo-brand-watermark-img" />
+                </div>
+                <img 
+                  src={pro.photoURL || pro.img} 
+                  alt={pro.name} 
+                  className="pro-photo" 
+                />
+
+                {hasStoryStd && (() => {
+                  const planTheme = getProPlanTheme(pro.currentPlan || pro.planName || pro.plan || pro.planId, pro.rating);
+                  return (
+                    <>
+                      <div 
+                        style={{
+                          position: 'absolute',
+                          inset: 0,
+                          background: `radial-gradient(circle at center, ${planTheme.color}22 0%, rgba(15, 23, 42, 0.25) 70%, rgba(0,0,0,0.5) 100%)`,
+                          zIndex: 4,
+                          pointerEvents: 'none'
+                        }}
+                      />
+                      <div 
+                        style={{
+                          position: 'absolute',
+                          top: '50%',
+                          left: '50%',
+                          transform: 'translate(-50%, -50%)',
+                          zIndex: 10,
+                          filter: `drop-shadow(0 4px 14px ${planTheme.color}55)`
+                        }}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleOpenStoryViewer(sDataStd.firstIndex)
+                        }}
+                      >
+                        <StoryAvatar 
+                          pro={pro}
+                          src={pro.photoURL || pro.img}
+                          alt={pro.name}
+                          size={76}
+                          storyData={sDataStd}
+                          onOpenStory={handleOpenStoryViewer}
+                          fallbackAvatar={pro.avatar || (pro.name || 'P').charAt(0)}
+                        />
+                      </div>
+                    </>
+                  );
+                })()}
+
                 {pro.rating && pro.rating > 0 && pro.reviews > 0 && (
-                  <div style={{ position: 'absolute', bottom: '12px', right: '12px', background: 'rgba(26, 26, 46, 0.85)', backdropFilter: 'blur(4px)', borderRadius: '8px', padding: '4px 8px', display: 'flex', alignItems: 'center', gap: '4px', border: '1.5px solid #FFD700', boxShadow: '0 4px 10px rgba(0,0,0,0.15)', zIndex: 10 }}>
-                    <span style={{ fontSize: '11px', color: '#FFD700', fontWeight: 'bold' }}>⭐</span>
-                    <span style={{ fontSize: '11px', color: 'white', fontWeight: '900' }}>{Number(pro.rating).toFixed(1)}</span>
+                  <div style={{ position: 'absolute', top: '6px', right: '6px', background: 'rgba(26, 26, 46, 0.85)', backdropFilter: 'blur(4px)', borderRadius: '8px', padding: '3px 6px', display: 'flex', alignItems: 'center', gap: '4px', border: '1.5px solid #FFD700', boxShadow: '0 4px 10px rgba(0,0,0,0.15)', zIndex: 10 }}>
+                    <span style={{ fontSize: '10px', color: '#FFD700', fontWeight: 'bold' }}>⭐</span>
+                    <span style={{ fontSize: '10px', color: 'white', fontWeight: '900' }}>{Number(pro.rating).toFixed(1)}</span>
                   </div>
                 )}
-                <span className={`status-badge ${pro.available ? 'avail' : 'busy'}`}>
-                  {pro.available ? T.available : T.busy}
-                </span>
+
+                {/* CONTENEDOR INFERIOR: PLAN ENCIMA DEL BOTÓN DISPONIBLE */}
+                <div className="card-photo-overlay-bottom">
+                  {badgeMarkup}
+                  <span className={`status-badge ${pro.available ? 'avail' : 'busy'}`}>
+                    {pro.available ? T.available : T.busy}
+                  </span>
+                </div>
               </div>
               <div className="card-interaction-row" onClick={(e) => e.stopPropagation()}>
                 <button className={`interaction-btn ${likedPros[pro.id] ? 'active' : ''}`} onClick={(e) => toggleLike(pro.id, e)}>
@@ -1018,13 +1344,6 @@ export default function SearchPage({ lang = 'es', navigate, initialCategory = 'a
                 <p className="pro-cat">
                   {(subCat?.image || mainCat?.image) ? <img src={subCat?.image || mainCat?.image} style={{ width: '16px', height: '16px', objectFit: 'contain', verticalAlign: 'middle', marginRight: '4px' }} alt="" /> : (subCat?.icon || mainCat?.icon || '🔧')}{' '}
                   {lang === 'es' ? (subCat?.labelEs || mainCat?.labelEs || pro.category) : (subCat?.labelEn || mainCat?.labelEn || pro.category)}
-                  {(() => {
-                    const planStr = (pro.currentPlan || '').toLowerCase();
-                    if (planStr.includes('vip') || planStr.includes('elite') || planStr.includes('ilimitado')) return <span style={{marginLeft: '6px', fontSize: '10px', textTransform: 'uppercase', background: 'linear-gradient(135deg, #FF6B00, #FF3D00)', color: '#fff', padding: '2px 8px', borderRadius: '6px', fontWeight: '900', boxShadow: '0 2px 8px rgba(255,107,0,0.4)', textShadow: '0 1px 2px rgba(0,0,0,0.3)'}}>✨ VIP</span>;
-                    if (planStr.includes('gold')) return <span style={{marginLeft: '6px', fontSize: '10px', textTransform: 'uppercase', background: 'linear-gradient(135deg, #FFD700, #FFA500)', color: '#1a1a2e', padding: '2px 8px', borderRadius: '6px', fontWeight: '900', boxShadow: '0 2px 8px rgba(255,215,0,0.4)'}}>⭐ GOLD</span>;
-                    if (planStr.includes('platinum') || planStr.includes('platino')) return <span style={{marginLeft: '6px', fontSize: '10px', textTransform: 'uppercase', background: 'linear-gradient(135deg, #B0BEC5, #78909C)', color: '#fff', padding: '2px 8px', borderRadius: '6px', fontWeight: '900', boxShadow: '0 2px 8px rgba(120,144,156,0.4)'}}>💎 PLATINUM</span>;
-                    return null;
-                  })()}
                 </p>
                 <p className="pro-location">📍 {pro.location}</p>
                 <div className="pro-meta">
@@ -1038,32 +1357,10 @@ export default function SearchPage({ lang = 'es', navigate, initialCategory = 'a
                 </span>
                 <div className="card-actions">
                   <button className="btn-profile" onClick={() => navigate('proProfile', pro)}>👤 {T.profile}</button>
-                  {(() => {
-                    const plan = (pro.currentPlan || '').toLowerCase();
-                    const isGold = plan.includes('gold');
-                    const isPlatinum = plan.includes('platinum') || plan.includes('platino');
-                    const isVip = plan.includes('vip') || plan.includes('elite') || plan.includes('ilimitado');
-
-                    let btnClass = 'btn-book';
-                    let btnIcon = '';
-                    if (isVip) {
-                      btnClass += ' vip-plan';
-                      btnIcon = <span className="anim-icon">💎</span>;
-                    } else if (isPlatinum) {
-                      btnClass += ' platinum-plan';
-                      btnIcon = <span className="anim-icon">💎</span>;
-                    } else if (isGold) {
-                      btnClass += ' gold-plan';
-                      btnIcon = <span className="anim-icon">⭐</span>;
-                    }
-                    
-                    return (
-                      <button className={btnClass} onClick={() => navigate('booking', pro)}>
-                        {btnIcon && <span style={{marginRight: '4px'}}>{btnIcon}</span>}
-                        {T.book}
-                      </button>
-                    )
-                  })()}
+                  <button className={btnBookClass} onClick={() => navigate('booking', pro)}>
+                    <span style={{ marginRight: '4px' }}>{btnBookIcon}</span>
+                    {T.book}
+                  </button>
                 </div>
               </div>
             </div>
@@ -1083,6 +1380,53 @@ export default function SearchPage({ lang = 'es', navigate, initialCategory = 'a
       )}
 
       <div style={{ height: 80 }} />
+
+      {/* Modal de Renovación de Plan para Profesional */}
+      <PlanSelectionModal 
+        isOpen={showPlanModal} 
+        onClose={() => setShowPlanModal(false)} 
+        proInfo={userData} 
+      />
+
+      {/* Modal de Estimador de Precios en RD$ */}
+      <EstimadorPreciosModal 
+        isOpen={showEstimadorModal} 
+        onClose={() => setShowEstimadorModal(false)} 
+        lang={lang}
+        onSelectCategory={(cat) => setSearch(cat)}
+      />
+
+      {/* Modal de Solicitud Cotización Flash 3 Pasos */}
+      {showSolicitudExpress && (
+        <SolicitudExpressModal 
+          lang={lang} 
+          onClose={() => setShowSolicitudExpress(false)} 
+          userProfile={userData} 
+        />
+      )}
+
+      {/* Modal de Calculadora de Materiales en RD$ */}
+      {showCalcModal && (
+        <CalculadoraMaterialesModal
+          lang={lang}
+          onClose={() => setShowCalcModal(false)}
+          navigate={navigate}
+        />
+      )}
+
+      {/* Modal Visor de Historias en pantalla completa para profesional seleccionado */}
+      <HistoriasViewerModal
+        isOpen={storyViewerOpen}
+        onClose={() => setStoryViewerOpen(false)}
+        stories={allStories}
+        initialIndex={activeStoryIndex}
+        userData={userData}
+        onHirePro={(proId) => {
+          const proObj = (professionals || []).find(p => p.id === proId) || { id: proId };
+          navigate('proProfile', proObj);
+        }}
+        navigate={navigate}
+      />
     </div>
   )
 }

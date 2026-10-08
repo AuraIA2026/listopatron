@@ -6,6 +6,8 @@ import './OrdersPage.css'
 import { ReportModal } from './ChatPage'
 import CallModal from '../components/CallModal'
 import FloatingChat from '../components/FloatingChat'
+import ReciboDigitalModal from '../components/ReciboDigitalModal'
+import MantenimientoPreventivoModal from '../components/MantenimientoPreventivoModal'
 
 const txt = {
   es: {
@@ -24,7 +26,7 @@ const txt = {
     },
     track:             'Seguir en mapa',
     tratoHecho:        '✅ Trato hecho',
-    listo:             '✅ ¡Listo Patrón!',
+    listo:             '✅ ¡Pedidos Listo!',
     review:            '⭐ Calificar',
     rebook:            '↩ Repetir',
     decline:           '✖ Rechazar',
@@ -100,7 +102,7 @@ const PROGRESS_LABELS = {
 }
 
 const isPaymentNotif  = (text = '') => {
-  const t = text.toLowerCase()
+  const t = String(text || '').toLowerCase()
   return t.includes('pago') || t.includes('payment') || t.includes('procede') || t.includes('proceed')
 }
 const isNewOrderNotif = (n) => n.type === 'new_order' || n.title === '¡Nuevo Pedido!'
@@ -319,6 +321,8 @@ function WorkingTimer({ startedAt, lang, isPro, onFinish }) {
    MODAL NOTIFICACIONES
 ───────────────────────────────────────────── */
 function NotificacionesModal({ onClose, notifs, lang, onMarkAllRead, navigate, orders, onOpenOrder }) {
+  const [selectedNotif, setSelectedNotif] = useState(null)
+
   return (
     <div onClick={onClose} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.5)', zIndex:1000000, display:'flex', alignItems:'flex-end', justifyContent:'center' }}>
       <div onClick={e => e.stopPropagation()} style={{ width:'100%', maxWidth:'480px', background:'#fff', borderRadius:'24px 24px 0 0', padding:'16px 20px 40px', animation:'slideUp .3s cubic-bezier(.32,1.2,.5,1)', maxHeight:'75vh', display:'flex', flexDirection:'column' }}>
@@ -337,6 +341,7 @@ function NotificacionesModal({ onClose, notifs, lang, onMarkAllRead, navigate, o
           ) : notifs.map((n, i) => {
             const isPago = isPaymentNotif(n.text), isNuevoPedido = isNewOrderNotif(n)
             const isReview = n.type === 'new_review' || (n.text || '').toLowerCase().includes('estrella')
+            const isPhotoRejection = (n.title && n.title.includes('Tu foto no fue aprobada')) || (n.text && n.text.includes('foto'))
             // Buscar relatedOrder relajando el filtro para incluir cualquier orden válida que coincida con orderId
             const relatedOrder = n.orderId ? orders.find(o => o.id===n.orderId) : null
             const isPaid = relatedOrder && ['approved', 'pending_cash', 'paid', 'verifying'].includes(relatedOrder.paymentStatus)
@@ -348,11 +353,15 @@ function NotificacionesModal({ onClose, notifs, lang, onMarkAllRead, navigate, o
                 : `${relatedOrder.proName || relatedOrder.pro || 'The professional'} finished the job. Payment completed!`
             }
 
-            const isClickable = isPago || isNuevoPedido || isReview || relatedOrder
+            const isClickable = true
             const handleClick = async () => {
               try { await updateDoc(doc(db,'notificaciones',n.id), { read:true }) } catch(e) {}
               
-              if (isNuevoPedido && n.orderId) { 
+              if (isPhotoRejection) {
+                onClose();
+                navigate('profile');
+              }
+              else if (isNuevoPedido && n.orderId) { 
                 onClose(); onOpenOrder(n.orderId) 
               }
               else if (isReview) { 
@@ -377,16 +386,24 @@ function NotificacionesModal({ onClose, notifs, lang, onMarkAllRead, navigate, o
                 } else {
                   navigate('tracking', { ...relatedOrder })
                 }
+              } else {
+                setSelectedNotif(n);
               }
             }
             return (
-              <div key={i} onClick={isClickable?handleClick:undefined} style={{ display:'flex', alignItems:'flex-start', gap:12, padding:12, borderRadius:12, marginBottom:8, background:n.read?'#fff':'#FFF3EC', border:n.read?'1px solid #f0f0f0':'1px solid #FFD580', cursor:isClickable?'pointer':'default', transition:'transform 0.15s' }}
-                onMouseEnter={e => { if (isClickable) e.currentTarget.style.transform='scale(1.01)' }}
+              <div key={i} onClick={handleClick} style={{ display:'flex', alignItems:'flex-start', gap:12, padding:12, borderRadius:12, marginBottom:8, background:n.read?'#fff':'#FFF3EC', border:n.read?'1px solid #f0f0f0':'1px solid #FFD580', cursor:'pointer', transition:'transform 0.15s' }}
+                onMouseEnter={e => { e.currentTarget.style.transform='scale(1.01)' }}
                 onMouseLeave={e => { e.currentTarget.style.transform='scale(1)' }}>
                 <span style={{ fontSize:22, flexShrink:0 }}>{n.icon||'🔔'}</span>
                 <div style={{ flex:1 }}>
-                  <p style={{ margin:'0 0 2px', fontSize:13, fontWeight:n.read?600:800, color:'#1A1A2E' }}>{displayText}</p>
+                  {n.title && <p style={{ margin:'0 0 4px', fontSize:14, fontWeight:800, color:'#991B1B' }}>{n.title}</p>}
+                  <p style={{ margin:'0 0 2px', fontSize:13, fontWeight:n.read?600:800, color:'#1A1A2E', whiteSpace:'pre-line', lineHeight:1.5 }}>{displayText}</p>
                   <p style={{ margin:0, fontSize:11, color:'#999' }}>{n.time}</p>
+                  {isPhotoRejection && (
+                    <div style={{ marginTop:8, display:'inline-flex', alignItems:'center', gap:6, background:'linear-gradient(135deg, #F26000, #EF4444)', color:'white', borderRadius:8, padding:'6px 12px', fontSize:12, fontWeight:700 }}>
+                      📷 Subir Nueva Foto / Editar Perfil →
+                    </div>
+                  )}
                   {isNuevoPedido&&n.orderId && <div style={{ marginTop:8, display:'inline-flex', alignItems:'center', gap:6, background:'#F26000', color:'white', borderRadius:8, padding:'6px 12px', fontSize:12, fontWeight:700 }}>📋 {lang==='es'?'Ver pedido →':'View order →'}</div>}
                   {isPago && relatedOrder && (
                     isPaid ? (
@@ -407,6 +424,21 @@ function NotificacionesModal({ onClose, notifs, lang, onMarkAllRead, navigate, o
         </div>
         <button onClick={onClose} style={{ width:'100%', background:'none', border:'none', color:'#999', fontSize:13, fontWeight:600, marginTop:14, cursor:'pointer', flexShrink:0 }}>{lang==='es'?'Cerrar':'Close'}</button>
       </div>
+
+      {/* Sub-Modal para mostrar mensaje largo si se selecciona */}
+      {selectedNotif && (
+        <div onClick={() => setSelectedNotif(null)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.7)', zIndex:1000005, display:'flex', alignItems:'center', justifyContent:'center', padding:16 }}>
+          <div onClick={e => e.stopPropagation()} style={{ background:'#fff', borderRadius:20, padding:24, width:'100%', maxWidth:420, display:'flex', flexDirection:'column', gap:14 }}>
+            <h3 style={{ margin:0, fontSize:18, fontWeight:800, color:'#1A1A2E' }}>{selectedNotif.title || 'Notificación'}</h3>
+            <div style={{ background:'#F8FAFC', padding:14, borderRadius:12, fontSize:14, lineHeight:1.6, whiteSpace:'pre-line', color:'#334155' }}>
+              {selectedNotif.text}
+            </div>
+            <button onClick={() => setSelectedNotif(null)} style={{ padding:12, borderRadius:12, background:'#F26000', color:'white', border:'none', fontWeight:700, cursor:'pointer' }}>
+              Entendido ✓
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
@@ -546,7 +578,9 @@ export default function OrdersPage({ lang = 'es', navigate, userData, userRole }
   const [notifs,         setNotifs]         = useState([])
   const [unread,         setUnread]         = useState(0)
   const [chatTarget,     setChatTarget]     = useState(null)
-  const [workDoneOrder,  setWorkDoneOrder]  = useState(null)  // modal Listo Patrón
+  const [workDoneOrder,  setWorkDoneOrder]  = useState(null)  // modal Pedidos Listo
+  const [reciboModalOrder, setReciboModalOrder] = useState(null)
+  const [showMantenimientoModal, setShowMantenimientoModal] = useState(false)
 
   useEffect(() => {
     if (!auth.currentUser || !userRole) { setLoading(false); return }
@@ -630,6 +664,14 @@ export default function OrdersPage({ lang = 'es', navigate, userData, userRole }
     await updateDoc(doc(db, 'orders', id), { rated:true, ratingScore:stars, ratingComment:comment, reviewerName:userData?.name||'Cliente', moderated:false }).catch(()=>{})
     const order = allOrders.find(o => o.id === id)
     if (order && order.proId) {
+      if (stars >= 4) {
+        import('firebase/firestore').then(({ updateDoc, doc, increment }) => {
+          updateDoc(doc(db, 'users', order.proId), {
+            has5StarContract: true,
+            completed5StarCount: increment(1)
+          }).catch(console.error);
+        });
+      }
       import('firebase/firestore').then(({ addDoc, collection, serverTimestamp }) => {
         addDoc(collection(db, 'notificaciones'), {
           userId:    order.proId,
@@ -732,6 +774,15 @@ export default function OrdersPage({ lang = 'es', navigate, userData, userRole }
           </button>
         )
       )}
+      {o.status==='done' && (
+        <button 
+          className="oc-btn track" 
+          style={{ background:'#F8FAFC', color:'#334155', border:'1px solid #CBD5E1', marginTop:4, width:'100%', fontWeight:'bold' }}
+          onClick={()=>setReciboModalOrder(o)}
+        >
+          🧾 {lang==='es'?'Ver Comprobante / Recibo':'View Digital Receipt'}
+        </button>
+      )}
       {o.status==='done' && !o.rated && userRole!=='pro' && (o.paymentStatus==='approved'||o.paymentStatus==='pending_cash') && <button className="oc-btn review" onClick={()=>setReviewOrder(o)}>{T.review}</button>}
       {o.status==='done' && o.rated && <span className="oc-rated">⭐ {T.rated}</span>}
     </div>
@@ -757,7 +808,7 @@ export default function OrdersPage({ lang = 'es', navigate, userData, userRole }
               <div className="oc-top">
                 {o.photoURL ? <img src={o.photoURL} alt={o.specialty} style={{ width:44,height:44,borderRadius:'50%',objectFit:'cover',flexShrink:0 }}/> : <div className="oc-avatar" style={{ background:avatarColors[i%avatarColors.length],width:44,height:44 }}>{o.avatar}</div>}
                 <div className="oc-info"><p className="oc-name">{o.pro}</p><p className="oc-spec">{o.icon} {o.specialty}</p><p className="oc-date">📅 {o.date}</p></div>
-                <div className="oc-right"><span className="oc-status" style={{ color:statusColor(o.status),background:statusColor(o.status)+'18' }}>{T.status[o.status]}</span><p className="oc-price">{o.price}</p></div>
+                <div className="oc-right"><span className="oc-status" style={{ color:statusColor(o.status),background:statusColor(o.status)+'18' }}>{T.status[o.status] || o.status || 'Pendiente'}</span><p className="oc-price">{o.price}</p></div>
               </div>
               <div className="order-progress">
                 {PROGRESS_STEPS.map((s, idx, arr) => {
@@ -799,7 +850,7 @@ export default function OrdersPage({ lang = 'es', navigate, userData, userRole }
             <div className="oc-top">
               {o.photoURL ? <img src={o.photoURL} alt={o.specialty} style={{ width:44,height:44,borderRadius:'50%',objectFit:'cover',flexShrink:0 }}/> : <div className="oc-avatar" style={{ background:avatarColors[(i+2)%avatarColors.length],width:44,height:44 }}>{o.avatar}</div>}
               <div className="oc-info"><p className="oc-name">{o.pro}</p><p className="oc-spec">{o.icon} {o.specialty}</p><p className="oc-date">📅 {o.date}</p></div>
-              <div className="oc-right"><span className="oc-status" style={{ color:statusColor(o.status),background:statusColor(o.status)+'18' }}>{T.status[o.status]}</span><p className="oc-price">{o.price}</p></div>
+              <div className="oc-right"><span className="oc-status" style={{ color:statusColor(o.status),background:statusColor(o.status)+'18' }}>{T.status[o.status] || o.status || 'Completado'}</span><p className="oc-price">{o.price}</p></div>
             </div>
             <div className="oc-actions">
               {o.status==='done' && userRole!=='pro' && (
@@ -815,6 +866,11 @@ export default function OrdersPage({ lang = 'es', navigate, userData, userRole }
               )}
               {o.status==='done' && !o.rated && userRole!=='pro' && (o.paymentStatus==='approved'||o.paymentStatus==='pending_cash') && <button className="oc-btn review" onClick={()=>setReviewOrder(o)}>{T.review}</button>}
               {o.status==='done' && o.rated && <span className="oc-rated">⭐ {T.rated}</span>}
+              {o.status==='done' && userRole !== 'pro' && (
+                <button className="oc-btn track" style={{ background:'#FFF7ED', color:'#C2410C', border:'1px solid #FFEDD5', marginTop:4, fontWeight:'bold' }} onClick={()=>setShowMantenimientoModal(true)}>
+                  📅 {lang==='es'?'Agenda Preventiva':'Preventive Schedule'}
+                </button>
+              )}
               {o.status!=='cancelled' && userRole !== 'pro' && <button className="oc-btn rebook" onClick={()=>navigate('search')}>{T.rebook}</button>}
             </div>
             
@@ -826,8 +882,7 @@ export default function OrdersPage({ lang = 'es', navigate, userData, userRole }
                     {userRole === 'pro' ? `Calificación de ${o.clientName || 'Cliente'}` : 'Tu Calificación'}
                   </span>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <span style={{ fontSize: 14, letterSpacing: 2 }}>{'⭐'.repeat(o.ratingScore)}</span>
-                    <span style={{ fontSize: 13, fontWeight: 900, color: '#F26000' }}>{o.ratingScore}.0</span>
+                    <span style={{ fontSize: 14, letterSpacing: 2 }}>{'⭐'.repeat(Math.max(0, Math.min(5, Math.floor(o.ratingScore || 0))))}</span>
                   </div>
                 </div>
                 {o.ratingComment && (
@@ -845,7 +900,7 @@ export default function OrdersPage({ lang = 'es', navigate, userData, userRole }
       {detailsOrder   && <OrderDetailsModal order={detailsOrder} lang={lang} onClose={()=>setDetailsOrder(null)} onAccept={handleAccept} onDecline={handleDecline} />}
 
 
-      {/* ── Modal Listo Patrón (pro) ── */}
+      {/* ── Modal Pedidos Listo (pro) ── */}
       {workDoneOrder && (
         <div className="review-overlay" onClick={()=>setWorkDoneOrder(null)} style={{ zIndex:1000000 }}>
           <div className="review-modal" onClick={e=>e.stopPropagation()} style={{ textAlign:'center' }}>
@@ -862,7 +917,7 @@ export default function OrdersPage({ lang = 'es', navigate, userData, userRole }
               onClick={()=>handleWorkDone(workDoneOrder)}
               style={{ width:'100%', padding:16, borderRadius:14, background:'#F26000', color:'#fff', border:'none', fontWeight:900, fontSize:17, cursor:'pointer', boxShadow:'0 4px 16px rgba(242,96,0,0.35)', marginBottom:12 }}
             >
-              ✅ {lang==='es' ? '¡Listo Patrón!' : 'Done Boss!'}
+              ✅ {lang==='es' ? '¡Pedidos Listo!' : 'Done Boss!'}
             </button>
             <button onClick={()=>setWorkDoneOrder(null)} style={{ width:'100%', padding:14, borderRadius:14, background:'#f5f5f5', border:'none', color:'#666', fontWeight:700, fontSize:14, cursor:'pointer' }}>
               {lang==='es' ? 'Seguir trabajando' : 'Keep working'}
@@ -872,6 +927,21 @@ export default function OrdersPage({ lang = 'es', navigate, userData, userRole }
       )}
       {chatTarget && chatTarget.uid && (
         <FloatingChat otherUid={chatTarget.uid} otherName={chatTarget.name} otherColor={chatTarget.color} otherPhone={chatTarget.phone} lang={lang} onClose={()=>setChatTarget(null)} />
+      )}
+      {reciboModalOrder && (
+        <ReciboDigitalModal
+          order={reciboModalOrder}
+          lang={lang}
+          onClose={() => setReciboModalOrder(null)}
+        />
+      )}
+      {showMantenimientoModal && (
+        <MantenimientoPreventivoModal
+          lang={lang}
+          onClose={() => setShowMantenimientoModal(false)}
+          navigate={navigate}
+          userProfile={userData}
+        />
       )}
       <div style={{ height:80 }} />
     </div>
