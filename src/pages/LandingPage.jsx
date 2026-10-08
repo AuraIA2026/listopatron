@@ -224,7 +224,7 @@ function DeliveryPartnerModal({ onClose, navigate }) {
 
               {/* Banner lateral con beneficios e imagen del escritorio */}
               <div style={{ background: '#F8FAFC', border: '1.5px solid #E2E8F0', borderRadius: '18px', padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                <img src="/assets/partner/Screenshot 2026-10-07 195324.png" alt="Socio PedidosListo" style={{ width: '100%', borderRadius: '12px', objectFit: 'cover', height: '180px' }} />
+                <img src="/assets/partner/partner_woman.jpg" alt="Socio PedidosListo" style={{ width: '100%', borderRadius: '14px', objectFit: 'cover', height: '240px', boxShadow: '0 4px 15px rgba(0,0,0,0.1)' }} />
 
                 <div>
                   <h4 style={{ fontSize: '15px', fontWeight: '900', color: '#0d0e15', marginBottom: '8px' }}>
