@@ -303,7 +303,7 @@ body {
   white-space: nowrap;
 }
 
-/* PROMO BANNERS CAROUSEL (PEDIDOSYA STYLE) */
+/* PROMO BANNERS CAROUSEL (PEDIDOSLISTO STYLE) */
 .promo-carousel-row {
   display: flex;
   gap: 12px;
@@ -918,7 +918,7 @@ body {
 }
 
 /* ==========================================================================
-   SERVICIOS HUB STYLES (UBER / PEDIDOSYA STYLE)
+   SERVICIOS HUB STYLES (PEDIDOSLISTO STYLE)
    ========================================================================== */
 
 .service-hub-card {
@@ -1401,7 +1401,7 @@ body {
 }
 
 /* ==========================================================================
-   PEDIDOSYA / MAMEY BRAND 1:1 REPLICA COMPONENT STYLES
+   PEDIDOSLISTO / MAMEY BRAND COMPONENT STYLES
    ========================================================================== */
 
 /* Curved Brand Header */

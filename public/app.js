@@ -765,7 +765,7 @@ function renderCartModalContent() {
       `).join('')}
     </div>
 
-    <!-- PROPINA PARA EL REPARTIDOR (PEDIDOSYA STYLE) -->
+    <!-- PROPINA PARA EL REPARTIDOR (PEDIDOSLISTO STYLE) -->
     <div style="background: #fffcf9; border: 1px solid #ffe0b2; padding: 12px; border-radius: 14px; margin-bottom: 14px;">
       <div style="font-size: 11px; font-weight: 800; color: var(--brand-mamey); margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between;">
         <span>🛵 Propina para el Repartidor</span>

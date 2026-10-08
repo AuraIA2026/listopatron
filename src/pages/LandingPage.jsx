@@ -348,9 +348,16 @@ function DeliveryPartnerModal({ onClose, navigate }) {
                     ))}
                   </div>
 
-                  {/* Captura original de Pasos */}
-                  <div style={{ background: '#FFFFFF', borderRadius: '18px', padding: '16px', border: '1.5px solid #E2E8F0', textAlign: 'center' }}>
-                    <img src="/assets/partner/pedidos_listo_all/Screenshot 2026-10-07 195324.png" alt="Proceso PedidosListo" style={{ maxWidth: '100%', maxHeight: '220px', objectFit: 'contain', borderRadius: '12px' }} />
+                  {/* Banner Ilustrativo de Gestión */}
+                  <div style={{ background: '#FFFFFF', borderRadius: '18px', padding: '20px', border: '1.5px solid #E2E8F0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '20px', boxShadow: '0 4px 12px rgba(0,0,0,0.03)' }}>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ color: '#FF6B00', fontWeight: '900', fontSize: '12px', textTransform: 'uppercase', marginBottom: '4px' }}>⚡ PORTAL PARTNER EN TIEMPO REAL</div>
+                      <h4 style={{ fontSize: '16px', fontWeight: '900', color: '#0d0e15', margin: '0 0 6px' }}>Monitorea tu negocio desde cualquier dispositivo</h4>
+                      <p style={{ fontSize: '13px', color: '#64748B', margin: 0, lineHeight: '1.5' }}>
+                        Acepta ordenes con 1 solo clic, pausa artículos agotados al instante y visualiza el rastreo GPS en mapa interactivo de cada repartidor de PedidosListo.
+                      </p>
+                    </div>
+                    <img src="/assets/partner/delivery_food.png" alt="Portal PedidosListo" style={{ width: '160px', height: '110px', objectFit: 'cover', borderRadius: '14px', border: '1.5px solid #CBD5E1' }} />
                   </div>
                 </div>
               )}
@@ -454,8 +461,20 @@ function DeliveryPartnerModal({ onClose, navigate }) {
                   </div>
 
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                    <img src="/assets/partner/pedidos_listo_all/Screenshot 2026-10-07 195412.png" alt="Soluciones Destacados" style={{ width: '100%', height: '160px', objectFit: 'cover', borderRadius: '16px', border: '1.5px solid #E2E8F0' }} />
-                    <img src="/assets/partner/pedidos_listo_all/Screenshot 2026-10-07 195415.png" alt="PedidosListo Créditos" style={{ width: '100%', height: '160px', objectFit: 'cover', borderRadius: '16px', border: '1.5px solid #E2E8F0' }} />
+                    <div style={{ background: 'linear-gradient(135deg, #FF6B00 0%, #E65100 100%)', borderRadius: '18px', padding: '20px', color: '#FFF' }}>
+                      <div style={{ fontSize: '24px', marginBottom: '8px' }}>🚀</div>
+                      <h5 style={{ fontSize: '15px', fontWeight: '900', margin: '0 0 4px' }}>Aumenta tus pedidos un 40%</h5>
+                      <p style={{ fontSize: '12px', margin: 0, opacity: 0.95, lineHeight: '1.4' }}>
+                        Los comercios que activan PedidosListo Destacados reciben en promedio un 40% más de órdenes semanales.
+                      </p>
+                    </div>
+                    <div style={{ background: '#0D0E15', borderRadius: '18px', padding: '20px', color: '#FFF', border: '1.5px solid #334155' }}>
+                      <div style={{ fontSize: '24px', marginBottom: '8px' }}>💰</div>
+                      <h5 style={{ fontSize: '15px', fontWeight: '900', color: '#FF6B00', margin: '0 0 4px' }}>Microcréditos al 0% fricción</h5>
+                      <p style={{ fontSize: '12px', color: '#CBD5E1', margin: 0, lineHeight: '1.4' }}>
+                        Sin papeleo bancario. Si tienes ventas constantes en la app, apruebas tu crédito inmediatamente.
+                      </p>
+                    </div>
                   </div>
                 </div>
               )}
