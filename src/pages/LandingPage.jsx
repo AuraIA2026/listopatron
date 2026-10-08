@@ -64,26 +64,46 @@ function DeliveryPartnerModal({ onClose, navigate }) {
 
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 10000, background: 'rgba(13, 14, 21, 0.85)', backdropFilter: 'blur(10px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px', overflowY: 'auto' }} onClick={onClose}>
-      <div style={{ background: '#FFFFFF', borderRadius: '24px', maxWidth: '860px', width: '100%', overflow: 'hidden', boxShadow: '0 25px 60px rgba(0,0,0,0.5)', position: 'relative', margin: 'auto' }} onClick={e => e.stopPropagation()}>
+      <div style={{ background: '#FFFFFF', borderRadius: '24px', maxWidth: '960px', width: '100%', overflow: 'hidden', boxShadow: '0 25px 60px rgba(0,0,0,0.5)', position: 'relative', margin: 'auto' }} onClick={e => e.stopPropagation()}>
         
         {/* Header Banner estilo PedidosListo Partner */}
         <div style={{ background: 'linear-gradient(135deg, #0d0e15 0%, #1a1c29 100%)', padding: '24px 28px', color: '#FFFFFF', position: 'relative', borderBottom: '3px solid #ff6b00' }}>
           <button onClick={onClose} style={{ position: 'absolute', top: '18px', right: '18px', background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.3)', color: '#FFFFFF', width: '34px', height: '34px', borderRadius: '50%', fontSize: '18px', cursor: 'pointer', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
           
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(255, 107, 0, 0.2)', border: '1px solid #ff6b00', padding: '4px 14px', borderRadius: '20px', fontSize: '12px', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '12px', color: '#ff6b00' }}>
-            🤝 PEDIDOSLISTO PARTNER PORTAL
+            🤝 PEDIDOSLISTO PARTNER PORTAL · REPÚBLICA DOMINICANA
           </div>
           
           <h2 style={{ fontFamily: "'Outfit', 'Fredoka One', cursive, sans-serif", fontSize: '26px', margin: '0 0 8px', lineHeight: 1.2, fontWeight: '900' }}>
             ¡Un nuevo canal para vender más y despegar tu negocio! 🚀
           </h2>
           <p style={{ fontSize: '14px', margin: 0, color: '#94A3B8', fontWeight: '500' }}>
-            Únete a la red líder de comercios y restaurantes en República Dominicana.
+            Únete a la red líder de comercios, restaurantes y repartidores en República Dominicana.
           </p>
+
+          {/* Bar de Métricas en la cabecera */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '10px', marginTop: '16px', paddingTop: '16px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+            <div style={{ background: 'rgba(255,255,255,0.06)', borderRadius: '10px', padding: '8px 12px', textAlign: 'center' }}>
+              <div style={{ fontSize: '16px', fontWeight: '900', color: '#FF6B00' }}>+500</div>
+              <div style={{ fontSize: '11px', color: '#94A3B8' }}>Comercios Aliados</div>
+            </div>
+            <div style={{ background: 'rgba(255,255,255,0.06)', borderRadius: '10px', padding: '8px 12px', textAlign: 'center' }}>
+              <div style={{ fontSize: '16px', fontWeight: '900', color: '#10B981' }}>~15 min</div>
+              <div style={{ fontSize: '11px', color: '#94A3B8' }}>Tiempo de Entrega</div>
+            </div>
+            <div style={{ background: 'rgba(255,255,255,0.06)', borderRadius: '10px', padding: '8px 12px', textAlign: 'center' }}>
+              <div style={{ fontSize: '16px', fontWeight: '900', color: '#F59E0B' }}>10%</div>
+              <div style={{ fontSize: '11px', color: '#94A3B8' }}>Comisión Estática</div>
+            </div>
+            <div style={{ background: 'rgba(255,255,255,0.06)', borderRadius: '10px', padding: '8px 12px', textAlign: 'center' }}>
+              <div style={{ fontSize: '16px', fontWeight: '900', color: '#3B82F6' }}>4.9 / 5 ⭐</div>
+              <div style={{ fontSize: '11px', color: '#94A3B8' }}>Satisfacción Clientes</div>
+            </div>
+          </div>
         </div>
 
         {/* Modal Content */}
-        <div style={{ padding: '24px 28px', maxHeight: '78vh', overflowY: 'auto' }}>
+        <div style={{ padding: '24px 28px', maxHeight: '80vh', overflowY: 'auto' }}>
           {submitted ? (
             <div style={{ textAlign: 'center', padding: '40px 20px' }}>
               <div style={{ fontSize: '60px', marginBottom: '16px' }}>🎉</div>
@@ -112,8 +132,8 @@ function DeliveryPartnerModal({ onClose, navigate }) {
             </div>
           ) : (
             <div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '24px', alignItems: 'start' }}>
-                {/* Formulario */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1.1fr 1fr', gap: '24px', alignItems: 'start' }}>
+                {/* Formulario Izquierda */}
                 <div>
                   {/* Banner de Oferta Destacada */}
                   <div style={{ background: '#FFF7ED', border: '1.5px solid #FFEDD5', borderRadius: '14px', padding: '12px 16px', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -220,50 +240,85 @@ function DeliveryPartnerModal({ onClose, navigate }) {
                   </form>
                 </div>
 
-                {/* Banner lateral con beneficios e imagen destacada */}
-                <div style={{ background: '#F8FAFC', border: '1.5px solid #E2E8F0', borderRadius: '18px', padding: '20px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                  <div style={{ position: 'relative' }}>
-                    <img src="/assets/partner/partner_woman.jpg" alt="Socio PedidosListo" style={{ width: '100%', borderRadius: '14px', objectFit: 'cover', height: '200px', boxShadow: '0 4px 15px rgba(0,0,0,0.1)' }} />
-                    <div style={{ position: 'absolute', bottom: '10px', right: '10px', background: 'rgba(13, 14, 21, 0.85)', color: '#FFD700', padding: '4px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: '800', backdropFilter: 'blur(4px)' }}>
-                      ⭐⭐⭐⭐⭐ 4.9 / 5
+                {/* Columna Derecha con Galería Completa de Fotos y Testimonios */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+
+                  {/* Foto 1: Motorista Uniformado Listo Patrón */}
+                  <div style={{ position: 'relative', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 6px 18px rgba(0,0,0,0.12)', border: '1.5px solid #E2E8F0' }}>
+                    <img src="/assets/partner/delivery_rider.png" alt="Repartidor Listo Patrón" style={{ width: '100%', height: '190px', objectFit: 'cover', display: 'block' }} />
+                    <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(13,14,21,0.85) 0%, transparent 60%)' }}></div>
+                    <div style={{ position: 'absolute', bottom: '12px', left: '14px', right: '14px', color: '#FFF' }}>
+                      <div style={{ fontSize: '11px', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '1px', color: '#FF6B00', marginBottom: '2px' }}>
+                        🛵 FLOTA PROPIA Y CERTIFICADA
+                      </div>
+                      <div style={{ fontSize: '13px', fontWeight: '800' }}>
+                        Repartidores equipados con cajón térmico Listo Patrón
+                      </div>
                     </div>
                   </div>
 
-                  {/* Card estilo Pedidos Listo Delivery con testimonio real */}
-                  <div style={{ background: 'linear-gradient(135deg, #ff6b00 0%, #d84300 100%)', borderRadius: '14px', padding: '14px', color: '#FFFFFF', boxShadow: '0 6px 16px rgba(255, 107, 0, 0.25)' }}>
-                    <div style={{ fontSize: '12.5px', fontWeight: '900', letterSpacing: '0.5px', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <span>🛵</span> - Pedidos Listo Delivery
+                  {/* Testimonio 1: Aliado Perfecto (Fondo Naranja Mamey) */}
+                  <div style={{ background: 'linear-gradient(135deg, #FF6B00 0%, #D84300 100%)', borderRadius: '16px', padding: '16px', color: '#FFFFFF', boxShadow: '0 6px 18px rgba(255,107,0,0.25)', position: 'relative' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                      <span style={{ fontSize: '13px', fontWeight: '900', letterSpacing: '0.5px' }}>
+                        🛵 - Pedidos Listo Delivery
+                      </span>
+                      <span style={{ background: 'rgba(255,255,255,0.2)', padding: '2px 8px', borderRadius: '12px', fontSize: '10px', fontWeight: '800' }}>
+                        COMERCIO ALIADO
+                      </span>
                     </div>
-                    <p style={{ fontSize: '11.5px', lineHeight: '1.5', margin: 0, fontStyle: 'italic', opacity: 0.95 }}>
+                    <p style={{ fontSize: '12px', lineHeight: '1.5', margin: 0, fontStyle: 'italic', opacity: 0.98 }}>
                       "¡El aliado perfecto para tu negocio! Pedidos Listo Delivery ha sido mucho más que un canal de ventas. Su plataforma nos permitió llegar a nuevo público y mantenernos competitivos. Esta relación fue clave para convertir nuestras metas en resultados. Estamos entusiasmados por seguir creciendo juntos."
                     </p>
                   </div>
 
-                  <div>
-                    <h4 style={{ fontSize: '14px', fontWeight: '900', color: '#0d0e15', marginBottom: '8px' }}>
+                  {/* Testimonio 2: Experiencia de Cliente (Fondo Oscuro Elegante) */}
+                  <div style={{ background: 'linear-gradient(135deg, #0D0E15 0%, #1E293B 100%)', border: '1px solid #334155', borderRadius: '16px', padding: '16px', color: '#FFFFFF', boxShadow: '0 6px 18px rgba(0,0,0,0.25)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                      <span style={{ fontSize: '13px', fontWeight: '900', color: '#FF6B00' }}>
+                        🍔 - Pedidos Listo Delivery
+                      </span>
+                      <span style={{ color: '#FFB800', fontSize: '12px' }}>
+                        ★★★★★ 5.0
+                      </span>
+                    </div>
+                    <p style={{ fontSize: '11.5px', lineHeight: '1.5', margin: 0, fontStyle: 'italic', color: '#E2E8F0' }}>
+                      "¡Tus antojos favoritos, listos en minutos! En Restaurante Proteína y comercios afiliados preparamos cada plato con los ingredientes más frescos y la rapidez que te encanta. Explora nuestro menú en la app, elige lo que más se te antoje y recíbelo directo en tu puerta. No esperes más para disfrutar de una experiencia única, rápida y deliciosa. ¡Haz tu pedido ahora mismo por la app de Listo y déjate sorprender!"
+                    </p>
+                  </div>
+
+                  {/* Foto 2: Entrega en mano y bolsa con logo Listo */}
+                  <div style={{ position: 'relative', borderRadius: '16px', overflow: 'hidden', border: '1.5px solid #E2E8F0', height: '140px' }}>
+                    <img src="/assets/partner/delivery_handover.png" alt="Entrega de paquete Listo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  </div>
+
+                  {/* Beneficios Principales */}
+                  <div style={{ background: '#F8FAFC', border: '1.5px solid #E2E8F0', borderRadius: '16px', padding: '16px' }}>
+                    <h4 style={{ fontSize: '14px', fontWeight: '900', color: '#0d0e15', marginBottom: '10px' }}>
                       ¿Por qué elegir PedidosListo Partner?
                     </h4>
-                    <ul style={{ paddingLeft: '16px', margin: 0, fontSize: '12px', color: '#475569', display: 'flex', flexDirection: 'column', gap: '6px', lineHeight: '1.4' }}>
-                      <li><strong>Aumenta tus ventas:</strong> Llega a miles de clientes activos en tu zona.</li>
+                    <ul style={{ paddingLeft: '16px', margin: 0, fontSize: '12px', color: '#475569', display: 'flex', flexDirection: 'column', gap: '8px', lineHeight: '1.4' }}>
+                      <li><strong>Aumenta tus ventas:</strong> Llega a miles de clientes activos en tu ciudad.</li>
                       <li><strong>Tracking GPS en vivo:</strong> Monitorea cada entrega en tiempo real.</li>
-                      <li><strong>Pagos garantizados:</strong> Transfieres tus ganancias directo a tu banco.</li>
+                      <li><strong>Pagos garantizados:</strong> Recibe tus ganancias directo a tu cuenta bancaria.</li>
                       <li><strong>Soporte dedicado 24/7:</strong> Asistencia personalizada por WhatsApp.</li>
                     </ul>
                   </div>
+
                 </div>
               </div>
 
-              {/* Banner Informativo Inferior Enriquecido */}
-              <div style={{ marginTop: '24px', background: 'linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 100%)', border: '1.5px solid #FED7AA', borderRadius: '16px', padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '16px' }}>
-                <div style={{ background: '#FF6B00', color: '#FFF', padding: '10px 14px', borderRadius: '12px', fontSize: '22px', flexShrink: 0, boxShadow: '0 4px 10px rgba(255,107,0,0.3)' }}>
-                  📦
+              {/* Banner Informativo Inferior Completo de Cierre */}
+              <div style={{ marginTop: '24px', background: 'linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 100%)', border: '1.5px solid #FED7AA', borderRadius: '18px', padding: '18px 22px', display: 'flex', alignItems: 'center', gap: '18px' }}>
+                <div style={{ background: '#FF6B00', color: '#FFF', width: '50px', height: '50px', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '26px', flexShrink: 0, boxShadow: '0 4px 12px rgba(255,107,0,0.35)' }}>
+                  🛵
                 </div>
                 <div>
-                  <h5 style={{ fontSize: '13.5px', fontWeight: '900', color: '#9A3412', margin: '0 0 4px' }}>
-                    - Pedidos Listo Delivery · ¡Tus antojos y productos listos en minutos!
+                  <h5 style={{ fontSize: '14px', fontWeight: '900', color: '#9A3412', margin: '0 0 4px' }}>
+                    - Pedidos Listo Delivery · Tu solución 360° para envíos en República Dominicana
                   </h5>
-                  <p style={{ fontSize: '12px', color: '#C2410C', margin: 0, lineHeight: '1.5' }}>
-                    En tu negocio preparamos cada pedido con los ingredientes y productos más frescos y la rapidez que a todos les encanta. Explora nuestro menú y catálogo en la app de Listo, elige lo que más se te antoje y recíbelo directo en tu puerta. ¡No esperes más para disfrutar de una experiencia única, rápida y deliciosa!
+                  <p style={{ fontSize: '12.5px', color: '#C2410C', margin: 0, lineHeight: '1.5' }}>
+                    Desde la solicitud del cliente en la app hasta el despacho por nuestros repartidores uniformados, Pedidos Listo Delivery garantiza frescura, rapidez y trazabilidad GPS en cada orden. ¡Forma parte de la red de comercios que está revolucionando las ventas digitales en todo el país!
                   </p>
                 </div>
               </div>
