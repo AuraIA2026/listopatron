@@ -1040,12 +1040,47 @@ export default function AdminPage({ navigate }) {
       }
 
       if (type === 'approve_partner_request') {
-         await updateDoc(doc(db, 'partner_requests', obj.id), { status: 'approved', processedAt: new Date().toISOString() });
-         showToast(`✅ Comercio "${obj.businessName}" marcado como contactado / aprobado`);
+         await updateDoc(doc(db, 'partner_requests', obj.id), { 
+           status: 'approved', 
+           processedAt: new Date().toISOString(),
+           validatedBy: 'admin'
+         });
+         
+         // Registrar automáticamente en la colección 'locales' para activarlo en el directorio de la App
+         try {
+           await addDoc(collection(db, 'locales'), {
+             nombre: obj.businessName || 'Comercio Partner',
+             propietario: `${obj.ownerName || ''} ${obj.ownerLastName || ''}`.trim(),
+             email: obj.email || '',
+             telefono: obj.phone || '',
+             ciudad: obj.city || 'Santo Domingo',
+             categoria: obj.businessType || 'Restaurante / Comida',
+             sucursales: parseInt(obj.branches || '1'),
+             localCalle: obj.isStreetStore === 'Si',
+             activo: true,
+             verificado: true,
+             plan: 'PedidosListo Partner',
+             comision: '10%',
+             createdAt: new Date().toISOString()
+           });
+         } catch (eLoc) {
+           console.error("Error creando registro en locales:", eLoc);
+         }
+
+         // Marcar alertas/notificaciones asociadas como leídas
+         const notifsToUpdate = alerts.filter(a => a.requestId === obj.id || (a.text && obj.phone && a.text.includes(obj.phone)));
+         for (const nDoc of notifsToUpdate) {
+           try { await updateDoc(doc(db, 'notificaciones', nDoc.id), { read: true }); } catch (eNotif) {}
+         }
+
+         showToast(`🎉 Comercio "${obj.businessName}" validado y activado exitosamente`);
       }
 
       if (type === 'reject_partner_request') {
-         await updateDoc(doc(db, 'partner_requests', obj.id), { status: 'rejected', processedAt: new Date().toISOString() });
+         await updateDoc(doc(db, 'partner_requests', obj.id), { 
+           status: 'rejected', 
+           processedAt: new Date().toISOString() 
+         });
          showToast(`🔴 Solicitud de "${obj.businessName}" archivada`);
       }
     } catch(err) {
@@ -1161,63 +1196,102 @@ export default function AdminPage({ navigate }) {
             </button>
           ))}
         </div>
-
-        {/* ── TAB: COMERCIOS (Solicitudes de PedidosListo Partner) ── */}
         {tab === 'comercios' && (
           <div className="admin-section" style={{marginTop:16}}>
-            <div className="section-header">
-              <span className="section-title">Solicitudes de Comercio Partner ({partnerRequests.length})</span>
+            {/* Cabecera y Resumen de Métricas de Comercio */}
+            <div style={{ background: 'var(--surface)', borderRadius: '18px', padding: '16px 20px', marginBottom: '16px', border: '1px solid var(--border)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+                <span className="section-title" style={{ color: 'var(--brand)', fontSize: '13px' }}>
+                  🏪 Panel de Validación de Comercios Partner ({partnerRequests.length})
+                </span>
+                <span style={{ fontSize: '11px', background: 'var(--brand-dim)', color: 'var(--brand)', padding: '4px 10px', borderRadius: '12px', fontWeight: '800' }}>
+                  CONTRATACIÓN COMERCIAL RD
+                </span>
+              </div>
+
+              {/* Sub-tarjetas de estado */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr))', gap: '8px' }}>
+                <div style={{ background: 'var(--surface2)', borderRadius: '12px', padding: '10px 12px', textAlign: 'center' }}>
+                  <div style={{ fontSize: '18px', fontWeight: '900', color: 'var(--brand)' }}>
+                    {partnerRequests.filter(r => !r.status || r.status === 'pending').length}
+                  </div>
+                  <div style={{ fontSize: '10.5px', color: 'var(--muted)', fontWeight: '700' }}>⏳ Pendientes</div>
+                </div>
+                <div style={{ background: 'var(--surface2)', borderRadius: '12px', padding: '10px 12px', textAlign: 'center' }}>
+                  <div style={{ fontSize: '18px', fontWeight: '900', color: 'var(--green)' }}>
+                    {partnerRequests.filter(r => r.status === 'approved').length}
+                  </div>
+                  <div style={{ fontSize: '10.5px', color: 'var(--muted)', fontWeight: '700' }}>✅ Validados / Activos</div>
+                </div>
+                <div style={{ background: 'var(--surface2)', borderRadius: '12px', padding: '10px 12px', textAlign: 'center' }}>
+                  <div style={{ fontSize: '18px', fontWeight: '900', color: 'var(--red)' }}>
+                    {partnerRequests.filter(r => r.status === 'rejected').length}
+                  </div>
+                  <div style={{ fontSize: '10.5px', color: 'var(--muted)', fontWeight: '700' }}>🔴 Archivados</div>
+                </div>
+              </div>
             </div>
+
             {partnerRequests.length === 0 && (
               <div className="empty-admin"><p>No hay solicitudes de comercios por el momento.</p></div>
             )}
+
             {partnerRequests.map((req, i) => {
               const cleanPhone = (req.phone || '').replace(/\D/g, '');
-              const waLink = cleanPhone ? `https://wa.me/1${cleanPhone.length === 10 ? cleanPhone : cleanPhone.slice(-10)}` : null;
+              const formattedWaPhone = cleanPhone.length === 10 ? `1${cleanPhone}` : cleanPhone;
+              const waLink = cleanPhone ? `https://wa.me/${formattedWaPhone}?text=Hola%20${encodeURIComponent(req.ownerName || 'amigo')},%20te%20contactamos%20de%20PedidosListo%20Partner%20sobre%20la%20solicitud%20de%20tu%20comercio%20"${encodeURIComponent(req.businessName || '')}".` : null;
+
               return (
-                <div className="payment-card" key={req.id} style={{animationDelay:`${i*.06}s`, borderColor: req.status === 'pending' ? 'rgba(242,96,0,0.4)' : 'var(--border)'}}>
+                <div className="payment-card" key={req.id} style={{animationDelay:`${i*.06}s`, borderColor: req.status === 'approved' ? 'rgba(16,185,129,0.4)' : req.status === 'rejected' ? 'rgba(239,68,68,0.3)' : 'rgba(242,96,0,0.5)', background: req.status === 'approved' ? '#F0FDF4' : 'var(--surface)'}}>
                   <div className="pc-top" style={{alignItems:'flex-start'}}>
-                    <div className="pc-avatar" style={{background:'linear-gradient(135deg, #F26000, #ff3d00)', fontSize:'20px'}}>
+                    <div className="pc-avatar" style={{background: req.status === 'approved' ? '#10B981' : 'linear-gradient(135deg, #F26000, #ff3d00)', fontSize:'22px', borderRadius:'14px', width:'46px', height:'46px', display:'flex', alignItems:'center', justifyContent:'center', color:'#FFF'}}>
                       🏪
                     </div>
-                    <div className="pc-info">
-                      <div className="pc-name" style={{fontSize:'16px', color:'var(--text)'}}>{req.businessName || 'Comercio Sin Nombre'}</div>
-                      <div className="pc-detail" style={{fontWeight:'700', color:'var(--text)', marginTop:2}}>
-                        👤 Propietario: {req.ownerName} {req.ownerLastName}
+                    <div className="pc-info" style={{flex:1}}>
+                      <div style={{display:'flex', alignItems:'center', gap:'8px', flexWrap:'wrap'}}>
+                        <div className="pc-name" style={{fontSize:'17px', fontWeight:'900', color:'var(--text)'}}>{req.businessName || 'Comercio Sin Nombre'}</div>
+                        <span className={`status-pill ${req.status === 'approved' ? 'paid' : req.status === 'rejected' ? 'blocked' : 'waiting'}`} style={{fontSize:'10.5px'}}>
+                          {req.status === 'approved' ? '✅ Comercio Validado & Activo' : req.status === 'rejected' ? '🔴 Solicitud Archivada' : '⏳ Pendiente de Validación'}
+                        </span>
                       </div>
-                      <div style={{fontSize:'12.5px', color:'var(--muted)', marginTop:4, display:'flex', flexWrap:'wrap', gap:'12px'}}>
-                        <span>📧 {req.email || 'Sin correo'}</span>
-                        <span>📞 {req.phone}</span>
-                        <span>📍 {req.city || 'Santo Domingo'}</span>
+                      
+                      <div className="pc-detail" style={{fontWeight:'800', color:'var(--text)', marginTop:4, fontSize:'13.5px'}}>
+                        👤 Dueño: {req.ownerName} {req.ownerLastName}
                       </div>
-                      <div style={{fontSize:'12px', color:'var(--muted)', marginTop:6, display:'flex', gap:'8px', flexWrap:'wrap'}}>
-                        <span style={{background:'var(--surface2)', padding:'2px 8px', borderRadius:'6px', fontWeight:'700'}}>🏷️ {req.businessType}</span>
-                        <span style={{background:'var(--surface2)', padding:'2px 8px', borderRadius:'6px', fontWeight:'700'}}>🏢 Sucursales: {req.branches || 1}</span>
-                        <span style={{background:'var(--surface2)', padding:'2px 8px', borderRadius:'6px', fontWeight:'700'}}>🚪 Calle: {req.isStreetStore}</span>
+                      
+                      <div style={{fontSize:'12.5px', color:'var(--muted)', marginTop:6, display:'flex', flexWrap:'wrap', gap:'12px'}}>
+                        <span>📧 <strong>Email:</strong> {req.email || 'Sin correo'}</span>
+                        <span>📞 <strong>Teléfono:</strong> {req.phone}</span>
+                        <span>📍 <strong>Ciudad:</strong> {req.city || 'Santo Domingo'}</span>
+                      </div>
+
+                      <div style={{fontSize:'12px', color:'var(--text)', marginTop:8, display:'flex', gap:'8px', flexWrap:'wrap'}}>
+                        <span style={{background:'var(--surface2)', padding:'3px 10px', borderRadius:'8px', fontWeight:'800', border:'1px solid var(--border)'}}>🏷️ {req.businessType}</span>
+                        <span style={{background:'var(--surface2)', padding:'3px 10px', borderRadius:'8px', fontWeight:'800', border:'1px solid var(--border)'}}>🏢 Sucursales: {req.branches || 1}</span>
+                        <span style={{background:'var(--surface2)', padding:'3px 10px', borderRadius:'8px', fontWeight:'800', border:'1px solid var(--border)'}}>🚪 Local a Calle: {req.isStreetStore}</span>
+                        <span style={{background:'rgba(242,96,0,0.1)', color:'var(--brand)', padding:'3px 10px', borderRadius:'8px', fontWeight:'800', border:'1px solid rgba(242,96,0,0.2)'}}>💰 Comisión 10%</span>
                       </div>
                     </div>
-                    <div className="pc-right">
-                      <span className={`status-pill ${req.status === 'approved' ? 'paid' : req.status === 'rejected' ? 'blocked' : 'waiting'}`}>
-                        {req.status === 'approved' ? '✅ Contactado' : req.status === 'rejected' ? '🔴 Archivado' : '⏳ Pendiente'}
-                      </span>
-                      <div style={{fontSize:'10px', color:'var(--muted)', marginTop:6}}>{fmtDate(req.createdAt)}</div>
+                    
+                    <div className="pc-right" style={{textAlign:'right'}}>
+                      <div style={{fontSize:'11px', color:'var(--muted)', fontWeight:'600'}}>{fmtDate(req.createdAt)}</div>
                     </div>
                   </div>
 
-                  <div className="cc-actions" style={{marginTop:14}}>
+                  <div className="cc-actions" style={{marginTop:16, display:'flex', gap:'10px', flexWrap:'wrap'}}>
                     {waLink && (
-                      <a href={waLink} target="_blank" rel="noreferrer" className="cc-btn remind" style={{background:'#25D366', color:'#FFF', textDecoration:'none', textAlign:'center', display:'flex', alignItems:'center', justifyContent:'center', gap:4}}>
-                        💬 Contactar WhatsApp
+                      <a href={waLink} target="_blank" rel="noreferrer" className="cc-btn remind" style={{background:'#25D366', color:'#FFF', textDecoration:'none', textAlign:'center', display:'inline-flex', alignItems:'center', justifyContent:'center', gap:6, padding:'10px 16px', borderRadius:'12px', fontWeight:'800', fontSize:'13px'}}>
+                        💬 Contactar por WhatsApp
                       </a>
                     )}
                     {req.status !== 'approved' && (
-                      <button className="cc-btn paid" onClick={() => setConfirm({type:'approve_partner_request', obj: req})}>
-                        ✅ Marcar Contactado
+                      <button className="cc-btn paid" onClick={() => setConfirm({type:'approve_partner_request', obj: req})} style={{padding:'10px 16px', borderRadius:'12px', fontWeight:'800', fontSize:'13px', background:'linear-gradient(135deg, #10B981, #059669)', color:'#FFF', border:'none', cursor:'pointer', boxShadow:'0 4px 10px rgba(16,185,129,0.3)'}}>
+                        ✅ Aprobar & Validar Comercio
                       </button>
                     )}
                     {req.status !== 'rejected' && (
-                      <button className="cc-btn block" onClick={() => setConfirm({type:'reject_partner_request', obj: req})}>
-                        🔴 Archivar
+                      <button className="cc-btn block" onClick={() => setConfirm({type:'reject_partner_request', obj: req})} style={{padding:'10px 16px', borderRadius:'12px', fontWeight:'800', fontSize:'13px'}}>
+                        🔴 Archivar Solicitud
                       </button>
                     )}
                   </div>
