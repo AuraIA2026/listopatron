@@ -50,42 +50,8 @@ function DeliveryPartnerModal({ onClose, navigate }) {
             ¡Un nuevo canal para vender más y despegar tu negocio! 🚀
           </h2>
           <p style={{ fontSize: '14px', margin: 0, color: '#94A3B8', fontWeight: '500' }}>
-            Únete a la red líder de comercios, restaurantes y repartidores en República Dominicana.
+            Únete a la red líder de comercios y restaurantes en República Dominicana.
           </p>
-
-          {/* Selector de tipo (Local vs Repartidor) */}
-          <div style={{ display: 'flex', gap: '10px', marginTop: '16px' }}>
-            <button
-              onClick={() => setPartnerType('store')}
-              style={{
-                padding: '8px 18px',
-                borderRadius: '30px',
-                border: partnerType === 'store' ? '2px solid #ff6b00' : '1px solid rgba(255,255,255,0.2)',
-                background: partnerType === 'store' ? 'linear-gradient(135deg, #ff6b00, #ff8533)' : 'rgba(255,255,255,0.05)',
-                color: '#FFFFFF',
-                fontWeight: '800',
-                fontSize: '13px',
-                cursor: 'pointer'
-              }}
-            >
-              🏬 Registrar mi Local / Tienda
-            </button>
-            <button
-              onClick={() => setPartnerType('rider')}
-              style={{
-                padding: '8px 18px',
-                borderRadius: '30px',
-                border: partnerType === 'rider' ? '2px solid #ff6b00' : '1px solid rgba(255,255,255,0.2)',
-                background: partnerType === 'rider' ? 'linear-gradient(135deg, #ff6b00, #ff8533)' : 'rgba(255,255,255,0.05)',
-                color: '#FFFFFF',
-                fontWeight: '800',
-                fontSize: '13px',
-                cursor: 'pointer'
-              }}
-            >
-              🛵 Ser Repartidor / Delivery
-            </button>
-          </div>
         </div>
 
         {/* Modal Content */}
@@ -134,16 +100,14 @@ function DeliveryPartnerModal({ onClose, navigate }) {
                 </div>
 
                 <h3 style={{ fontSize: '18px', fontWeight: '900', color: '#0d0e15', marginBottom: '16px' }}>
-                  {partnerType === 'store' ? '¡Registra tu local ahora mismo!' : '¡Inscríbete como repartidor independiente!'}
+                  ¡Registra tu local ahora mismo!
                 </h3>
 
                 <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  {partnerType === 'store' && (
-                    <div>
-                      <label style={{ display: 'block', fontSize: '12px', fontWeight: '800', color: '#334155', marginBottom: '4px' }}>Nombre del local o negocio *</label>
-                      <input required type="text" placeholder="Ej: Pizzería El Patrón" value={formData.businessName} onChange={e => setFormData({...formData, businessName: e.target.value})} style={{ width: '100%', padding: '10px 14px', border: '1.5px solid #CBD5E1', borderRadius: '10px', fontSize: '14px' }} />
-                    </div>
-                  )}
+                  <div>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: '800', color: '#334155', marginBottom: '4px' }}>Nombre del local o negocio *</label>
+                    <input required type="text" placeholder="Ej: Pizzería El Patrón" value={formData.businessName} onChange={e => setFormData({...formData, businessName: e.target.value})} style={{ width: '100%', padding: '10px 14px', border: '1.5px solid #CBD5E1', borderRadius: '10px', fontSize: '14px' }} />
+                  </div>
 
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                     <div>
@@ -174,8 +138,6 @@ function DeliveryPartnerModal({ onClose, navigate }) {
                     </div>
                   </div>
 
-                  {partnerType === 'store' && (
-                    <>
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                         <div>
                           <label style={{ display: 'block', fontSize: '12px', fontWeight: '800', color: '#334155', marginBottom: '4px' }}>Tipo de negocio *</label>
@@ -199,8 +161,6 @@ function DeliveryPartnerModal({ onClose, navigate }) {
                         <label style={{ fontSize: '13px', display: 'flex', alignItems: 'center', gap: '4px' }}><input type="radio" name="street" value="Si" checked={formData.isStreetStore === 'Si'} onChange={e => setFormData({...formData, isStreetStore: e.target.value})} /> Sí</label>
                         <label style={{ fontSize: '13px', display: 'flex', alignItems: 'center', gap: '4px' }}><input type="radio" name="street" value="No" checked={formData.isStreetStore === 'No'} onChange={e => setFormData({...formData, isStreetStore: e.target.value})} /> No</label>
                       </div>
-                    </>
-                  )}
 
                   <button
                     type="submit"
