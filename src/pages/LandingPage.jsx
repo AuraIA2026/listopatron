@@ -641,91 +641,90 @@ export default function LandingPage({ navigate, lang }) {
   <div style={{ display: 'flex', alignItems: 'center' }}>
     <img className="nav-logo" src="./assets/logo_listo.png" alt="Listo Patrón" style={{"height": "40px", "objectFit": "contain"}} />
     
-    <div className="nav-header-buttons" style={{ display: 'flex', alignItems: 'center', gap: '8px', marginLeft: '10px' }}>
-      {/* BANNER EQUIPATE EN NUESTRA TIENDA PEDIDOS LISTO */}
-      <div
+    <div className="nav-header-buttons" style={{ display: 'flex', alignItems: 'center', gap: '10px', marginLeft: '10px', flexWrap: 'nowrap' }}>
+      {/* BOTÓN TIENDA OFICIAL */}
+      <button
         onClick={() => navigate('shop')}
-        className="nav-action-btn shop-banner-glow"
+        className="nav-action-btn"
         style={{
-          background: '#0d0e15',
+          background: '#ff6b00',
           color: '#ffffff',
-          border: '1.5px solid #ff6b00',
+          border: 'none',
           borderRadius: '50px',
-          padding: '6px 14px 6px 16px',
+          padding: '8px 16px',
+          fontSize: '13px',
+          fontWeight: '800',
           cursor: 'pointer',
+          boxShadow: '0 4px 10px rgba(255, 107, 0, 0.35)',
           display: 'inline-flex',
           alignItems: 'center',
-          gap: '12px',
-          boxShadow: '0 0 18px rgba(255, 107, 0, 0.45)',
-          transition: 'all 0.3s ease-in-out'
+          gap: '6px',
+          whiteSpace: 'nowrap',
+          transition: 'all 0.2s ease-in-out'
         }}
       >
-        <span style={{ fontSize: '22px' }}>🛍️</span>
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', lineHeight: '1.2' }}>
-          <span style={{ fontSize: '13px', fontWeight: '800', color: '#ffffff' }}>
-            Equípate en nuestra tienda <span style={{ color: '#ff6b00', fontWeight: '900' }}>Pedidos Listo</span>
-          </span>
-          <span style={{ fontSize: '10.5px', color: '#94A3B8', fontWeight: '500' }}>
-            Herramientas, equipos e insumos de seguridad con envío rápido a todo el país
-          </span>
-        </div>
-        <span style={{
-          background: 'linear-gradient(135deg, #ff6b00 0%, #ff3d00 100%)',
-          color: '#ffffff',
-          fontWeight: '900',
-          fontSize: '12px',
-          padding: '6px 14px',
-          borderRadius: '50px',
-          boxShadow: '0 2px 10px rgba(255,107,0,0.5)',
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: '4px',
-          whiteSpace: 'nowrap'
-        }}>
-          🛒 Visitar Tienda ›
-        </span>
-      </div>
+        <span>Tienda 🛒</span>
+      </button>
 
-      <button onClick={() => setShowPlanModal(true)} className="nav-action-btn" style={{ background: 'linear-gradient(135deg, #10B981, #059669)', color: 'white', border: 'none', borderRadius: '50px', padding: '8px 16px', fontSize: '13px', fontWeight: '800', cursor: 'pointer', boxShadow: '0 4px 10px rgba(16,185,129,0.3)' }}>
+      {/* BOTÓN COMPRAR UN PLAN */}
+      <button
+        onClick={() => setShowPlanModal(true)}
+        className="nav-action-btn"
+        style={{
+          background: 'linear-gradient(135deg, #10B981, #059669)',
+          color: 'white',
+          border: 'none',
+          borderRadius: '50px',
+          padding: '8px 16px',
+          fontSize: '13px',
+          fontWeight: '800',
+          cursor: 'pointer',
+          boxShadow: '0 4px 10px rgba(16,185,129,0.3)',
+          whiteSpace: 'nowrap',
+          display: 'inline-flex',
+          alignItems: 'center'
+        }}
+      >
         <span>💳 COMPRAR UN PLAN</span>
       </button>
 
-      {/* BOTÓN PEDIDOS LISTO PARTNER CON INSIGNIA MAMEY CURVADA */}
+      {/* BOTÓN PEDIDOS LISTO PARTNER EXACTO A LA IMAGEN */}
       <button
         onClick={() => setShowDeliveryModal(true)}
         className="nav-action-btn partner-btn-glow"
         style={{
-          background: '#0d0e15',
-          color: 'white',
-          border: '1.5px solid #ff6b00',
+          background: '#0B0C10',
+          color: '#FFFFFF',
+          border: '1.5px solid #FF6B00',
           borderRadius: '50px',
-          padding: '5px 8px 5px 16px',
+          padding: '4px 6px 4px 14px',
           cursor: 'pointer',
           display: 'inline-flex',
           alignItems: 'center',
-          gap: '10px',
-          boxShadow: '0 0 15px rgba(255, 107, 0, 0.4)',
-          transition: 'all 0.3s ease-in-out'
+          gap: '8px',
+          boxShadow: '0 0 16px rgba(255, 107, 0, 0.45)',
+          transition: 'all 0.2s ease-in-out',
+          whiteSpace: 'nowrap',
+          flexShrink: 0
         }}
+        title="Portal PedidosListo Partner"
       >
-        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontWeight: '900', fontStyle: 'italic', fontSize: '15px', color: '#ffffff', letterSpacing: '-0.3px', fontFamily: "'Outfit', 'Fredoka One', sans-serif" }}>
-            Pedidos<span style={{ color: '#ff6b00' }}>Listo</span>
-          </span>
-          <span style={{
-            background: 'linear-gradient(135deg, #ff6b00 0%, #ff8533 100%)',
-            color: '#ffffff',
-            fontFamily: "'Outfit', sans-serif",
-            fontWeight: '900',
-            fontSize: '12px',
-            padding: '5px 14px',
-            borderRadius: '50px',
-            boxShadow: '0 2px 10px rgba(255,107,0,0.5)',
-            letterSpacing: '0.3px',
-            display: 'inline-block'
-          }}>
-            Partner
-          </span>
+        <span style={{ fontWeight: '900', fontStyle: 'italic', fontSize: '15px', color: '#ffffff', letterSpacing: '-0.3px', fontFamily: "'Outfit', 'Fredoka One', sans-serif" }}>
+          Pedidos<span style={{ color: '#FF6B00' }}>Listo</span>
+        </span>
+        <span style={{
+          background: 'linear-gradient(135deg, #FF6B00 0%, #FF8533 100%)',
+          color: '#ffffff',
+          fontFamily: "'Outfit', sans-serif",
+          fontWeight: '900',
+          fontSize: '12px',
+          padding: '5px 14px',
+          borderRadius: '50px',
+          boxShadow: '0 2px 8px rgba(255,107,0,0.5)',
+          letterSpacing: '0.3px',
+          display: 'inline-block'
+        }}>
+          Partner
         </span>
       </button>
     </div>
