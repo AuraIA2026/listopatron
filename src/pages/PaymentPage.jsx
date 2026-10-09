@@ -125,7 +125,7 @@ export default function PaymentPage({ lang = 'es', navigate, professional }) {
         await updateDoc(doc(db, 'orders', pro.orderId), {
           price: customPrice ? `RD$${customPrice}` : (pro.price || 'RD$0'),
           paymentMethod: method,
-          paymentStatus: method === 'cash' ? 'pending_cash' : (method === 'card' ? 'paid' : 'verifying'),
+          paymentStatus: method === 'cash' ? 'pending_cash' : 'verifying',
           depositorName: method === 'transfer' ? depositorName : null,
           depositBank: method === 'transfer' ? selectedBank?.name : null
         })
@@ -150,8 +150,8 @@ export default function PaymentPage({ lang = 'es', navigate, professional }) {
             userId: 'admin',
             orderId: pro.orderId,
             type: 'system',
-            title: method === 'transfer' ? '🏦 NUEVO PAGO POR TRANSFERENCIA' : (method === 'card' ? '💳 NUEVO PAGO CON TARJETA' : '💵 PAGO EN EFECTIVO DECLARADO'),
-            text: `El cliente con correo ${auth.currentUser?.email || 'desconocido'} ha declarado un pago de ${customPrice ? 'RD$' + customPrice : (pro.price || 'RD$0')} para el profesional ${pro.name || 'desconocido'} (${pro.category || 'sin categoría'}) por el método de ${method === 'transfer' ? 'transferencia bancaria' : (method === 'card' ? 'tarjeta' : 'efectivo')}.`,
+            title: method === 'transfer' ? '🏦 NUEVO PAGO POR TRANSFERENCIA' : '💵 PAGO EN EFECTIVO DECLARADO',
+            text: `El cliente con correo ${auth.currentUser?.email || 'desconocido'} ha declarado un pago de ${customPrice ? 'RD$' + customPrice : (pro.price || 'RD$0')} para el profesional ${pro.name || 'desconocido'} (${pro.category || 'sin categoría'}) por el método de ${method === 'transfer' ? 'transferencia bancaria' : 'efectivo'}.`,
             read: false,
             date: new Date().toISOString(),
             createdAt: serverTimestamp()
@@ -164,14 +164,14 @@ export default function PaymentPage({ lang = 'es', navigate, professional }) {
             proCategory: pro.category || '',
             email: pro.email || '',
             phone: pro.phone || '',
-            planName: method === 'transfer' ? 'Pago de Servicio (Transferencia)' : 'Pago de Servicio (Tarjeta)',
+            planName: method === 'transfer' ? 'Pago de Servicio (Transferencia)' : 'Pago de Servicio (Efectivo)',
             planId: 'servicio_pago',
             planPriceVal: parseFloat(customPrice || pro.price?.replace(/[^0-9.]/g, '') || 0),
             transferAmount: parseFloat(customPrice || pro.price?.replace(/[^0-9.]/g, '') || 0),
-            status: method === 'card' ? 'paid' : 'pending',
-            paymentMethod: method === 'cash' ? 'cash' : method,
-            bank: method === 'transfer' ? (selectedBank?.name || 'Transferencia') : 'Tarjeta',
-            depositorName: method === 'transfer' ? (depositorName || 'Cliente') : 'Tarjeta',
+            status: 'pending',
+            paymentMethod: method === 'cash' ? 'cash' : 'transfer',
+            bank: method === 'transfer' ? (selectedBank?.name || 'Transferencia') : 'Efectivo',
+            depositorName: method === 'transfer' ? (depositorName || 'Cliente') : 'Cliente',
             receiptUrl: '',
             createdAt: serverTimestamp()
           }).catch(console.error);
@@ -205,18 +205,13 @@ export default function PaymentPage({ lang = 'es', navigate, professional }) {
       console.error("Error actualizando pago de orden:", e)
     }
     setLoading(false)
-    if (method === 'card') {
-      setShowReceipt(true)
-    } else {
-      navigate('workdone', pro)
-    }
+    navigate('workdone', pro)
   }
 
   // Validaciones
   const canConfirmCash = method === 'cash'
   const canConfirmTransfer = method === 'transfer' && selectedBank && transferAmount > 0 && depositorName.trim() !== '' && receiptUploaded
-  const canConfirmCard = method === 'card' && cardName.trim() !== '' && cardNumber.replace(/\s/g, '').length >= 15 && cardExp.trim().length === 5 && cardCvv.trim().length >= 3
-  const canConfirm = canConfirmCash || canConfirmTransfer || canConfirmCard
+  const canConfirm = canConfirmCash || canConfirmTransfer
 
   return (
     <div className="payment-page">
@@ -274,18 +269,6 @@ export default function PaymentPage({ lang = 'es', navigate, professional }) {
                 <p className="pay-method-desc">{T.transferDesc}</p>
               </div>
               <div className={`pay-method-radio ${method === 'transfer' ? 'checked' : ''}`} />
-            </button>
-
-            <button
-              className={`pay-method-card ${method === 'card' ? 'selected' : ''}`}
-              onClick={() => { setMethod('card'); setSelectedBank(null); }}
-            >
-              <div className="pay-method-icon card-icon">💳</div>
-              <div className="pay-method-info">
-                <p className="pay-method-name">{T.cardTitle}</p>
-                <p className="pay-method-desc">{T.cardDesc}</p>
-              </div>
-              <div className={`pay-method-radio ${method === 'card' ? 'checked' : ''}`} />
             </button>
           </div>
         </div>
@@ -362,77 +345,7 @@ export default function PaymentPage({ lang = 'es', navigate, professional }) {
 
 
 
-        {method === 'card' && (
-          <div className="pay-section fade-up">
-            <h3 className="pay-section-title">Detalles de la Tarjeta</h3>
-            <div className="transfer-manual-box" style={{ background: 'white', borderRadius: '18px', padding: '20px', border: '1.5px solid rgba(0,0,0,0.06)', boxShadow: '0 4px 16px rgba(0,0,0,0.04)', textAlign: 'left' }}>
-              <label style={{ display: 'block', fontFamily: 'var(--font-display)', fontSize: '13.5px', fontWeight: 700, color: 'var(--black)', marginBottom: '8px' }}>Nombre en la Tarjeta</label>
-              <input 
-                type="text" 
-                style={{ width: '100%', padding: '14px 16px', borderRadius: '12px', border: '1.5px solid #eee', background: '#FAFAFA', fontFamily: 'var(--font-body)', fontSize: '15px', color: 'var(--black)', boxSizing: 'border-box', marginBottom: '16px', outline: 'none' }}
-                placeholder="Ej. Juan Pérez"
-                value={cardName}
-                onChange={e => setCardName(e.target.value)}
-              />
-
-              <label style={{ display: 'block', fontFamily: 'var(--font-display)', fontSize: '13.5px', fontWeight: 700, color: 'var(--black)', marginBottom: '8px' }}>Número de Tarjeta</label>
-              <input 
-                type="tel" 
-                style={{ width: '100%', padding: '14px 16px', borderRadius: '12px', border: '1.5px solid #eee', background: '#FAFAFA', fontFamily: 'var(--font-body)', fontSize: '15px', color: 'var(--black)', boxSizing: 'border-box', marginBottom: '16px', outline: 'none' }}
-                placeholder="0000 0000 0000 0000"
-                maxLength={19}
-                value={cardNumber}
-                onChange={e => {
-                  let v = e.target.value.replace(/\s+/g, '').replace(/[^0-9]/gi, '')
-                  let parts = []
-                  for (let i = 0; i < v.length; i += 4) {
-                    parts.push(v.substring(i, i + 4))
-                  }
-                  setCardNumber(parts.join(' '))
-                }}
-              />
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
-                <div>
-                  <label style={{ display: 'block', fontFamily: 'var(--font-display)', fontSize: '13.5px', fontWeight: 700, color: 'var(--black)', marginBottom: '8px' }}>Vencimiento</label>
-                  <input 
-                    type="tel" 
-                    style={{ width: '100%', padding: '14px 16px', borderRadius: '12px', border: '1.5px solid #eee', background: '#FAFAFA', fontFamily: 'var(--font-body)', fontSize: '15px', color: 'var(--black)', boxSizing: 'border-box', outline: 'none' }}
-                    placeholder="MM/AA"
-                    maxLength={5}
-                    value={cardExp}
-                    onChange={e => {
-                      let val = e.target.value
-                      let clean = val.replace(/\D/g, '')
-                      if (clean.length === 1 && clean > '1') clean = '0' + clean
-                      if (clean.length >= 2) {
-                        let m = parseInt(clean.substring(0,2), 10)
-                        if (m < 1) m = 1
-                        if (m > 12) m = 12
-                        clean = (m < 10 ? '0' + m : String(m)) + clean.substring(2)
-                      }
-                      if (clean.length > 2) setCardExp(clean.substring(0,2) + '/' + clean.substring(2,4))
-                      else setCardExp(clean)
-                    }}
-                  />
-                </div>
-                <div>
-                  <label style={{ display: 'block', fontFamily: 'var(--font-display)', fontSize: '13.5px', fontWeight: 700, color: 'var(--black)', marginBottom: '8px' }}>CVV</label>
-                  <input 
-                    type="tel" 
-                    style={{ width: '100%', padding: '14px 16px', borderRadius: '12px', border: '1.5px solid #eee', background: '#FAFAFA', fontFamily: 'var(--font-body)', fontSize: '15px', color: 'var(--black)', boxSizing: 'border-box', outline: 'none' }}
-                    placeholder="123"
-                    maxLength={4}
-                    value={cardCvv}
-                    onChange={e => setCardCvv(e.target.value.replace(/[^0-9]/g, ''))}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {(method === 'transfer' || method === 'card') && (
+        {method === 'transfer' && (
           <div className="pay-section pay-summary fade-up">
             <h3 className="pay-section-title">{T.summary}</h3>
             <div className="summary-rows">
@@ -502,7 +415,7 @@ export default function PaymentPage({ lang = 'es', navigate, professional }) {
             </p>
 
             <div className="receipt-footer-text">
-              Este es un recibo automático generado por Listo Patrón SRL. Gracias por confiar en nosotros. Si tiene algún reclamo sobre su pago, por favor contáctenos a través de la aplicación.
+              Este es un recibo automático generado por Pedidos Listo SRL. Gracias por confiar en nosotros. Si tiene algún reclamo sobre su pago, por favor contáctenos a través de la aplicación.
             </div>
 
             <button className="receipt-close-btn" onClick={() => { setShowReceipt(false); navigate('workdone', pro); }}>

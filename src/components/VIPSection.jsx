@@ -1,5 +1,7 @@
 import React from 'react'
 import './VIPSection.css'
+import StoryAvatar from './StoryAvatar'
+import { getProPlanTheme } from '../planTheme'
 import { CATEGORIES, ALL_SUBCATEGORIES } from '../categories'
 
 import mecanico1  from '../assets/pros/Mecanico1.jpg'
@@ -14,103 +16,101 @@ const demoVipPros = [
     id: 'vip_1',
     nameEs: 'Juan Pérez',
     nameEn: 'Juan Pérez',
-    specEs: 'Plomero Máster VIP',
-    specEn: 'Master VIP Plumber',
+    specEs: 'Plomero Máster',
+    specEn: 'Master Plumber',
     rating: 5.0,
     reviews: 142,
     location: 'Santo Domingo',
     jobs: 180,
-    currentPlan: 'VIP',
-    planName: 'VIP',
-    badgeTitle: '👑 SOCIO VIP',
+    currentPlan: 'Verificado',
+    planName: 'Verificado',
+    badgeTitle: '🔹 SOCIO VERIFICADO',
     avail: true,
     img: plomero,
     experience: '8 años de exp.',
-    guarantee: 'Garantía Listo VIP'
+    guarantee: 'Garantía Listo'
   },
   {
     id: 'vip_2',
     nameEs: 'María González',
     nameEn: 'María González',
-    specEs: 'Electricista Certificada VIP',
-    specEn: 'Certified VIP Electrician',
+    specEs: 'Electricista Certificada',
+    specEn: 'Certified Electrician',
     rating: 5.0,
     reviews: 98,
     location: 'Santiago',
     jobs: 125,
-    currentPlan: 'VIP',
-    planName: 'VIP',
-    badgeTitle: '👑 SOCIO VIP',
+    currentPlan: 'Platinum',
+    planName: 'Platinum',
+    badgeTitle: '💎 SOCIO PLATINUM',
     avail: true,
     img: electrica1,
     experience: '6 años de exp.',
-    guarantee: 'Certificación VIP 24/7'
+    guarantee: 'Certificación 24/7'
   },
   {
     id: 'vip_3',
     nameEs: 'Roberto Núñez',
     nameEn: 'Roberto Núñez',
-    specEs: 'Cerrajero de Emergencia VIP',
-    specEn: 'Emergency VIP Locksmith',
+    specEs: 'Cerrajero de Emergencia',
+    specEn: 'Emergency Locksmith',
     rating: 5.0,
     reviews: 215,
     location: 'Santo Domingo Este',
     jobs: 260,
-    currentPlan: 'VIP',
-    planName: 'VIP',
-    badgeTitle: '👑 SOCIO VIP',
+    currentPlan: 'Gold',
+    planName: 'Gold',
+    badgeTitle: '⭐ SOCIO GOLD',
     avail: true,
     img: cerrajero1,
     experience: '10 años de exp.',
-    guarantee: 'Respuesta VIP < 20 min'
+    guarantee: 'Respuesta < 20 min'
   },
   {
     id: 'vip_4',
     nameEs: 'Carlos Herrera',
     nameEn: 'Carlos Herrera',
-    specEs: 'Paisajista VIP',
-    specEn: 'VIP Landscape Gardener',
+    specEs: 'Paisajista',
+    specEn: 'Landscape Gardener',
     rating: 4.9,
     reviews: 76,
     location: 'La Vega',
     jobs: 90,
-    currentPlan: 'VIP',
-    planName: 'VIP',
-    badgeTitle: '👑 SOCIO VIP',
+    currentPlan: 'Verificado',
+    planName: 'Verificado',
+    badgeTitle: '🔹 SOCIO VERIFICADO',
     avail: true,
     img: jardinero,
     experience: '5 años de exp.',
-    guarantee: 'Diseño VIP'
+    guarantee: 'Diseño Profesional'
   },
   {
     id: 'vip_5',
     nameEs: 'Luisa Martínez',
     nameEn: 'Luisa Martínez',
-    specEs: 'Mecánica Automotriz VIP',
-    specEn: 'VIP Auto Mechanic',
+    specEs: 'Mecánica Automotriz',
+    specEn: 'Auto Mechanic',
     rating: 4.9,
     reviews: 164,
     location: 'Puerto Plata',
     jobs: 210,
-    currentPlan: 'VIP',
-    planName: 'VIP',
-    badgeTitle: '👑 SOCIO VIP',
+    currentPlan: 'Platinum',
+    planName: 'Platinum',
+    badgeTitle: '💎 SOCIO PLATINUM',
     avail: true,
-    img: mecanico1,
     experience: '9 años de exp.',
-    guarantee: 'Diagnóstico VIP'
+    guarantee: 'Garantía Listo'
   }
 ]
 
 const innerPhotos = [
-  { img: plomero, titleEs: 'Juan Pérez — Plomero Máster VIP', titleEn: 'Juan Pérez — Master VIP Plumber', badge: '💧 Plomería VIP 24/7' },
-  { img: electrica1, titleEs: 'María González — Electricista VIP', titleEn: 'María González — VIP Electrician', badge: '⚡ Electricidad VIP' },
-  { img: mecanico1, titleEs: 'Luisa Martínez — Mecánica VIP', titleEn: 'Luisa Martínez — VIP Auto Mechanic', badge: '🔧 Mecánica VIP' },
-  { img: cerrajero1, titleEs: 'Roberto Núñez — Cerrajero VIP', titleEn: 'Roberto Núñez — VIP Locksmith', badge: '🔑 Cerrajería VIP' }
+  { video: '/assets/delivery_rider_video.mp4', titleEs: 'Pedidos Listo — Entrega de Paquetes & Envíos', titleEn: 'Pedidos Listo — Package & Express Delivery', badge: '📦 ENTREGA EN MANO 24/7' },
+  { video: '/assets/delivery_worker_scooter.mp4', titleEs: 'Pedidos Listo — Delivery en Moto a Toda Velocidad', titleEn: 'Pedidos Listo — High Speed Scooter Delivery', badge: '🛵 DELIVERIES EN MOTO 24/7' },
+  { titleEs: 'Pedidos Listo — Mandados, Compras & Servicios', titleEn: 'Pedidos Listo — Errands, Shopping & Services', badge: '⚡ TODO EN UN SOLO LUGAR' }
 ]
 
-export const isProVip = (pro) => {
-  if (!pro) return false;
+export const getProTier = (pro) => {
+  if (!pro) return 'standard';
   const rawPlan = String(
     pro.currentPlan || 
     pro.planName || 
@@ -125,7 +125,27 @@ export const isProVip = (pro) => {
     ''
   ).toLowerCase().trim();
 
-  return rawPlan.includes('vip') || rawPlan.includes('ilimitado') || rawPlan.includes('elite');
+  if (rawPlan.includes('vip') || rawPlan.includes('ilimitado') || rawPlan.includes('elite')) {
+    return 'vip';
+  }
+  if (rawPlan.includes('platinum') || rawPlan.includes('platino')) {
+    return 'platinum';
+  }
+  if (rawPlan.includes('gold') || rawPlan.includes('oro')) {
+    return 'gold';
+  }
+  if (rawPlan.includes('standard') || rawPlan.includes('estandar') || rawPlan.includes('estándar')) {
+    return 'standard';
+  }
+  if (rawPlan.includes('basico') || rawPlan.includes('básico') || rawPlan.includes('basic')) {
+    return 'basico';
+  }
+
+  return 'standard';
+};
+
+export const isProVip = (pro) => {
+  return getProTier(pro) === 'vip';
 };
 
 export const getProPlanBadge = (pro, lang = 'es') => {
@@ -147,7 +167,7 @@ export const getProPlanBadge = (pro, lang = 'es') => {
   let badgeClass = 'plan-badge-basico';
 
   if (rawPlan.includes('vip') || rawPlan.includes('ilimitado') || rawPlan.includes('elite')) {
-    text = lang === 'es' ? '👑 SOCIO VIP' : '👑 VIP PARTNER';
+    text = lang === 'es' ? '⭐ SOCIO VIP' : '⭐ VIP PARTNER';
     badgeClass = 'plan-badge-vip';
   } else if (rawPlan.includes('platinum') || rawPlan.includes('platino')) {
     text = lang === 'es' ? '💎 SOCIO PLATINUM' : '💎 PLATINUM PARTNER';
@@ -165,7 +185,6 @@ export const getProPlanBadge = (pro, lang = 'es') => {
     text = `🔹 SOCIO ${rawPlan.toUpperCase()}`;
     badgeClass = 'plan-badge-standard';
   } else {
-    // Si no tiene plan explícito en Firestore, determinar dinámicamente según sus contratos reales
     const contracts = Number(pro.contracts || 0);
     if (contracts >= 20) {
       text = lang === 'es' ? '💎 SOCIO PLATINUM' : '💎 PLATINUM PARTNER';
@@ -182,10 +201,13 @@ export const getProPlanBadge = (pro, lang = 'es') => {
   return { text, badgeClass };
 }
 
-function VIPProCard({ pro, lang, navigate }) {
+function VIPProCard({ pro, lang, navigate, getProStoryData, onOpenStory }) {
   const cardRef = React.useRef(null)
   const [isInView, setIsInView] = React.useState(false)
   const [animKey, setAnimKey] = React.useState(0)
+
+  const storyData = getProStoryData ? getProStoryData(pro) : null
+  const hasStory = Boolean(storyData && storyData.stories && storyData.stories.length > 0)
 
   React.useEffect(() => {
     if (!('IntersectionObserver' in window)) {
@@ -221,8 +243,8 @@ function VIPProCard({ pro, lang, navigate }) {
 
   const numReviews = Number(pro.reviews !== undefined ? pro.reviews : (pro.reviewsCount || 0))
   const hasReviews = numReviews > 0
-  const effectiveRating = hasReviews ? Number(pro.rating || 0) : 0.0
-  const isFiveStar = hasReviews && effectiveRating >= 4.9
+  const effectiveRating = hasReviews ? Number(pro.rating || 0) : 5.0
+  const isFiveStar = effectiveRating >= 4.8 || !hasReviews
 
   return (
     <div 
@@ -230,8 +252,12 @@ function VIPProCard({ pro, lang, navigate }) {
       className={`vip-card-hero ${isInView ? 'is-in-view' : ''}`}
       onClick={() => navigate('booking', { professional: pro })}
     >
-      {/* CONTENEDOR FOTO GRANDE */}
+      {/* CONTENEDOR FOTO GRANDE DEL PROFESIONAL */}
       <div className="vip-photo-wrapper">
+        <div className="listo-brand-watermark" style={{ top: '12px', right: '12px' }}>
+          <img src={logoListo} alt="Pedidos Listo" className="listo-brand-watermark-img" />
+        </div>
+
         <img 
           src={pro.img || pro.photoURL} 
           alt={pro.nameEs || pro.name} 
@@ -239,7 +265,7 @@ function VIPProCard({ pro, lang, navigate }) {
         />
         <div className="vip-photo-gradient" />
 
-        {/* BADGES Y LOGO LISTO EN LA PARTE SUPERIOR DE LA FOTO */}
+        {/* BADGES EN LA PARTE SUPERIOR DE LA FOTO */}
         <div className="vip-top-badges">
           {(() => {
             const planInfo = getProPlanBadge(pro, lang);
@@ -249,17 +275,49 @@ function VIPProCard({ pro, lang, navigate }) {
               </span>
             );
           })()}
-          <img 
-            src={logoListo} 
-            alt="Listo Patrón Logo" 
-            style={{ 
-              height: '28px', 
-              width: 'auto', 
-              objectFit: 'contain',
-              filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))' 
-            }} 
-          />
         </div>
+
+        {/* SI TIENE HISTORIA EN VIVO 24H: MOSTRAR EL CÍRCULO CON ANILLO DE LA HISTORIA SOBRE LA FOTO */}
+        {hasStory && (() => {
+          const planTheme = getProPlanTheme(pro.currentPlan || pro.planName || pro.plan || pro.planId, pro.rating);
+          return (
+            <>
+              <div 
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  background: `radial-gradient(circle at center, ${planTheme.color}22 0%, rgba(15, 23, 42, 0.25) 70%, rgba(0,0,0,0.5) 100%)`,
+                  zIndex: 4,
+                  pointerEvents: 'none'
+                }}
+              />
+              <div 
+                style={{
+                  position: 'absolute',
+                  top: '50%',
+                  left: '50%',
+                  transform: 'translate(-50%, -48%)',
+                  zIndex: 10,
+                  filter: `drop-shadow(0 4px 14px ${planTheme.color}55)`
+                }}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onOpenStory && onOpenStory(storyData.firstIndex)
+                }}
+              >
+                <StoryAvatar 
+                  pro={pro}
+                  src={pro.img || pro.photoURL}
+                  alt={pro.nameEs || pro.name}
+                  size={84}
+                  storyData={storyData}
+                  onOpenStory={onOpenStory}
+                  fallbackAvatar={(pro.nameEs || pro.name || 'P').charAt(0)}
+                />
+              </div>
+            </>
+          );
+        })()}
 
         {/* DISPONIBLE Y BOTÓN "VER PERFIL" SOBRE LA FOTO */}
         <div style={{ position: 'absolute', top: '46px', right: '12px', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '5px', zIndex: 4 }}>
@@ -296,29 +354,21 @@ function VIPProCard({ pro, lang, navigate }) {
 
           <div className="vip-rating-row">
             <div className={`vip-stars-badge ${isFiveStar ? 'epic-5star-badge' : ''}`}>
-              {hasReviews ? (
-                isInView && (
-                  <div key={animKey} className="vip-animated-stars">
-                    {[1, 2, 3, 4, 5].map((starIdx) => (
-                      <span 
-                        key={starIdx} 
-                        className="vip-star-pop" 
-                        style={{ animationDelay: `${starIdx * 0.10}s` }}
-                      >
-                        ★
-                      </span>
-                    ))}
-                  </div>
-                )
-              ) : (
-                <div style={{ color: '#94A3B8', fontSize: '12px', display: 'flex', gap: '2px', letterSpacing: '-1px' }}>
-                  ★ ★ ★ ★ ★
-                </div>
-              )}
+              <div key={animKey} className="vip-animated-stars">
+                {[1, 2, 3, 4, 5].map((starIdx) => (
+                  <span 
+                    key={starIdx} 
+                    className="vip-star-pop" 
+                    style={{ animationDelay: `${starIdx * 0.10}s` }}
+                  >
+                    ★
+                  </span>
+                ))}
+              </div>
               <span className="vip-rating-score">{effectiveRating.toFixed(1)}</span>
             </div>
             <span className="vip-reviews-count">
-              ({numReviews} {lang === 'es' ? 'reseñas' : 'reviews'})
+              ({numReviews > 0 ? numReviews : 120} {lang === 'es' ? 'reseñas' : 'reviews'})
             </span>
           </div>
         </div>
@@ -383,26 +433,11 @@ export default function VIPSection({
   sectionTitle,
   sectionSub,
   showSeeAll = true,
-  strictVipOnly = false
+  strictVipOnly = true,
+  getProStoryData,
+  onOpenStory
 }) {
-  const filterVipOnly = strictVipOnly || Boolean(sectionSub);
-
-  // Filtrar la lista de profesionales reales según el contexto (Inicio vs Buscar VIP)
-  const realFiltered = (realVipPros || []).filter(pro => {
-    if (filterVipOnly && !isProVip(pro)) return false
-    const nRev = Number(pro.reviews !== undefined ? pro.reviews : (pro.reviewsCount || 0))
-    const eRate = nRev > 0 ? Number(pro.rating || 0) : 0.0
-    return nRev > 0 && eRate >= 4.9
-  })
-
-  const rawProsList = realFiltered.length > 0 ? realFiltered : demoVipPros
-  const displayPros = rawProsList.filter(pro => {
-    if (String(pro.id || '').startsWith('vip_')) return true
-    if (filterVipOnly && !isProVip(pro)) return false
-    const nRev = Number(pro.reviews !== undefined ? pro.reviews : (pro.reviewsCount || 0))
-    const eRate = nRev > 0 ? Number(pro.rating || 0) : 0.0
-    return nRev > 0 && eRate >= 4.9
-  })
+  const displayPros = (realVipPros && realVipPros.length > 0) ? realVipPros : demoVipPros
   const containerRef = React.useRef(null)
   const isInteracting = React.useRef(false)
   const [activeInnerSlide, setActiveInnerSlide] = React.useState(0)
@@ -419,13 +454,13 @@ export default function VIPSection({
           containerRef.current.scrollBy({ left: 230, behavior: 'smooth' })
         }
       }
-    }, 7000)
+    }, 8000)
 
     const innerTimer = setInterval(() => {
       if (isHeroPlaying) {
         setActiveInnerSlide((prev) => (prev + 1) % innerPhotos.length)
       }
-    }, 3200)
+    }, 6000) // Duración de al menos 6 segundos antes de cambiar el slide
 
     return () => {
       clearInterval(timer)
@@ -441,9 +476,6 @@ export default function VIPSection({
             <h2 className="vip-sec-title">
               {sectionTitle || (lang === 'es' ? '🌟 Profesionales Destacados' : '🌟 Featured Professionals')}
             </h2>
-            <span className="vip-crown-badge">
-              {lang === 'es' ? 'VERIFICADOS' : 'VERIFIED'}
-            </span>
           </div>
           {showSeeAll && (
             <button 
@@ -470,24 +502,24 @@ export default function VIPSection({
         onMouseEnter={() => { isInteracting.current = true }}
         onMouseLeave={() => { isInteracting.current = false }}
       >
-        {/* TARJETA 1: HERO AZUL ESTILO AMAZON PRIME — PROFESIONAL MÁS POPULAR DEL MES */}
+        {/* TARJETA 1: TARJETA PROMO EXCLUSIVA DE PEDIDOS LISTO (COLOR MAMEY CON VIDEOS Y BOTÓN DIRECTO) */}
         <div 
           className="vip-card-hero amz-blue-hero-card"
           onClick={() => {
-            const currentItem = innerPhotos[activeInnerSlide];
-            navigate('search', { state: { query: currentItem.badge } });
+            navigate('mandame');
           }}
           style={{
-            background: 'linear-gradient(160deg, #0073EC 0%, #0045B5 60%, #002B7A 100%)',
+            background: 'linear-gradient(160deg, #FF7A1A 0%, #F26000 60%, #C24D00 100%)',
             color: 'white',
-            borderColor: '#0052C2',
+            borderColor: '#FF8533',
             display: 'flex',
             flexDirection: 'column',
-            justifyContent: 'space-between',
+            justify: 'space-between',
             padding: '18px 16px',
             position: 'relative',
             overflow: 'hidden',
-            minHeight: '360px'
+            minHeight: '360px',
+            boxShadow: '0 10px 30px rgba(242, 96, 0, 0.35)'
           }}
         >
           {/* Shimmer Effect */}
@@ -496,23 +528,24 @@ export default function VIPSection({
           {/* Top Tag & Logo Listo */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 2 }}>
             <span style={{ 
-              background: 'linear-gradient(135deg, #FFD700, #FFA500)', 
-              color: '#1A1A2E', 
+              background: '#1A1A2E', 
+              color: '#FFD700', 
               padding: '4px 10px', 
               borderRadius: '20px', 
               fontSize: '10px', 
               fontWeight: '900', 
               letterSpacing: '0.5px',
-              boxShadow: '0 2px 8px rgba(255, 215, 0, 0.4)',
+              border: '1px solid #FFD700',
+              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.4)',
               display: 'flex',
               alignItems: 'center',
               gap: '4px'
             }}>
-              🏆 MÁS POPULAR DEL MES
+              📦 PEDIDOS LISTO
             </span>
             <img 
               src={logoListo} 
-              alt="Listo Patrón Logo" 
+              alt="Pedidos Listo Logo" 
               style={{ 
                 height: '28px', 
                 width: 'auto', 
@@ -522,28 +555,28 @@ export default function VIPSection({
             />
           </div>
 
-          {/* Banner Oferta Especial Amazon Prime Style */}
+          {/* Banner Oferta Especial Pedidos Listo */}
           <div style={{
             margin: '8px 0 0',
-            background: 'rgba(255,255,255,0.15)',
-            border: '1px solid rgba(255,255,255,0.25)',
+            background: 'rgba(255,255,255,0.2)',
+            border: '1px solid rgba(255,255,255,0.35)',
             borderRadius: '10px',
             padding: '4px 8px',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'space-between',
+            justify: 'space-between',
             zIndex: 2,
             backdropFilter: 'blur(4px)'
           }}>
-            <span style={{ fontSize: '10px', fontWeight: '800', color: '#FFD700' }}>
-              ⚡ PROMO PRIMERA CITA
+            <span style={{ fontSize: '10px', fontWeight: '800', color: '#FFFFFF' }}>
+              ⚡ ENVIOS & DELIVERIES
             </span>
-            <span style={{ fontSize: '10px', fontWeight: '900', color: '#FFFFFF', background: '#F26000', padding: '2px 6px', borderRadius: '6px' }}>
-              RD$500 OFF
+            <span style={{ fontSize: '10px', fontWeight: '900', color: '#1A1A2E', background: '#FFD700', padding: '2px 6px', borderRadius: '6px' }}>
+              ENTREGA HOY
             </span>
           </div>
 
-          {/* Carrusel Deslizante Interno de Fotos del Profesional Popular */}
+          {/* Carrusel Deslizante Interno de Fotos y Video exclusivo de Pedidos Listo */}
           <div className="amz-inner-carousel-wrapper" style={{ zIndex: 2 }}>
             <div 
               className="amz-inner-carousel-track"
@@ -551,7 +584,19 @@ export default function VIPSection({
             >
               {innerPhotos.map((item, idx) => (
                 <div key={idx} className="amz-inner-slide">
-                  <img src={item.img} alt={item.titleEs} className="amz-inner-slide-img" />
+                  {item.video ? (
+                    <video 
+                      src={item.video} 
+                      autoPlay 
+                      loop 
+                      muted 
+                      playsInline 
+                      className="amz-inner-slide-img" 
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                    />
+                  ) : (
+                    <img src={item.img} alt={item.titleEs} className="amz-inner-slide-img" />
+                  )}
                   <div className="amz-inner-slide-overlay">
                     <span className="amz-inner-slide-badge">{item.badge}</span>
                     <span className="amz-inner-slide-title">{lang === 'es' ? item.titleEs : item.titleEn}</span>
@@ -575,37 +620,40 @@ export default function VIPSection({
             </div>
           </div>
 
-          {/* Typography del Profesional del Mes */}
+          {/* Typography exclusivo de Pedidos Listo */}
           <div style={{ margin: '2px 0 8px', zIndex: 2 }}>
             <h3 style={{ fontSize: '18px', fontWeight: '900', color: '#ffffff', margin: 0, lineHeight: '1.15', textShadow: '0 2px 8px rgba(0,0,0,0.3)' }}>
-              {lang === 'es' ? 'Profesionales VIP' : 'VIP Professionals'}
+              Pedidos Listo
             </h3>
-            <p style={{ fontSize: '11px', color: '#B3D7FF', fontWeight: '700', margin: '4px 0 0', lineHeight: '1.3' }}>
-              ⭐ 5.0 (200+ contrataciones) • {lang === 'es' ? 'Garantía de servicio 100%' : '100% Guaranteed'}
+            <p style={{ fontSize: '11px', color: '#FFF8F2', fontWeight: '700', margin: '4px 0 0', lineHeight: '1.3' }}>
+              ⭐ 5.0 • {lang === 'es' ? 'Entregas express y servicios al instante' : 'Express deliveries & instant services'}
             </p>
           </div>
 
-          {/* Bottom Action Button */}
+          {/* Bottom Action Button de Pedidos Listo */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', zIndex: 2, marginTop: 'auto' }}>
             <button 
               onClick={(e) => {
                 e.stopPropagation();
-                navigate('search');
+                navigate('mandame');
               }}
               style={{
-                background: 'linear-gradient(135deg, #FF7A1A, #F26000)',
-                color: 'white',
+                background: '#FFFFFF',
+                color: '#F26000',
                 border: 'none',
-                borderRadius: '12px',
+                borderRadius: '22px',
                 padding: '10px 18px',
                 fontSize: '12px',
                 fontWeight: '900',
                 cursor: 'pointer',
-                boxShadow: '0 4px 12px rgba(242, 96, 0, 0.4)',
-                width: '100%'
+                boxShadow: '0 4px 14px rgba(0, 0, 0, 0.25)',
+                width: '100%',
+                transition: 'transform 0.15s ease'
               }}
+              onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.96)'}
+              onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}
             >
-              ⚡ {lang === 'es' ? 'Contratar Ahora ›' : 'Hire Now ›'}
+              ⚡ {lang === 'es' ? 'Ir a Pedidos Listo ›' : 'Go to Pedidos Listo ›'}
             </button>
           </div>
         </div>
@@ -616,9 +664,12 @@ export default function VIPSection({
             pro={pro}
             lang={lang}
             navigate={navigate}
+            getProStoryData={getProStoryData}
+            onOpenStory={onOpenStory}
           />
         ))}
       </div>
     </section>
   )
 }
+

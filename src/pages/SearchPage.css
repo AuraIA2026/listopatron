@@ -339,7 +339,7 @@
 .card-actions { display: flex; gap: 8px; justify-content: space-between; width: 100%; }
 .btn-profile { 
   flex: 1; text-align: center; background: white; border: 1.5px solid #E5E7EB; color: #4B5563; 
-  padding: 8px 4px; border-radius: 12px; font-weight: 700; font-size: 12px; cursor: pointer; 
+  padding: 8px 4px; border-radius: 22px; font-weight: 700; font-size: 12px; cursor: pointer; 
   transition: all 0.2s;
 }
 .btn-profile:hover { background: #F3F4F6; border-color: #D1D5DB; }
@@ -347,11 +347,131 @@
 
 .btn-book { 
   flex: 1; text-align: center; background: linear-gradient(135deg, var(--mamey), #FF8533); 
-  color: white; border: none; padding: 8px 4px; border-radius: 12px; font-weight: 800; font-size: 12px; 
+  color: white; border: none; padding: 8px 4px; border-radius: 22px; font-weight: 800; font-size: 12px; 
   cursor: pointer; box-shadow: 0 4px 12px rgba(242,96,0,0.3); transition: all 0.2s;
 }
 .btn-book:hover { box-shadow: 0 6px 16px rgba(242,96,0,0.4); filter: brightness(1.05); transform: translateY(-1px); }
 .btn-book:active { transform: scale(0.94); box-shadow: 0 2px 6px rgba(242,96,0,0.3); }
+
+/* ESTILOS DE PLANES Y BADGES POR TIER (PLATINUM, GOLD, ESTÁNDAR) */
+.card-photo-overlay-bottom {
+  position: absolute;
+  bottom: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  z-index: 8;
+  width: max-content;
+  max-width: 95%;
+  pointer-events: none;
+}
+
+.card-photo-overlay-bottom .status-badge {
+  position: static;
+  transform: none;
+  margin: 0;
+  pointer-events: auto;
+}
+
+.pro-tier-badge {
+  font-size: 9.5px;
+  font-weight: 900;
+  padding: 3px 8px;
+  border-radius: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.35);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  backdrop-filter: blur(4px);
+  pointer-events: auto;
+}
+
+.pro-tier-badge.badge-platinum {
+  background: linear-gradient(135deg, #475569, #94A3B8);
+  color: #FFFFFF;
+  border: 1px solid rgba(255,255,255,0.4);
+}
+
+.pro-tier-badge.badge-gold {
+  background: linear-gradient(135deg, #FFD700, #FFA500);
+  color: #1A1A2E;
+  border: 1px solid rgba(255,255,255,0.6);
+  text-shadow: 0 1px 0 rgba(255,255,255,0.4);
+}
+
+.pro-tier-badge.badge-standard {
+  background: linear-gradient(135deg, #2563EB, #3B82F6);
+  color: #FFFFFF;
+  border: 1px solid rgba(255,255,255,0.3);
+}
+
+/* BORDES Y SOMBRAS DE TARJETAS SEGÚN TIER */
+.pro-card.platinum-card {
+  border: 2px solid #94A3B8;
+  box-shadow: 0 6px 18px rgba(148, 163, 184, 0.25);
+  background: linear-gradient(to bottom, #F8FAFC, #FFFFFF);
+}
+.pro-card.platinum-card:hover {
+  border-color: #64748B;
+  box-shadow: 0 10px 25px rgba(100, 116, 139, 0.35);
+}
+
+.pro-card.gold-card {
+  border: 2px solid #F59E0B;
+  box-shadow: 0 6px 18px rgba(245, 158, 11, 0.25);
+  background: linear-gradient(to bottom, #FFFDF5, #FFFFFF);
+}
+.pro-card.gold-card:hover {
+  border-color: #D97706;
+  box-shadow: 0 10px 25px rgba(217, 119, 6, 0.35);
+}
+
+.pro-card.standard-card {
+  border: 1px solid #E2E8F0;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+}
+
+/* BOTONES DE ACCIÓN ("CONTRATAR") SEGÚN PLAN */
+.btn-book.platinum-plan {
+  background: linear-gradient(135deg, #475569, #64748B) !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 4px 12px rgba(71, 85, 105, 0.4) !important;
+  font-weight: 900 !important;
+}
+.btn-book.platinum-plan:hover {
+  background: linear-gradient(135deg, #334155, #475569) !important;
+  box-shadow: 0 6px 16px rgba(51, 65, 85, 0.5) !important;
+}
+
+.btn-book.gold-plan {
+  background: linear-gradient(135deg, #FFD700, #FFA500) !important;
+  color: #1A1A2E !important;
+  box-shadow: 0 4px 12px rgba(255, 165, 0, 0.45) !important;
+  font-weight: 900 !important;
+}
+.btn-book.gold-plan:hover {
+  background: linear-gradient(135deg, #FFC700, #FF9100) !important;
+  box-shadow: 0 6px 16px rgba(255, 145, 0, 0.6) !important;
+}
+
+.btn-book.standard-plan {
+  background: linear-gradient(135deg, var(--mamey, #FF6B00), #FF8533) !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 4px 12px rgba(242,96,0,0.3) !important;
+  font-weight: 800 !important;
+}
+
+.btn-book.vip-plan {
+  background: linear-gradient(135deg, #FF6B00, #FF3D00) !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 4px 15px rgba(255, 107, 0, 0.45) !important;
+  font-weight: 900 !important;
+}
 
 /* PREMIUM AMAZON-STYLE CARDS */
 .pro-card-premium {
@@ -420,13 +540,13 @@
 .premium-review-text strong { color: #0F172A; font-style: normal; display: block; margin-bottom: 2px; }
 .premium-actions { display: flex; gap: 12px; margin-top: 6px; }
 .premium-btn-book {
-  flex: 2; padding: 14px; border-radius: 8px; font-weight: 900; font-size: 15px;
+  flex: 2; padding: 14px; border-radius: 22px; font-weight: 900; font-size: 15px;
   border: none; cursor: pointer; color: white; text-align: center;
   transition: all 0.2s;
 }
 .premium-btn-book:active { transform: scale(0.96); }
 .premium-btn-profile {
-  flex: 1; padding: 14px; border-radius: 8px; font-weight: 800; font-size: 14px;
+  flex: 1; padding: 14px; border-radius: 22px; font-weight: 800; font-size: 14px;
   background: white; border: 2px solid #E2E8F0; color: #475569; cursor: pointer; text-align: center;
   transition: all 0.2s;
 }

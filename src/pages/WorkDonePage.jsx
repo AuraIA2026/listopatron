@@ -3,6 +3,7 @@ import { collection, query, where, getDocs, updateDoc, doc, getDoc, addDoc, serv
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage'
 import { db, storage } from '../firebase'
 import listoLogo from '../assets/logo listo blanco.png'
+import ReciboDigitalModal from '../components/ReciboDigitalModal'
 
 const compressImage = (file) => new Promise((resolve, reject) => {
   const reader = new FileReader()
@@ -62,6 +63,7 @@ export default function WorkDonePage({ lang = 'es', navigate, professional, user
   const [latestOrder, setLatestOrder] = useState(null)
   const [isUploading, setIsUploading] = useState(false)
   const [quejaTexto, setQuejaTexto] = useState('')
+  const [showReciboModal, setShowReciboModal] = useState(false)
   const [pendingRequests, setPendingRequests] = useState([])
 
   useEffect(() => {
@@ -336,6 +338,8 @@ export default function WorkDonePage({ lang = 'es', navigate, professional, user
         finalComment = "Servicio completado."
       }
 
+      const tipVal = parseFloat(formData.propina || 0)
+
       // Actualizar Firestore orders
       await updateDoc(doc(db, 'orders', latestOrder.id), {
         rated: true,
@@ -344,19 +348,26 @@ export default function WorkDonePage({ lang = 'es', navigate, professional, user
         reviewerName: finalUserData?.name || 'Cliente',
         checkoutMontoAcordado: formData.montoAcordado || '',
         checkoutMontoFinal: formData.montoFinal || '',
-        checkoutFormaPago: formData.formaPago || ''
+        checkoutFormaPago: formData.formaPago || '',
+        tipAmount: tipVal,
+        propina: tipVal
       })
 
       // Notificar al profesional con push nativo y otorgar progreso/contrato gratis
       if (latestOrder.proId) {
+        let notifText = lang==='es' ? `Recibiste ${formData.calificacion} estrellas por Trabajo Listo.` : `You received a ${formData.calificacion} star rating.`
+        if (tipVal > 0) {
+          notifText += lang==='es' ? ` 🎁 ¡Además recibiste RD$ ${tipVal} de propina!` : ` 🎁 Plus you received a RD$ ${tipVal} tip!`
+        }
+
         await addDoc(collection(db, 'notificaciones'), {
           userId:    latestOrder.proId,
           orderId:   latestOrder.id,
           type:      'new_review',
-          title:     lang==='es' ? '⭐ ¡Nueva Reseña!' : '⭐ New Review!',
-          text:      lang==='es' ? `Recibiste ${formData.calificacion} estrellas por Trabajo Listo.` : `You received a ${formData.calificacion} star rating.`,
+          title:     tipVal > 0 ? (lang==='es' ? '⭐ ¡Reseña + 🎁 Propina Recibida!' : '⭐ Review + 🎁 Tip Received!') : (lang==='es' ? '⭐ ¡Nueva Reseña!' : '⭐ New Review!'),
+          text:      notifText,
           read:      false,
-          icon:      '⭐',
+          icon:      tipVal > 0 ? '🎁' : '⭐',
           createdAt: serverTimestamp()
         })
 
@@ -369,16 +380,19 @@ export default function WorkDonePage({ lang = 'es', navigate, professional, user
             const currentCompleted = proData.completedContracts || 0;
             const newCompleted = currentCompleted + 1;
             const proUpdate = { completedContracts: newCompleted };
+            if (formData.calificacion >= 4) {
+              proUpdate.has5StarContract = true;
+              proUpdate.completed5StarCount = (proData.completed5StarCount || 0) + 1;
+            }
             
             if (newCompleted % 10 === 0) {
               proUpdate.contracts = (proData.contracts || 0) + 1;
-              proUpdate.spinsAvailable = (proData.spinsAvailable || 0) + 1;
               proUpdate.wheelProgress = 100;
               await addDoc(collection(db, 'notificaciones'), {
                 userId: latestOrder.proId,
                 type: 'reward',
-                title: '🎰 ¡RULETA Y CONTRATO GRATIS OTORGADOS!',
-                text: `¡Felicidades! Has completado ${newCompleted} trabajos y la Ruleta Listo Patrón se ha activado. Te acreditamos +1 contrato gratis automáticamente a tu saldo.`,
+                title: '🎰 ¡CONTRATO GRATIS OTORGADO POR 10 TRABAJOS!',
+                text: `¡Felicidades! Has completado ${newCompleted} trabajos. Te acreditamos +1 contrato gratis automáticamente a tu saldo.`,
                 read: false,
                 icon: '🎰',
                 createdAt: serverTimestamp()
@@ -386,20 +400,6 @@ export default function WorkDonePage({ lang = 'es', navigate, professional, user
             } else {
               const currentProgress = proData.wheelProgress || 0;
               const nextProgress = currentProgress + 10;
-              // Si obtuvo 4 o 5 estrellas, le otorgamos 1 giro de ruleta
-              if (formData.calificacion >= 4) {
-                proUpdate.spinsAvailable = (proData.spinsAvailable || 0) + 1;
-                await addDoc(collection(db, 'notificaciones'), {
-                  userId: latestOrder.proId,
-                  type: 'reward',
-                  title: '🎰 ¡RULETA DESBLOQUEADA!',
-                  text: `¡Felicidades por tu excelente trabajo! Recibiste ${formData.calificacion} estrellas ⭐ y desbloqueaste 1 giro en la Ruleta Listo Patrón.`,
-                  read: false,
-                  icon: '🎰',
-                  createdAt: serverTimestamp()
-                });
-              }
-
               if (nextProgress >= 100) {
                 proUpdate.contracts = (proData.contracts || 0) + 1;
                 proUpdate.wheelProgress = nextProgress - 100;
@@ -407,7 +407,7 @@ export default function WorkDonePage({ lang = 'es', navigate, professional, user
                   userId: latestOrder.proId,
                   type: 'reward',
                   title: '🎰 ¡1 CONTRATO GRATIS OTORGADO!',
-                  text: '¡Felicidades! Tu barra de la Ruleta Listo Patrón se llenó al 100%. Te acreditamos +1 contrato gratis automáticamente a tu saldo.',
+                  text: '¡Felicidades! Tu barra de la Ruleta Pedidos Listo se llenó al 100%. Te acreditamos +1 contrato gratis automáticamente a tu saldo.',
                   read: false,
                   icon: '🎰',
                   createdAt: serverTimestamp()
@@ -415,6 +415,22 @@ export default function WorkDonePage({ lang = 'es', navigate, professional, user
               } else {
                 proUpdate.wheelProgress = nextProgress;
               }
+            }
+
+            // REGLA ESTRICTA: El profesional SOLO gana 1 giro en la Tómbola si recibe 4 o 5 estrellas
+            if (formData.calificacion >= 4) {
+              proUpdate.has5StarContract = true;
+              proUpdate.completed5StarCount = (proData.completed5StarCount || 0) + 1;
+              proUpdate.spinsAvailable = (proData.spinsAvailable || 0) + 1;
+              await addDoc(collection(db, 'notificaciones'), {
+                userId: latestOrder.proId,
+                type: 'reward',
+                title: '🎰 ¡RULETA DESBLOQUEADA!',
+                text: `¡Felicidades por tu excelente trabajo! Recibiste ${formData.calificacion} estrellas ⭐ y desbloqueaste 1 giro en la Ruleta Pedidos Listo.`,
+                read: false,
+                icon: '🎰',
+                createdAt: serverTimestamp()
+              });
             }
             await updateDoc(proRef, proUpdate);
           }
@@ -480,6 +496,32 @@ export default function WorkDonePage({ lang = 'es', navigate, professional, user
         evidences: downloadedURLs,
         evidenceText: formData.experiencia
       })
+
+      // Publicar automáticamente las 3 historias de 4 segundos del trabajo finalizado en Firestore
+      for (let i = 0; i < Math.min(downloadedURLs.length, 3); i++) {
+        const photoUrl = downloadedURLs[i];
+        try {
+          await addDoc(collection(db, 'historias'), {
+            proId: latestOrder.proId || finalUserData?.uid || '',
+            proName: finalUserData?.name || latestOrder.proName || 'Profesional',
+            proAvatar: finalUserData?.profilePhoto || finalUserData?.photoURL || '',
+            proCategory: latestOrder.category || finalUserData?.category || 'Servicio',
+            proRating: finalUserData?.rating || 5.0,
+            proPlan: finalUserData?.currentPlan || finalUserData?.plan || 'Gratuito',
+            imageUrl: photoUrl,
+            caption: `📸 Trabajo finalizado de ${latestOrder.category || 'servicio'}: ${formData.experiencia || '¡Trabajo completado con excelencia!'}`,
+            status: 'approved',
+            moderated: true,
+            createdAt: new Date().toISOString(),
+            expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+            viewsCount: 1,
+            likesCount: 0,
+            mediaType: 'image'
+          });
+        } catch (errStory) {
+          console.error("Error al publicar historia de trabajo finalizado:", errStory);
+        }
+      }
       
       if (latestOrder.proId) {
         try {
@@ -489,7 +531,20 @@ export default function WorkDonePage({ lang = 'es', navigate, professional, user
             const proData = proSnap.data();
             const currentCompleted = proData.completedContracts || 0;
             const newCompleted = currentCompleted + 1;
-            const proUpdate = { completedContracts: newCompleted };
+            const proUpdate = { 
+              completedContracts: newCompleted,
+              freeStories: (proData.freeStories || 0) + 3
+            };
+
+            await addDoc(collection(db, 'notificaciones'), {
+              userId: latestOrder.proId,
+              type: 'reward',
+              title: '📸 ¡HISTORIAS DE TRABAJO FINALIZADO PUBLICADAS!',
+              text: `Se han publicado automáticamente ${Math.min(downloadedURLs.length, 3)} historias de 4 segundos de tu trabajo completado en el carrusel de Historias en vivo.`,
+              read: false,
+              icon: '📸',
+              createdAt: serverTimestamp()
+            });
             
             if (newCompleted % 10 === 0) {
               proUpdate.contracts = (proData.contracts || 0) + 1;
@@ -498,7 +553,7 @@ export default function WorkDonePage({ lang = 'es', navigate, professional, user
                 userId: latestOrder.proId,
                 type: 'reward',
                 title: '🎰 ¡1 CONTRATO GRATIS OTORGADO!',
-                text: `¡Felicidades! Has completado ${newCompleted} evidencias y la Ruleta Listo Patrón alcanzó el 100%. Te acreditamos +1 contrato gratis automáticamente a tu saldo.`,
+                text: `¡Felicidades! Has completado ${newCompleted} evidencias y la Ruleta Pedidos Listo alcanzó el 100%. Te acreditamos +1 contrato gratis automáticamente a tu saldo.`,
                 read: false,
                 icon: '🎰',
                 createdAt: serverTimestamp()
@@ -513,7 +568,7 @@ export default function WorkDonePage({ lang = 'es', navigate, professional, user
                   userId: latestOrder.proId,
                   type: 'reward',
                   title: '🎰 ¡1 CONTRATO GRATIS OTORGADO!',
-                  text: '¡Felicidades! Tu barra de la Ruleta Listo Patrón se llenó al 100%. Te acreditamos +1 contrato gratis automáticamente a tu saldo.',
+                  text: '¡Felicidades! Tu barra de la Ruleta Pedidos Listo se llenó al 100%. Te acreditamos +1 contrato gratis automáticamente a tu saldo.',
                   read: false,
                   icon: '🎰',
                   createdAt: serverTimestamp()
@@ -560,6 +615,14 @@ export default function WorkDonePage({ lang = 'es', navigate, professional, user
           <div style={s.successIcon}>✓</div>
           <h2 style={s.successTitle}>¡Trabajo registrado!</h2>
           <p style={s.successSub}>Tu evaluación fue enviada correctamente.</p>
+          
+          <button 
+            style={{ ...s.btnPrimary, background: 'linear-gradient(135deg, #10B981, #059669)', marginBottom: '10px' }} 
+            onClick={() => setShowReciboModal(true)}
+          >
+            🧾 {lang === 'es' ? 'Generar Comprobante Listo' : 'Generate Listo Receipt'}
+          </button>
+
           {!isPro && hasMoreUnrated ? (
             <button style={s.btnPrimary} onClick={resetForm}>
               Registrar otro
@@ -570,6 +633,14 @@ export default function WorkDonePage({ lang = 'es', navigate, professional, user
             </button>
           )}
         </div>
+
+        {showReciboModal && (
+          <ReciboDigitalModal 
+            lang={lang} 
+            onClose={() => setShowReciboModal(false)} 
+            orderData={latestOrder || { proName, clientName: finalUserData?.name, montoFinal: formData.montoFinal || formData.montoAcordado }} 
+          />
+        )}
       </div>
     )
   }
@@ -874,11 +945,11 @@ export default function WorkDonePage({ lang = 'es', navigate, professional, user
               <div style={s.field}>
                 <label style={s.label}>Forma de pago</label>
                 <div style={s.optRow}>
-                  {['Efectivo', 'Transferencia', 'Tarjeta'].map(opt => (
+                  {['Efectivo', 'Transferencia'].map(opt => (
                     <button key={opt} type="button"
                       style={formData.formaPago === opt ? s.optActive : s.opt}
                       onClick={() => setFormData({...formData, formaPago: opt})}>
-                      {opt === 'Efectivo' ? '💵' : opt === 'Transferencia' ? '🏦' : '💳'} {opt}
+                      {opt === 'Efectivo' ? '💵' : '🏦'} {opt}
                     </button>
                   ))}
                 </div>
@@ -889,6 +960,47 @@ export default function WorkDonePage({ lang = 'es', navigate, professional, user
                 <input type="text" name="gastosAdicionales" placeholder="Ej: materiales extra..."
                   value={formData.gastosAdicionales} onChange={handleChange}
                   style={s.input} />
+              </div>
+
+              {/* 🎁 Selector de Propina Digital */}
+              <div style={{ marginTop: '16px', background: 'linear-gradient(135deg, #FFF3EC 0%, #FFE4D6 100%)', padding: '14px', borderRadius: '16px', border: '1.5px solid #FFD4B0' }}>
+                <p style={{ margin: '0 0 4px', fontSize: '13px', fontWeight: '800', color: '#C24D00', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span>🎁</span> {lang === 'es' ? 'Propina al Profesional (Opcional)' : 'Tip the Professional (Optional)'}
+                </p>
+                <p style={{ margin: '0 0 10px', fontSize: '11px', color: '#883A00' }}>
+                  {lang === 'es' ? 'Recompensa su buen servicio. El 100% de la propina va directo al técnico.' : '100% of the tip goes directly to the technician.'}
+                </p>
+                <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                  {[0, 100, 200, 500].map(val => (
+                    <button
+                      key={val}
+                      type="button"
+                      onClick={() => setFormData({ ...formData, propina: val })}
+                      style={{
+                        flex: 1,
+                        minWidth: '65px',
+                        padding: '8px 10px',
+                        borderRadius: '12px',
+                        border: formData.propina === val ? '2px solid #F26000' : '1px solid #FFC299',
+                        background: formData.propina === val ? '#F26000' : '#ffffff',
+                        color: formData.propina === val ? '#ffffff' : '#C24D00',
+                        fontWeight: '800',
+                        fontSize: '12px',
+                        cursor: 'pointer',
+                        boxShadow: formData.propina === val ? '0 4px 10px rgba(242,96,0,0.25)' : 'none',
+                        transition: 'all 0.2s'
+                      }}
+                    >
+                      {val === 0 ? (lang === 'es' ? 'Sin propina' : 'No tip') : `RD$ ${val}`}
+                    </button>
+                  ))}
+                </div>
+                {formData.propina > 0 && (
+                  <div style={{ marginTop: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '12px', fontWeight: '800', color: '#059669', background: '#ECFDF5', padding: '8px 12px', borderRadius: '10px', border: '1px solid #A7F3D0' }}>
+                    <span>Total con propina incluida:</span>
+                    <span>RD$ {(parseFloat(formData.montoFinal || formData.montoAcordado || 0) + formData.propina).toLocaleString()}</span>
+                  </div>
+                )}
               </div>
             </div>
 

@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth'
+import { useState, useRef } from 'react'
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile, sendPasswordResetEmail } from 'firebase/auth'
 import { doc, setDoc, serverTimestamp, addDoc, collection } from 'firebase/firestore'
 import { auth, db } from '../firebase'
 import { useFaceAuth } from '../useFaceAuth'
@@ -72,6 +72,9 @@ export default function RegisterPage({ lang, navigate }) {
   const [loading, setLoading] = useState(false)
   const [step, setStep] = useState('form') // 'form' | 'face'
   const [newUserId, setNewUserId] = useState(null)
+  const [resetSent, setResetSent] = useState(false)
+  const [resetLoading, setResetLoading] = useState(false)
+  const isRegisteringRef = useRef(false)
 
   const { videoRef, status, message, registerFace, stopCamera } = useFaceAuth()
 
@@ -79,53 +82,117 @@ export default function RegisterPage({ lang, navigate }) {
 
   const validate = () => {
     const e = {}
-    if (form.name.trim().length < 3) e.name = T.errName
-    if (!form.email.includes('@') || !form.email.includes('.')) e.email = T.errEmail
-    if (form.phone.replace(/\D/g, '').length < 8) e.phone = T.errPhone
-    if (form.password.length < 6) e.password = T.errPass
+    const cleanEmail = (form.email || '').trim().toLowerCase()
+    const cleanPhone = (form.phone || '').replace(/\D/g, '')
+
+    if ((form.name || '').trim().length < 3) e.name = T.errName
+    if (!cleanEmail.includes('@') || !cleanEmail.includes('.')) e.email = T.errEmail
+    if (cleanPhone.length < 8) e.phone = T.errPhone
+    if ((form.password || '').length < 6) e.password = T.errPass
     if (form.password !== form.confirm) e.confirm = T.errConfirm
     setErrors(e)
     return Object.keys(e).length === 0
   }
 
   const handleRegister = async () => {
+    if (isRegisteringRef.current || loading) return
     if (!validate()) return
+
+    isRegisteringRef.current = true
     setLoading(true)
     setErrors({})
+
+    const cleanEmail = form.email.trim().toLowerCase()
+    const cleanName  = form.name.trim()
+    const cleanPhone = form.phone.trim()
+
+    let resultUser = null
+
     try {
-      // Crear usuario en Firebase Auth
-      const result = await createUserWithEmailAndPassword(auth, form.email, form.password)
-      await updateProfile(result.user, { displayName: form.name })
+      // 1. Crear usuario en Firebase Auth
+      try {
+        const res = await createUserWithEmailAndPassword(auth, cleanEmail, form.password)
+        resultUser = res.user
+      } catch (authErr) {
+        if (authErr.code === 'auth/email-already-in-use') {
+          // Si el usuario ya existe en Auth (por intento previo o interrupción), probamos autenticar con la clave ingresada
+          try {
+            const loginRes = await signInWithEmailAndPassword(auth, cleanEmail, form.password)
+            resultUser = loginRes.user
+          } catch (loginErr) {
+            setErrors({ general: 'email-already-in-use' })
+            isRegisteringRef.current = false
+            setLoading(false)
+            return
+          }
+        } else {
+          throw authErr
+        }
+      }
 
-      // Guardar credenciales locales para reconocimiento facial futuro
-      localStorage.setItem('listo_saved_email', form.email)
-      localStorage.setItem('listo_saved_password', form.password)
+      if (!resultUser) throw new Error("No user object")
 
-      // Guardar en Firestore
-      const userId = result.user.uid
-      const expireDate = new Date()
-      expireDate.setDate(expireDate.getDate() + 30)
-
-      await setDoc(doc(db, 'users', userId), {
-        name: form.name,
-        email: form.email,
-        phone: form.phone,
-        type: 'client',
-        createdAt: serverTimestamp(),
-      })
-
-      // También guardar con email como key para face login
-      const emailKey = form.email.replace(/[^a-zA-Z0-9]/g, '_')
-      await setDoc(doc(db, 'users', emailKey), { uid: userId }, { merge: true })
-
-      // Mensaje Automático de Bienvenida
-      const welcomeText = `¡Hola ${form.name.split(' ')[0]}! Bienvenido a Listo Patrón. Estamos felices de tenerte aquí. Explora nuestro directorio y contrata a los mejores profesionales de confianza para tus proyectos hoy mismo.`
+      const userId = resultUser.uid
 
       try {
+        await updateProfile(resultUser, { displayName: cleanName })
+      } catch (e) {
+        console.warn("Could not update profile displayName:", e)
+      }
+
+      // Guardar credenciales locales para reconocimiento facial futuro
+      try {
+        localStorage.setItem('listo_saved_email', cleanEmail)
+        localStorage.setItem('listo_saved_password', form.password)
+      } catch (e) {
+        console.warn("Could not write to localStorage:", e)
+      }
+
+      const expireDate = new Date()
+      expireDate.setDate(expireDate.getDate() + 90)
+
+      const userPayload = {
+        name: cleanName,
+        email: cleanEmail,
+        phone: cleanPhone,
+        type: userType, // 'client' o 'pro'
+        role: userType === 'pro' ? 'professional' : 'client',
+        createdAt: serverTimestamp(),
+      }
+
+      if (userType === 'pro') {
+        userPayload.plan = 'basico'
+        userPayload.contracts = 3
+        userPayload.planStatus = 'active'
+        userPayload.available = false
+        userPayload.planExpirationDate = expireDate.toISOString()
+      }
+
+      // Guardar en Firestore
+      try {
+        await setDoc(doc(db, 'users', userId), userPayload, { merge: true })
+      } catch (e) {
+        console.error("Error setting user doc in Firestore:", e)
+      }
+
+      // También guardar con email como key para mapeo rápido
+      try {
+        const emailKey = cleanEmail.replace(/[^a-zA-Z0-9]/g, '_')
+        await setDoc(doc(db, 'users', emailKey), { uid: userId }, { merge: true })
+      } catch (e) {
+        console.warn("Could not save emailKey doc:", e)
+      }
+
+      // Mensaje Automático de Bienvenida
+      try {
+        const welcomeText = userType === 'pro'
+          ? `¡Hola ${cleanName.split(' ')[0]}! Bienvenido a Pedidos Listo como Profesional. Entra a tu Perfil, completa tus datos de Verificación y postúlate para recibir clientes.`
+          : `¡Hola ${cleanName.split(' ')[0]}! Bienvenido a Pedidos Listo. Estamos felices de tenerte aquí. Explora nuestro directorio y contrata a los mejores profesionales hoy mismo.`
+
         await addDoc(collection(db, 'notificaciones'), {
           userId: userId,
           type: 'system',
-          title: 'Mensaje de Listo Patrón',
+          title: 'Mensaje de Pedidos Listo',
           text: welcomeText,
           date: new Date().toISOString(),
           read: false
@@ -135,24 +202,31 @@ export default function RegisterPage({ lang, navigate }) {
       }
 
       setNewUserId(userId)
-      setLoading(false)
       setStep('face') // Ir al paso de registro facial
     } catch (err) {
-      setErrors({ general: err.code === 'auth/email-already-in-use'
-        ? (lang === 'es' ? 'Este correo ya está registrado.' : 'This email is already registered.')
-        : T.errGeneral
-      })
+      console.error("Error al registrar:", err)
+      let msg = T.errGeneral
+      if (err.code === 'auth/invalid-email') {
+        msg = lang === 'es' ? 'El formato del correo no es válido.' : 'Invalid email format.'
+      } else if (err.code === 'auth/weak-password') {
+        msg = lang === 'es' ? 'La contraseña debe ser de al menos 6 caracteres.' : 'Password is too weak.'
+      } else if (err.code === 'auth/network-request-failed') {
+        msg = lang === 'es' ? 'Error de conexión. Verifica tu internet.' : 'Network error. Check internet connection.'
+      }
+      setErrors({ general: msg })
+    } finally {
+      isRegisteringRef.current = false
       setLoading(false)
     }
   }
 
   const handleFaceRegister = async () => {
     await registerFace(newUserId)
-    setTimeout(() => navigate('login'), 2000)
+    setTimeout(() => navigate('home'), 1500)
   }
 
   const handleSkipFace = () => {
-    navigate('login')
+    navigate('home')
   }
 
   // ── Paso 2: Registro facial ──
@@ -244,7 +318,22 @@ export default function RegisterPage({ lang, navigate }) {
             <p className="auth-sub">{T.sub}</p>
           </div>
 
-
+          <div className="user-type-toggle">
+            <button
+              type="button"
+              className={userType === 'client' ? 'active' : ''}
+              onClick={() => setUserType('client')}
+            >
+              👤 {T.asClient}
+            </button>
+            <button
+              type="button"
+              className={userType === 'pro' ? 'active' : ''}
+              onClick={() => setUserType('pro')}
+            >
+              ⚡ {T.asPro}
+            </button>
+          </div>
 
           <div className="auth-form">
             <div className="field">
@@ -286,7 +375,58 @@ export default function RegisterPage({ lang, navigate }) {
               {errors.confirm && <span className="error-msg">{errors.confirm}</span>}
             </div>
 
-            {errors.general && <div className="error-banner">{errors.general}</div>}
+            {errors.general === 'email-already-in-use' ? (
+              <div className="error-banner" style={{ display: 'flex', flexDirection: 'column', gap: '10px', textAlign: 'left' }}>
+                <p style={{ margin: 0, fontWeight: '600' }}>
+                  {lang === 'es'
+                    ? 'Este correo ya está registrado en Pedidos Listo.'
+                    : 'This email is already registered in Pedidos Listo.'}
+                </p>
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '2px' }}>
+                  <button
+                    type="button"
+                    onClick={() => navigate('login')}
+                    style={{
+                      background: '#0F172A', color: 'white', border: 'none',
+                      padding: '8px 14px', borderRadius: '10px', fontSize: '12px',
+                      fontWeight: '700', cursor: 'pointer', outline: 'none'
+                    }}
+                  >
+                    {lang === 'es' ? '🔑 Iniciar Sesión' : '🔑 Sign In'}
+                  </button>
+
+                  <button
+                    type="button"
+                    disabled={resetLoading || resetSent}
+                    onClick={async () => {
+                      if (!form.email.trim()) return
+                      setResetLoading(true)
+                      try {
+                        await sendPasswordResetEmail(auth, form.email.trim().toLowerCase())
+                        setResetSent(true)
+                      } catch (e) {
+                        console.error('Reset error:', e)
+                      } finally {
+                        setResetLoading(false)
+                      }
+                    }}
+                    style={{
+                      background: resetSent ? '#10B981' : '#F26000', color: 'white', border: 'none',
+                      padding: '8px 14px', borderRadius: '10px', fontSize: '12px',
+                      fontWeight: '700', cursor: 'pointer', outline: 'none', transition: 'all 0.2s'
+                    }}
+                  >
+                    {resetSent
+                      ? (lang === 'es' ? '✓ Enlace enviado al correo' : '✓ Reset link sent!')
+                      : resetLoading
+                        ? (lang === 'es' ? 'Enviando...' : 'Sending...')
+                        : (lang === 'es' ? '📧 Restablecer Contraseña' : '📧 Reset Password')}
+                  </button>
+                </div>
+              </div>
+            ) : (
+              errors.general && <div className="error-banner">{errors.general}</div>
+            )}
 
             <button className="auth-btn" onClick={handleRegister} disabled={loading}>
               {loading ? T.loading : T.btn}

@@ -16,7 +16,6 @@ export default function Navbar({ navigate, currentPage, lang, setLang }) {
         </div>
 
         <div className="navbar-actions">
-
           <button
             className={`lang-toggle ${lang === 'es' ? 'active' : ''}`}
             onClick={() => setLang(lang === 'es' ? 'en' : 'es')}

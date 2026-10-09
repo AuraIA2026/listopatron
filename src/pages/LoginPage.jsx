@@ -3,7 +3,6 @@ import { signInWithEmailAndPassword, sendPasswordResetEmail, signInWithCredentia
 import { doc, getDoc, setDoc, collection, query, where, getDocs, addDoc, serverTimestamp } from 'firebase/firestore'
 import { auth, db } from '../firebase'
 import { useFaceAuth } from '../useFaceAuth'
-import { SignInWithApple } from '@capacitor-community/apple-sign-in'
 import { FacebookLogin } from '@capacitor-community/facebook-login'
 import { Capacitor } from '@capacitor/core'
 import './AuthPage.css'
@@ -130,20 +129,24 @@ export default function LoginPage({ lang, navigate }) {
         
         // También registrar con el correo como llave para el inicio de sesión facial si se requiere
         if (user.email) {
-          const emailKey = user.email.replace(/[^a-zA-Z0-9]/g, '_')
-          await setDoc(doc(db, 'users', emailKey), { uid: user.uid }, { merge: true })
+          try {
+            const emailKey = user.email.replace(/[^a-zA-Z0-9]/g, '_')
+            await setDoc(doc(db, 'users', emailKey), { uid: user.uid }, { merge: true })
+          } catch (e) {
+            console.warn("Could not save emailKey mapping doc:", e)
+          }
         }
         
         // Enviar mensaje de bienvenida
         const welcomeText = userType === 'client'
-          ? `¡Hola ${displayName.split(' ')[0]}! Bienvenido a Listo Patrón. Estamos felices de tenerte aquí. Explora nuestro directorio y contrata a los mejores profesionales de confianza para tus proyectos hoy mismo.`
-          : `¡Hola ${displayName.split(' ')[0]}! Bienvenido a Listo Patrón. Estás a un paso de generar ingresos. Entra a "Perfil", llena tus datos de Verificación y postúlate para ser un aliado oficial. ¡Mucho éxito!`;
+          ? `¡Hola ${displayName.split(' ')[0]}! Bienvenido a Pedidos Listo. Estamos felices de tenerte aquí. Explora nuestro directorio y contrata a los mejores profesionales de confianza para tus proyectos hoy mismo.`
+          : `¡Hola ${displayName.split(' ')[0]}! Bienvenido a Pedidos Listo. Estás a un paso de generar ingresos. Entra a "Perfil", llena tus datos de Verificación y postúlate para ser un aliado oficial. ¡Mucho éxito!`;
           
         try {
           await addDoc(collection(db, 'notificaciones'), {
             userId: user.uid,
             type: 'system',
-            title: 'Mensaje de Listo Patrón',
+            title: 'Mensaje de Pedidos Listo',
             text: welcomeText,
             date: new Date().toISOString(),
             read: false
@@ -180,7 +183,11 @@ export default function LoginPage({ lang, navigate }) {
     setErrors({})
     try {
       if (isNative) {
-        const result = await SignInWithApple.authorize({
+        const ApplePlugin = window.SignInWithApple || (typeof SignInWithApple !== 'undefined' ? SignInWithApple : null)
+        if (!ApplePlugin) {
+          throw new Error(lang === 'es' ? 'El inicio de sesión con Apple no está configurado en este dispositivo.' : 'Apple Sign In is not configured on this device.')
+        }
+        const result = await ApplePlugin.authorize({
           clientId: 'com.listopatron.app',
           redirectURI: 'https://listoapp-52b46.firebaseapp.com/__/auth/handler',
           scopes: 'email name'
@@ -213,7 +220,7 @@ export default function LoginPage({ lang, navigate }) {
         setLoading(false)
         return
       }
-      setErrors({ general: lang === 'es' ? 'Error al iniciar sesión con Apple' : 'Error signing in with Apple' })
+      setErrors({ general: lang === 'es' ? (err.message || 'Error al iniciar sesión con Apple') : (err.message || 'Error signing in with Apple') })
     }
     setLoading(false)
   }
@@ -277,10 +284,14 @@ export default function LoginPage({ lang, navigate }) {
         const cleanPhone = trimmedEmail.replace(/\D/g, '')
         
         // Buscar el usuario por su número de teléfono
-        // Construimos variantes por si se guardó con o sin formato
+        // Construimos variantes por si se guardó con o sin formato internacional
         const possiblePhones = [trimmedEmail, cleanPhone]
+        if (cleanPhone.length >= 8) {
+          possiblePhones.push(`+1${cleanPhone}`, `1${cleanPhone}`, `+${cleanPhone}`)
+        }
         if (cleanPhone.length === 10) {
           possiblePhones.push(`${cleanPhone.substring(0,3)}-${cleanPhone.substring(3,6)}-${cleanPhone.substring(6)}`)
+          possiblePhones.push(`+1 (${cleanPhone.substring(0,3)}) ${cleanPhone.substring(3,6)}-${cleanPhone.substring(6)}`)
         }
         
         const q = query(collection(db, 'users'), where('phone', 'in', possiblePhones))
@@ -310,11 +321,39 @@ export default function LoginPage({ lang, navigate }) {
       localStorage.setItem('listo_saved_password', password)
 
       // ── Leer datos completos del usuario en Firestore ──
-      const userDoc  = await getDoc(doc(db, 'users', uid))
-      const userData = userDoc.exists() ? userDoc.data() : {}
+      const userDocRef = doc(db, 'users', uid)
+      const userDocSnap = await getDoc(userDocRef)
+      let userData = userDocSnap.exists() ? userDocSnap.data() : {}
 
-      // ✅ FIX: usar "type" en lugar de "role"
-      const type = userData.type || 'client'  // "pro" o "client"
+      if (!userDocSnap.exists()) {
+        const expireDate = new Date()
+        expireDate.setDate(expireDate.getDate() + 90)
+
+        userData = {
+          name: result.user.displayName || (result.user.email ? result.user.email.split('@')[0] : 'Usuario'),
+          email: loginEmail,
+          phone: result.user.phoneNumber || '',
+          type: userType,
+          role: userType === 'pro' ? 'professional' : 'client',
+          createdAt: serverTimestamp(),
+        }
+
+        if (userType === 'pro') {
+          userData.plan = 'basico'
+          userData.contracts = 3
+          userData.planStatus = 'active'
+          userData.available = false
+          userData.planExpirationDate = expireDate.toISOString()
+        }
+
+        try {
+          await setDoc(userDocRef, userData, { merge: true })
+        } catch (e) {
+          console.warn("Could not create initial user doc on login:", e)
+        }
+      }
+
+      const type = userData.type || userType || 'client'
 
       // Todo OK → navegar con todos los datos del usuario
       navigate('home', {
@@ -433,7 +472,22 @@ export default function LoginPage({ lang, navigate }) {
             <p className="auth-sub">{T.sub}</p>
           </div>
 
-
+          <div className="user-type-toggle">
+            <button
+              type="button"
+              className={userType === 'client' ? 'active' : ''}
+              onClick={() => setUserType('client')}
+            >
+              👤 {T.asClient}
+            </button>
+            <button
+              type="button"
+              className={userType === 'pro' ? 'active' : ''}
+              onClick={() => setUserType('pro')}
+            >
+              ⚡ {T.asPro}
+            </button>
+          </div>
 
           <div className="auth-form">
             <div className="field">
@@ -564,8 +618,8 @@ export default function LoginPage({ lang, navigate }) {
             </div>
             <p className="auth-social-text">
               {lang === 'es' 
-                ? <>Únete a <strong>más de 10,000 dominicanos</strong> que ya confían en Listo Patrón.</>
-                : <>Join <strong>over 10,000 customers</strong> who already trust Listo Patrón.</>}
+                ? <>Únete a <strong>más de 10,000 dominicanos</strong> que ya confían en Pedidos Listo.</>
+                : <>Join <strong>over 10,000 customers</strong> who already trust Pedidos Listo.</>}
             </p>
           </div>
 

@@ -50,6 +50,19 @@ export default function BookingPage({ lang = 'es', navigate, professional, userD
   const [showMap,       setShowMap]       = useState(false)
   const [mapCenter,     setMapCenter]     = useState(null)
   const [mapLoading,    setMapLoading]    = useState(false)
+
+  // ── DIRECCIONES GUARDADAS (CASA, OFICINA, CASA DE MAMÁ) ──
+  const [savedAddresses, setSavedAddresses] = useState(() => {
+    try {
+      const stored = localStorage.getItem('listo_saved_addresses')
+      if (stored) return JSON.parse(stored)
+    } catch(e) {}
+    return [
+      { label: 'Casa', icon: '🏠', address: 'Santiago, D.N. (República Dominicana)' },
+      { label: 'Oficina', icon: '🏢', address: 'Av. 27 de Febrero, Santo Domingo' },
+      { label: 'Casa de Mamá', icon: '👵', address: 'La Vega Centro, República Dominicana' }
+    ]
+  })
   
   // Real-time slots
   const [realBusySlots, setRealBusySlots] = useState([])
@@ -238,13 +251,13 @@ export default function BookingPage({ lang = 'es', navigate, professional, userD
               await addDoc(collection(db, 'mail'), {
                 to: proData.email || '',
                 message: {
-                  subject: '⚠️ Administra tu plan en Listo Patrón',
+                  subject: '⚠️ Administra tu plan en Pedidos Listo',
                   text: newContracts === 1
-                    ? `Hola ${proData.name || 'Socio'},\n\nTe queda solo 1 contrato disponible en tu plan.\n\nPara administrar tu plan y seguir recibiendo clientes, ingresa a nuestra plataforma web:\nhttps://www.listopatron.com.do\n\nResumen de planes disponibles en la web:\n- Plan GOLD: 8 contratos al mes (RD$1,000/mes)\n- Plan PLATINUM: 12 contratos al mes (RD$1,500/mes)\n- Plan VIP: Contratos ilimitados (RD$2,500/mes)\n\nAtentamente,\nEl equipo de Listo Patrón`
-                    : `Hola ${proData.name || 'Socio'},\n\nTe has quedado sin contratos disponibles en tu plan.\n\nPara administrar tu plan y seguir recibiendo clientes, ingresa a nuestra plataforma web:\nhttps://www.listopatron.com.do\n\nResumen de planes disponibles en la web:\n- Plan GOLD: 8 contratos al mes (RD$1,000/mes)\n- Plan PLATINUM: 12 contratos al mes (RD$1,500/mes)\n- Plan VIP: Contratos ilimitados (RD$2,500/mes)\n\nAtentamente,\nEl equipo de Listo Patrón`,
+                    ? `Hola ${proData.name || 'Socio'},\n\nTe queda solo 1 contrato disponible en tu plan.\n\nPara administrar tu plan y seguir recibiendo clientes, ingresa a nuestra plataforma web:\nhttps://www.listopatron.com.do\n\nResumen de planes disponibles en la web:\n- Plan GOLD: 8 contratos al mes (RD$1,000/mes)\n- Plan PLATINUM: 12 contratos al mes (RD$1,500/mes)\n- Plan VIP: Contratos ilimitados (RD$2,500/mes)\n\nAtentamente,\nEl equipo de Pedidos Listo`
+                    : `Hola ${proData.name || 'Socio'},\n\nTe has quedado sin contratos disponibles en tu plan.\n\nPara administrar tu plan y seguir recibiendo clientes, ingresa a nuestra plataforma web:\nhttps://www.listopatron.com.do\n\nResumen de planes disponibles en la web:\n- Plan GOLD: 8 contratos al mes (RD$1,000/mes)\n- Plan PLATINUM: 12 contratos al mes (RD$1,500/mes)\n- Plan VIP: Contratos ilimitados (RD$2,500/mes)\n\nAtentamente,\nEl equipo de Pedidos Listo`,
                   html: newContracts === 1
-                    ? `<p>Hola <strong>${proData.name || 'Socio'}</strong>,</p><p>Te queda solo 1 contrato disponible en tu plan.</p><p>Para administrar tu plan y seguir recibiendo clientes, ingresa a nuestra plataforma web:</p><p><a href="https://www.listopatron.com.do">https://www.listopatron.com.do</a></p><p><strong>Resumen de planes disponibles en la web:</strong></p><ul><li>Plan GOLD: 8 contratos al mes (RD$1,000/mes)</li><li>Plan PLATINUM: 12 contratos al mes (RD$1,500/mes)</li><li>Plan VIP: Contratos ilimitados (RD$2,500/mes)</li></ul><p>Atentamente,<br/>El equipo de Listo Patrón</p>`
-                    : `<p>Hola <strong>${proData.name || 'Socio'}</strong>,</p><p>Te has quedado sin contratos disponibles en tu plan.</p><p>Para administrar tu plan y seguir recibiendo clientes, ingresa a nuestra plataforma web:</p><p><a href="https://www.listopatron.com.do">https://www.listopatron.com.do</a></p><p><strong>Resumen de planes disponibles en la web:</strong></p><ul><li>Plan GOLD: 8 contratos al mes (RD$1,000/mes)</li><li>Plan PLATINUM: 12 contratos al mes (RD$1,500/mes)</li><li>Plan VIP: Contratos ilimitados (RD$2,500/mes)</li></ul><p>Atentamente,<br/>El equipo de Listo Patrón</p>`
+                    ? `<p>Hola <strong>${proData.name || 'Socio'}</strong>,</p><p>Te queda solo 1 contrato disponible en tu plan.</p><p>Para administrar tu plan y seguir recibiendo clientes, ingresa a nuestra plataforma web:</p><p><a href="https://www.listopatron.com.do">https://www.listopatron.com.do</a></p><p><strong>Resumen de planes disponibles en la web:</strong></p><ul><li>Plan GOLD: 8 contratos al mes (RD$1,000/mes)</li><li>Plan PLATINUM: 12 contratos al mes (RD$1,500/mes)</li><li>Plan VIP: Contratos ilimitados (RD$2,500/mes)</li></ul><p>Atentamente,<br/>El equipo de Pedidos Listo</p>`
+                    : `<p>Hola <strong>${proData.name || 'Socio'}</strong>,</p><p>Te has quedado sin contratos disponibles en tu plan.</p><p>Para administrar tu plan y seguir recibiendo clientes, ingresa a nuestra plataforma web:</p><p><a href="https://www.listopatron.com.do">https://www.listopatron.com.do</a></p><p><strong>Resumen de planes disponibles en la web:</strong></p><ul><li>Plan GOLD: 8 contratos al mes (RD$1,000/mes)</li><li>Plan PLATINUM: 12 contratos al mes (RD$1,500/mes)</li><li>Plan VIP: Contratos ilimitados (RD$2,500/mes)</li></ul><p>Atentamente,<br/>El equipo de Pedidos Listo</p>`
                 }
               })
             } catch (errMail) {
@@ -409,10 +422,78 @@ export default function BookingPage({ lang = 'es', navigate, professional, userD
             <h2 className="step-title">{T.step2}</h2>
             <div className="detail-field">
               <label>📍 {T.address}</label>
-              <div style={{ display:'flex', gap:'8px', marginBottom:'10px' }}>
+
+              {/* ── CHIPS DE DIRECCIONES GUARDADAS (CASA, OFICINA, CASA DE MAMÁ) ── */}
+              <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '8px', marginBottom: '8px', scrollbarWidth: 'none' }}>
+                {savedAddresses.map((loc, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => {
+                      setAddress(loc.address)
+                      if (loc.coords) {
+                        setAddressCoords(loc.coords)
+                        setMapCenter([loc.coords.lat, loc.coords.lng])
+                      }
+                    }}
+                    style={{
+                      whiteSpace: 'nowrap',
+                      padding: '7px 13px',
+                      borderRadius: '16px',
+                      fontSize: '12px',
+                      fontWeight: '800',
+                      border: address === loc.address ? '1.5px solid #F26000' : '1.5px solid #E2E8F0',
+                      background: address === loc.address ? '#FEF3EC' : '#FFFFFF',
+                      color: address === loc.address ? '#F26000' : '#334155',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      boxShadow: '0 2px 6px rgba(0,0,0,0.04)',
+                      flexShrink: 0,
+                      transition: 'all 0.15s ease'
+                    }}
+                  >
+                    <span>{loc.icon || '📍'}</span>
+                    <span>{loc.label}</span>
+                  </button>
+                ))}
+              </div>
+
+              <div style={{ display:'flex', gap:'8px', marginBottom:'8px' }}>
                 <input type="text" placeholder={T.addressPlaceholder} value={address} onChange={e => setAddress(e.target.value)} style={{ flex:1 }} />
                 <button className="btn-map-toggle" onClick={() => setShowMap(!showMap)} title="Marcar ubicación en el mapa">🗺️ Mapa</button>
               </div>
+
+              {address.trim().length > 3 && !savedAddresses.some(sa => sa.address.toLowerCase() === address.toLowerCase()) && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    const newLabel = prompt(lang === 'es' ? 'Nombre para esta dirección (Ej. Casa, Trabajo, Playa):' : 'Label for this address (e.g. Home, Work):', 'Mi Ubicación')
+                    if (newLabel && newLabel.trim()) {
+                      const newLoc = { label: newLabel.trim(), icon: '📍', address: address, coords: addressCoords }
+                      const updated = [...savedAddresses, newLoc]
+                      setSavedAddresses(updated)
+                      try { localStorage.setItem('listo_saved_addresses', JSON.stringify(updated)) } catch(e) {}
+                    }
+                  }}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: '#F26000',
+                    fontSize: '11.5px',
+                    fontWeight: '800',
+                    cursor: 'pointer',
+                    padding: '0 0 10px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px'
+                  }}
+                >
+                  <span>➕</span>
+                  <span>{lang === 'es' ? 'Guardar esta dirección para la próxima' : 'Save this address for next time'}</span>
+                </button>
+              )}
               {showMap && (
                 <div className="map-picker-container fade-up">
                   {mapLoading ? (
@@ -421,7 +502,7 @@ export default function BookingPage({ lang = 'es', navigate, professional, userD
                     <>
                       <p className="map-picker-hint">📌 Tu ubicación exacta.</p>
                       <MapContainer center={mapCenter} zoom={16} style={{ height:'220px', width:'100%', borderRadius:'16px', zIndex:0, boxShadow: '0 8px 24px rgba(0,0,0,0.1)' }}>
-                        <TileLayer url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png" />
+                        <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
                         <MapCenterUpdater center={mapCenter} />
                         <MapSelector onLocationSelect={handleMapSelect} />
                         {addressCoords && <Marker position={addressCoords} icon={customIcon} />}
@@ -470,7 +551,7 @@ export default function BookingPage({ lang = 'es', navigate, professional, userD
                 <span className="summary-price" style={{ fontSize:'15px', color:'#10B981' }}>A acordar</span>
               </div>
               <p className="price-note" style={{ fontSize:'12px', color:'#64748B', marginTop:'8px' }}>
-                💡 En Listo Patrón no cobramos tarifas fijas. Discute el precio directo con el profesional.
+                💡 En Pedidos Listo no cobramos tarifas fijas. Discute el precio directo con el profesional.
               </p>
             </div>
 
@@ -486,8 +567,8 @@ export default function BookingPage({ lang = 'es', navigate, professional, userD
               <div className="trust-badge">
                 <span className="trust-icon" style={{ background: '#ECFDF5', color: '#10B981' }}>🛡️</span>
                 <div>
-                  <h4>{lang === 'es' ? 'Garantía Listo Patrón' : 'Listo Patrón Guarantee'}</h4>
-                  <p>{lang === 'es' ? 'Cobertura antiproblemas.' : 'Covered against issues.'}</p>
+                  <h4>{lang === 'es' ? 'Respaldo y Mediación' : 'Support & Mediation'}</h4>
+                  <p>{lang === 'es' ? 'Soporte 24/7 en tu servicio.' : '24/7 Service Support.'}</p>
                 </div>
               </div>
             </div>

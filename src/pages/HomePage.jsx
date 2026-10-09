@@ -14,6 +14,7 @@ import { getProPlanTheme } from '../planTheme'
 import PlanSelectionModal from '../components/PlanSelectionModal'
 
 import SolicitudExpressModal from '../components/SolicitudExpressModal'
+import PedidosListoHub from '../components/PedidosListoHub'
 import BtnHamburguesa from '../components/BtnHamburguesa'
 import BtnHamburguesaUsuario from '../components/BtnHamburguesaUsuario'
 import { useUserData } from '../useUserData'
@@ -1132,371 +1133,62 @@ export default function HomePage({ lang, navigate, userRole }) {
           </div>
         )}
 
-        {/* ── TARJETA OSCURA HERO CON BUSCADOR, BOTONES Y TU HISTORIA ── */}
-        <div className="hp-hero-dark-card">
-          {/* 1. Buscador Gigante Autocompletable Con Cámara Estilo Amazon */}
-          <div className="hp-hero-search-container" style={{ position: 'relative', width: '100%', margin: '0 auto' }}>
-            <div className="hp-hero-search-btn" style={{ padding: '0 6px 0 16px', display: 'flex', alignItems: 'center', cursor: 'text' }} onClick={() => document.getElementById('hp-search-input').focus()}>
-              <span className="hp-hero-icon">🔍</span>
-              {homeSearch.length === 0 && (
-                <div className="hp-placeholder-container">
-                  {prevPhIdx !== null && prevPhIdx !== phIdx && (
-                    <span className="hp-placeholder-text slide-out" key={`out-${prevPhIdx}`}>
-                      {searchPlaceholders[prevPhIdx]}
-                    </span>
-                  )}
-                  <span className="hp-placeholder-text slide-in" key={`in-${phIdx}`}>
-                    {searchPlaceholders[phIdx]}
-                  </span>
-                </div>
-              )}
-              <input 
-                id="hp-search-input"
-                type="text" 
-                value={homeSearch} 
-                onChange={(e) => {
-                  setHomeSearch(e.target.value);
-                  setShowDropdown(true);
-                }}
-                onFocus={() => setShowDropdown(true)}
-                onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
-                style={{ flex: 1, border: 'none', background: 'transparent', height: '100%', outline: 'none', fontSize: '15px', fontWeight: '600', color: '#1a1a2e', padding: '16px 0', zIndex: 2 }}
-              />
-              
-              {/* Botón Icono Estratégico ⚡ Cotización Flash */}
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowSolicitudExpress(true);
-                }}
-                title={lang === 'es' ? 'Cotización Flash Express 3 Pasos ⚡' : '3-Step Flash Quote ⚡'}
-                style={{
-                  background: 'linear-gradient(135deg, #F26000 0%, #FF8533 100%)',
-                  border: 'none',
-                  borderRadius: '12px',
-                  width: '36px',
-                  height: '36px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: 'pointer',
-                  marginRight: '6px',
-                  boxShadow: '0 4px 12px rgba(242, 96, 0, 0.4)',
-                  zIndex: 3,
-                  transition: 'transform 0.15s'
-                }}
-                onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.92)'}
-                onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}
-                onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-              >
-                <span style={{ fontSize: '18px', color: '#FFF' }}>⚡</span>
-              </button>
-
-              <button 
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (homeSearch.trim()) {
-                     navigate('search', { state: { searchQuery: homeSearch } });
-                  } else {
-                     navigate('search');
-                  }
-                }}
-                className="hp-hero-action" style={{ background: 'transparent', border: 'none', padding: 0, cursor: 'pointer', zIndex: 3 }}>
-                <span style={{ fontSize: '12px', background: 'linear-gradient(135deg, #FF7A1A, #F26000)', color: 'white', padding: '10px 18px', borderRadius: '20px', fontWeight: '900', boxShadow: '0 2px 6px rgba(242,96,0,0.4)', display: 'inline-block' }}>
-                  {lang === 'es' ? 'Buscar' : 'Search'}
-                </span>
-              </button>
-            </div>
-            
-            {/* Dropdown de Resultados (Autocompletado) */}
-            {showDropdown && homeSearch.trim().length > 0 && (
-              <div className="fade-up" style={{ position: 'absolute', top: '100%', left: 0, right: 0, marginTop: '10px', background: 'rgba(255, 255, 255, 0.95)', backdropFilter: 'blur(16px)', borderRadius: '20px', boxShadow: '0 10px 40px rgba(0,0,0,0.15)', overflow: 'hidden', zIndex: 100, border: '1px solid rgba(0,0,0,0.06)', maxHeight: '350px', overflowY: 'auto' }}>
-                {allProsToUse.filter(p => p.nameEs?.toLowerCase().includes(homeSearch.toLowerCase()) || p.specEs?.toLowerCase().includes(homeSearch.toLowerCase())).length > 0 ? (
-                  allProsToUse.filter(p => p.nameEs?.toLowerCase().includes(homeSearch.toLowerCase()) || p.specEs?.toLowerCase().includes(homeSearch.toLowerCase())).slice(0, 5).map(pro => (
-                    <div key={pro.id} onClick={() => navigate('proProfile', pro)} style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '14px 16px', borderBottom: '1px solid rgba(0,0,0,0.04)', cursor: 'pointer', transition: 'all 0.2s' }} onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(242,96,0,0.06)'; e.currentTarget.style.paddingLeft = '20px'; }} onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.paddingLeft = '16px'; }}>
-                      {pro.img ? (
-                        <img src={pro.img} alt={pro.nameEs} style={{ width: '44px', height: '44px', borderRadius: '50%', objectFit: 'cover', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }} />
-                      ) : (
-                        <div style={{ width: '44px', height: '44px', borderRadius: '50%', background: '#FF8533', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '18px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>{pro.avatar}</div>
-                      )}
-                      <div style={{ flex: 1 }}>
-                        <p style={{ margin: 0, fontSize: '15px', fontWeight: '800', color: '#1a1a2e' }}>{pro.nameEs}</p>
-                        <p style={{ margin: 0, fontSize: '12px', color: '#666', fontWeight: '600' }}>
-                          {pro.specEs}
-                          {pro.rating && pro.reviews && pro.reviews > 0 ? (
-                            <span style={{color: '#FFD700', marginLeft: '4px'}}>⭐ {Number(pro.rating).toFixed(1)}</span>
-                          ) : null}
-                        </p>
-                      </div>
-                      <span style={{ fontSize: '18px', color: '#ccc', fontWeight: 'bold' }}>›</span>
-                    </div>
-                  ))
-                ) : (
-                  <div style={{ padding: '24px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-                    <span style={{ fontSize: '32px' }}>🕵️‍♂️</span>
-                    <p style={{ margin: 0, color: '#666', fontSize: '14px', fontWeight: '600' }}>
-                      {lang === 'es' ? 'No encontramos a nadie con esa búsqueda.' : 'No one found with that search.'}
-                    </p>
-                  </div>
-                )}
-                <div onClick={() => navigate('search')} style={{ padding: '12px', textAlign: 'center', background: '#f8f9fa', color: '#F26000', fontSize: '13px', fontWeight: '800', cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '0.05em' }} onMouseEnter={(e) => e.currentTarget.style.background = '#f1f3f5'} onMouseLeave={(e) => e.currentTarget.style.background = '#f8f9fa'}>
-                  {lang === 'es' ? 'Ver todos los profesionales' : 'See all professionals'}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* CARRUSEL DE HISTORIAS Y BOTONES HERO EMBEBIDOS */}
-          <HistoriasCarrusel 
-            userData={userData} 
-            isPro={isPro} 
-            onHirePro={(proId) => { 
-              const proObj = (allProsToUse || []).find(p => p.id === proId) || { id: proId }; 
-              navigate('proProfile', proObj); 
-            }} 
-            navigate={navigate}
-          />
-        </div>
-      </div>
-
-      {/* ── MARQUEE TICKER BANNER INFORMATIVO CON LOS 3 ANUNCIOS EN SECUENCIA (TÓMBOLA & OFERTAS) ── */}
-      <div 
-        className="amz-marquee-container" 
-        onClick={() => {
-          if ((userData?.spinsAvailable || 0) > 0) {
-            setShowLuckyWheel(true);
-          } else {
-            alert(lang === 'es' 
-              ? "🎰 La Tómbola de Contratos Gratis se activa únicamente al completar un contrato con calificación de 4 o 5 estrellas."
-              : "🎰 The Free Contracts Wheel unlocks only when completing a contract with a 4 or 5-star rating.");
-          }
-        }} 
-        style={{ cursor: 'pointer' }}
-        title="Toca para abrir la Tómbola de Contratos Gratis"
-      >
-        <div className="amz-marquee-content">
-          🎉 ¡Bienvenido a Pedidos Listo! &nbsp;&nbsp;•&nbsp;&nbsp; 🏆 Cada trabajo perfecto de 4 o 5 estrellas te otorga un giro en la Tómbola para ganar un Contrato Gratis &nbsp;&nbsp;&nbsp;&nbsp; ✦ &nbsp;&nbsp;&nbsp;&nbsp; 🏆 Cada vez que un profesional complete un contrato perfecto gana un chance para la tómbola donde podrás tener la oportunidad de ganar un contrato gratis &nbsp;&nbsp;&nbsp;&nbsp; ✦ &nbsp;&nbsp;&nbsp;&nbsp; ⭐ Recuerda que tu trabajo habla por ti: completa cada contrato con responsabilidad, excelencia y puntualidad para destacar como Socio VIP en Pedidos Listo &nbsp;&nbsp;&nbsp;&nbsp; ✦ &nbsp;&nbsp;&nbsp;&nbsp; ⚡ Profesionales verificados listos en menos de 30 minutos &nbsp;&nbsp;•&nbsp;&nbsp; 🛡️ Todos los servicios 100% garantizados
-        </div>
-      </div>
-
-      {/* ── BARRA DE NAVEGACIÓN DE CÍRCULOS (DESLIZABLE HORIZONTALMENTE DE IZQUIERDA A DERECHA Y VICEVERSA) ── */}
-      <div 
-        className="amz-top-nav-bar" 
-        style={{ 
-          display: 'flex', 
-          alignItems: 'center', 
-          gap: '12px', 
-          padding: '8px 16px', 
-          overflowX: 'auto', 
-          overflowY: 'visible',
-          scrollbarWidth: 'none',
-          msOverflowStyle: 'none',
-          WebkitOverflowScrolling: 'touch',
-          touchAction: 'pan-x',
-          width: '100%',
-          boxSizing: 'border-box'
-        }}
-      >
-        {/* Avatar del usuario que SOBRESALE un poco del cuadro azul/oscuro */}
+        {/* ── TARJETA HERO DE PEDIDOS LISTO CON VIDEO EN VIVO Y HISTORIAS SUPERPUESTAS ── */}
         <div 
-          onClick={() => {
-            if (isPro || userRole === 'pro' || userData?.type === 'pro') {
-              navigate('proProfile', userData)
-            } else {
-              navigate('profile')
-            }
+          className="hp-hero-dark-card" 
+          style={{ 
+            position: 'relative', 
+            borderRadius: '24px', 
+            overflow: 'hidden', 
+            boxShadow: '0 10px 30px rgba(0,0,0,0.3)',
+            border: '1.5px solid rgba(242, 96, 0, 0.45)',
+            background: '#0F172A'
           }}
-          style={{ position: 'relative', cursor: 'pointer', flexShrink: 0, zIndex: 20, margin: '-6px 2px -6px 0' }}
         >
-          <img 
-            src={userData?.profilePhoto || userData?.photoURL || logoListo} 
-            alt="Perfil" 
-            style={{ 
-              width: '58px', 
-              height: '58px', 
-              borderRadius: '50%', 
-              objectFit: 'cover', 
-              border: '3px solid white', 
-              boxShadow: '0 4px 14px rgba(0,0,0,0.4)',
-              background: '#FFF'
-            }} 
-          />
-
-          {/* Ícono de chat flotante en la esquina de la foto de perfil */}
-          <div 
-            onClick={(e) => {
-              e.stopPropagation();
-              navigate('chat');
-            }}
+          {/* Video Promocional en Vivo de Pedidos Listo al Fondo */}
+          <video 
+            src="/assets/delivery_rider_video.mp4" 
+            autoPlay 
+            loop 
+            muted 
+            playsInline 
             style={{
               position: 'absolute',
-              bottom: '-2px',
-              right: '-2px',
-              width: '26px',
-              height: '26px',
-              borderRadius: '50%',
-              background: 'linear-gradient(135deg, #FF7A1A, #F26000)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.5)',
-              cursor: 'pointer',
-              border: '2px solid white',
-              zIndex: 21
-            }}
-          >
-            <span style={{ fontSize: '13px', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              💬
-            </span>
-            {totalUnreadMessages > 0 && (
-              <span 
-                style={{ 
-                  position: 'absolute', 
-                  top: '-6px', 
-                  right: '-6px', 
-                  background: '#EF4444', 
-                  color: 'white', 
-                  fontSize: '9px', 
-                  fontWeight: '900', 
-                  borderRadius: '8px', 
-                  padding: '1px 5px', 
-                  border: '1.5px solid white'
-                }}
-              >
-                {totalUnreadMessages > 9 ? '9+' : totalUnreadMessages}
-              </span>
-            )}
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              opacity: 0.55,
+              zIndex: 1
+            }} 
+          />
+
+          {/* Overlay Gradient Oscuro para Máxima Legibilidad */}
+          <div 
+            style={{
+              position: 'absolute',
+              inset: 0,
+              background: 'linear-gradient(180deg, rgba(15, 23, 42, 0.35) 0%, rgba(15, 23, 42, 0.85) 100%)',
+              zIndex: 2,
+              pointerEvents: 'none'
+            }} 
+          />
+
+          {/* Contenido de Historias Superpuesto Encima del Video */}
+          <div style={{ position: 'relative', zIndex: 3 }}>
+            <HistoriasCarrusel 
+              userData={userData} 
+              isPro={isPro} 
+              onHirePro={(proId) => { 
+                const proObj = (allProsToUse || []).find(p => p.id === proId) || { id: proId }; 
+                navigate('proProfile', proObj); 
+              }} 
+              navigate={navigate}
+              hideRibbon={true}
+            />
           </div>
         </div>
-
-        <style>{`
-          @keyframes lightningPulse {
-            0%, 100% { transform: scale(1) rotate(0deg); filter: drop-shadow(0 0 4px #FFD700); }
-            50% { transform: scale(1.22) rotate(8deg); filter: drop-shadow(0 0 16px #FFD700); }
-          }
-          @keyframes mameyCircleGlow {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(242, 96, 0, 0.8), 0 4px 14px rgba(242, 96, 0, 0.4); }
-            50% { box-shadow: 0 0 0 8px rgba(242, 96, 0, 0), 0 4px 14px rgba(242, 96, 0, 0.4); }
-          }
-        `}</style>
-
-        {/* ── BOTÓN CÍRCULO MAMEY DE OFERTAS RELÁMPAGO CON RAYO AMARILLO ANIMADO ── */}
-        <button
-          onClick={() => setShowFlashOfferModal(true)}
-          title={lang === 'es' ? 'Toca para ver Ofertas Relámpago (60s)' : 'Tap for Flash Deals (60s)'}
-          style={{
-            width: '42px',
-            height: '42px',
-            borderRadius: '50%',
-            background: 'linear-gradient(135deg, #FF7A1A 0%, #F26000 100%)',
-            border: '2px solid #FFD700',
-            animation: 'mameyCircleGlow 2s infinite',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justify: 'center',
-            position: 'relative',
-            flexShrink: 0,
-            outline: 'none',
-            padding: 0
-          }}
-          onMouseDown={e => e.currentTarget.style.transform = 'scale(0.92)'}
-          onMouseUp={e => e.currentTarget.style.transform = 'scale(1)'}
-        >
-          <span style={{
-            fontSize: '22px',
-            color: '#FFD700',
-            animation: 'lightningPulse 1.2s infinite ease-in-out',
-            display: 'inline-block',
-            lineHeight: 1
-          }}>
-            ⚡
-          </span>
-
-          <span style={{
-            position: 'absolute',
-            top: '-3px',
-            right: '-4px',
-            background: '#FFD700',
-            color: '#1A1A2E',
-            fontSize: '8.5px',
-            fontWeight: '900',
-            borderRadius: '10px',
-            padding: '1px 5px',
-            border: '1px solid #F26000',
-            boxShadow: '0 2px 6px rgba(0,0,0,0.4)',
-            zIndex: 3
-          }}>
-            HOT
-          </span>
-        </button>
-
-        {/* ── BOTONES CÍRCULO GPS RADAR, RE-CONTRATAR, SIRENA SOS, TIENDA, TÓMBOLA Y VIP (SIEMPRE VISIBLES PARA TODOS) ── */}
-        <GpsRadarWidget pros={allProsToUse} navigate={navigate} lang={lang} />
-        <RebookCircleWidget hiredProsList={hiredProsList} navigate={navigate} lang={lang} />
-        <EmergencySirenCircleWidget isExpanded={isProblemsExpanded} onToggle={() => setIsProblemsExpanded(prev => !prev)} lang={lang} />
-        <StoreCircleWidget lang={lang} />
-        <TombolaCircleWidget onOpenTombola={() => setShowLuckyWheel(true)} lang={lang} />
-        <VipCircleWidget navigate={navigate} lang={lang} />
-      </div>
-
-      {/* ── ALERTA INTELIGENTE DE PLAN Y CONTRATOS PARA PROFESIONALES ── */}
-      <ProPlanAlertWidget userData={userData} onOpenPlanModal={() => setShowPlanModal(true)} />
-
-      {/* ── BARRA DE SELECCIÓN RÁPIDA DE PROVINCIA Y SECTOR (CON BOTÓN 1-CLIC GPS) ── */}
-      <div style={{ margin: '0 16px 14px', overflowX: 'auto', display: 'flex', gap: '8px', scrollbarWidth: 'none', alignItems: 'center' }}>
-        <button
-          onClick={handleDetectGps}
-          disabled={isLocatingGps}
-          style={{
-            whiteSpace: 'nowrap',
-            padding: '7px 16px',
-            borderRadius: '20px',
-            fontSize: '12.5px',
-            fontWeight: '900',
-            border: '1.5px solid #F26000',
-            background: isLocatingGps ? '#FEF3EC' : 'linear-gradient(135deg, #FF7A1A, #F26000)',
-            color: isLocatingGps ? '#F26000' : '#FFFFFF',
-            boxShadow: '0 4px 12px rgba(242, 96, 0, 0.35)',
-            cursor: isLocatingGps ? 'wait' : 'pointer',
-            flexShrink: 0,
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px',
-            transition: 'all 0.2s ease'
-          }}
-          title={lang === 'es' ? 'Detectar mi provincia y zona automáticamente por GPS' : 'Detect GPS location'}
-        >
-          <span style={{ fontSize: '14px', animation: isLocatingGps ? 'spin 1s linear infinite' : 'none' }}>
-            {isLocatingGps ? '🔄' : '🎯'}
-          </span>
-          {isLocatingGps 
-            ? (lang === 'es' ? 'Detectando GPS...' : 'Detecting GPS...') 
-            : (lang === 'es' ? 'Mi Ubicación GPS' : 'My GPS Location')}
-        </button>
-
-        {PROVINCES_LIST.map(prov => (
-          <button
-            key={prov.id}
-            onClick={() => navigate('search', { provinceToSelect: prov.id })}
-            style={{
-              whiteSpace: 'nowrap',
-              padding: '7px 14px',
-              borderRadius: '20px',
-              fontSize: '12.5px',
-              fontWeight: '800',
-              border: '1.5px solid #E2E8F0',
-              background: '#FFFFFF',
-              color: '#334155',
-              cursor: 'pointer',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
-              flexShrink: 0,
-              transition: 'all 0.2s ease'
-            }}
-          >
-            {lang === 'es' ? prov.labelEs : prov.labelEn}
-          </button>
-        ))}
       </div>
 
       {/* ── BOTÓN / PANEL SOCIO "¡HOLA, SOCIO!" (UBICADO DEBAJO DEL PANEL DE HISTORIAS DE ARRIBA) ── */}
@@ -1516,8 +1208,82 @@ export default function HomePage({ lang, navigate, userRole }) {
              <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '4px', background: 'linear-gradient(90deg, #FF7A1A, #F26000, #E65100)' }} />
 
              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                 <h2 style={{ fontSize: '18px', fontWeight: '900', margin: 0, color: '#1A1A2E' }}>👋 ¡Hola, Socio!</h2>
+               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                 {/* Foto de Perfil del Usuario colocada donde estaba la manita 👋 */}
+                 <div 
+                   onClick={() => {
+                     if (isPro || userRole === 'pro' || userData?.type === 'pro') {
+                       navigate('proProfile', userData)
+                     } else {
+                       navigate('profile')
+                     }
+                   }}
+                   style={{ position: 'relative', cursor: 'pointer', flexShrink: 0 }}
+                   title={lang === 'es' ? 'Ver mi perfil' : 'View my profile'}
+                 >
+                   <img 
+                     src={userData?.profilePhoto || userData?.photoURL || logoListo} 
+                     alt="Perfil" 
+                     style={{ 
+                       width: '42px', 
+                       height: '42px', 
+                       borderRadius: '50%', 
+                       objectFit: 'cover', 
+                       border: '2.5px solid #F26000', 
+                       boxShadow: '0 3px 10px rgba(242, 96, 0, 0.25)',
+                       background: '#FFF'
+                     }} 
+                   />
+
+                   {/* Ícono de chat flotante en la esquina de la foto de perfil */}
+                   <div 
+                     onClick={(e) => {
+                       e.stopPropagation();
+                       navigate('chat');
+                     }}
+                     style={{
+                       position: 'absolute',
+                       bottom: '-2px',
+                       right: '-2px',
+                       width: '20px',
+                       height: '20px',
+                       borderRadius: '50%',
+                       background: 'linear-gradient(135deg, #FF7A1A, #F26000)',
+                       display: 'flex',
+                       alignItems: 'center',
+                       justify: 'center',
+                       boxShadow: '0 2px 6px rgba(0,0,0,0.4)',
+                       cursor: 'pointer',
+                       border: '1.5px solid white',
+                       zIndex: 21
+                     }}
+                     title={lang === 'es' ? 'Ir a mensajes' : 'Go to chat'}
+                   >
+                     <span style={{ fontSize: '10px', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                       💬
+                     </span>
+                     {totalUnreadMessages > 0 && (
+                       <span 
+                         style={{ 
+                           position: 'absolute', 
+                           top: '-5px', 
+                           right: '-5px', 
+                           background: '#EF4444', 
+                           color: 'white', 
+                           fontSize: '8px', 
+                           fontWeight: '900', 
+                           borderRadius: '7px', 
+                           padding: '1px 4px', 
+                           border: '1px solid white'
+                         }}
+                       >
+                         {totalUnreadMessages > 9 ? '9+' : totalUnreadMessages}
+                       </span>
+                     )}
+                   </div>
+                 </div>
+
+                 <h2 style={{ fontSize: '18px', fontWeight: '900', margin: 0, color: '#1A1A2E' }}>¡Hola, Socio!</h2>
                  <span style={{ fontSize: '10px', fontWeight: '800', background: 'rgba(242, 96, 0, 0.12)', color: '#F26000', padding: '3px 8px', borderRadius: '12px', border: '1px solid rgba(242, 96, 0, 0.25)' }}>
                    ⭐ PANEL PRO
                  </span>
@@ -1601,29 +1367,6 @@ export default function HomePage({ lang, navigate, userRole }) {
           </div>
         </div>
       )}
-
-      {/* ── CINTA / ANUNCIO LARGO Y FINO INVITANDO A LA TIENDA WEB (DEBAJO DE HISTORIAS) ── */}
-      <div 
-        className="store-ribbon-banner"
-        onClick={() => window.open('https://listopatron.com.do/?page=shop', '_blank')}
-        title={lang === 'es' ? 'Visitar la Tienda Web de Pedidos Listo' : 'Visit Pedidos Listo Web Store'}
-        style={{ marginBottom: '14px' }}
-      >
-        <div className="store-ribbon-content">
-          <span className="store-ribbon-icon">🛍️</span>
-          <div className="store-ribbon-text-group">
-            <p className="store-ribbon-title">
-              {lang === 'es' ? <>Equípate en nuestra tienda <strong>Pedidos Listo</strong></> : <>Equip yourself at <strong>Pedidos Listo</strong> Store</>}
-            </p>
-            <p className="store-ribbon-sub">
-              {lang === 'es' ? 'Herramientas, equipos e insumos de seguridad con envío rápido a todo el país' : 'Tools, safety gear & supplies with fast nationwide shipping'}
-            </p>
-          </div>
-        </div>
-        <button className="store-ribbon-btn">
-          🛒 {lang === 'es' ? 'Visitar Tienda ›' : 'Visit Store ›'}
-        </button>
-      </div>
 
       {/* ── SECCIÓN DESPLEGABLE DE EMERGENCIAS (ACTIVADA DESDE EL CÍRCULO SIRENA BOMBERO EN LA BARRA SUPERIOR) ── */}
       {isProblemsExpanded && (
@@ -1732,137 +1475,39 @@ export default function HomePage({ lang, navigate, userRole }) {
         </div>
       )}
 
+      {/* ── SECCIÓN PROFESIONALES DESTACADOS (NUESTRO VIP) ── */}
+      <VIPSection 
+        realVipPros={featuredProsToUse} 
+        lang={lang} 
+        navigate={navigate} 
+        sectionTitle={lang === 'es' ? '🌟 Profesionales Destacados' : '🌟 Featured Professionals'}
+        sectionSub={null}
+        getProStoryData={getProStoryData}
+        onOpenStory={handleOpenStoryViewer}
+      />
 
-
-
-      <div className="hp-cats-scroll">
-        {topHomeCategories.map((c, i) => (
-          <div key={i} className="hp-cat-btn" onClick={() => navigate('search', { catToSelect: c.id || 'all' })}>
-            {i === 0 && <span className="cat-flash-badge">🔥 HOT</span>}
-            {i === 2 && <span className="cat-flash-badge" style={{background:'#10B981', boxShadow: '0 4px 8px rgba(16, 185, 129, 0.4)'}}>NUEVO</span>}
-            <div className="cat-icon-wrap">
-              {c.image ? (
-                <img src={c.image} alt={c.labelEs} style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '10px' }} />
-              ) : (
-                <span className="hp-cat-icon">{c.icon}</span>
-              )}
-            </div>
-            <span className="hp-cat-label">{lang === 'es' ? c.labelEs : c.labelEn}</span>
+      {/* ── CINTA / ANUNCIO LARGO Y FINO INVITANDO A LA TIENDA WEB (DEBAJO DE PROFESIONALES DESTACADOS) ── */}
+      <div 
+        className="store-ribbon-banner"
+        onClick={() => window.open('https://listopatron.com.do/?page=shop', '_blank')}
+        title={lang === 'es' ? 'Visitar la Tienda Web de Listo Patrón' : 'Visit Listo Patrón Web Store'}
+        style={{ marginTop: '10px', marginBottom: '14px' }}
+      >
+        <div className="store-ribbon-content">
+          <span className="store-ribbon-icon">🛍️</span>
+          <div className="store-ribbon-text-group">
+            <p className="store-ribbon-title">
+              {lang === 'es' ? <>Equípate en nuestra tienda <strong>Listo Patrón</strong></> : <>Equip yourself at <strong>Listo Patrón</strong> Store</>}
+            </p>
+            <p className="store-ribbon-sub">
+              {lang === 'es' ? 'Herramientas, equipos e insumos de seguridad con envío rápido a todo el país' : 'Tools, safety gear & supplies with fast nationwide shipping'}
+            </p>
           </div>
-        ))}
+        </div>
+        <button className="store-ribbon-btn">
+          🛒 {lang === 'es' ? 'Visitar Tienda ›' : 'Visit Store ›'}
+        </button>
       </div>
-
-
-      {/* ── ESTRUCTURA VARIADA 1 ESTILO AMAZON: BENTO GRID CONTENEDOR 2x2 ── */}
-      <section className="amz-bento-section">
-        <div className="amz-bento-header">
-          <h2 className="amz-bento-title">
-            🛍️ {lang === 'es' ? 'Abarrotes y servicios con entrega hoy' : 'Same day services'}
-          </h2>
-          <button className="hp-see-all" onClick={() => navigate('search')}>
-            {lang === 'es' ? 'Ver todo' : 'See all'} ›
-          </button>
-        </div>
-        <div className="amz-bento-grid">
-          <div className="amz-bento-item" onClick={() => navigate('search', { catToSelect: 'mecanico' })}>
-            <div className="amz-bento-img-wrap" style={{ position: 'relative' }}>
-              <span className="amz-bento-item-tag">🔥 MÁS VENDIDO</span>
-              <img src={mecanico1} alt="Mecánico" className="amz-bento-img" />
-              <div className="listo-brand-watermark">
-                <img src={logoListo} alt="Pedidos Listo" className="listo-brand-watermark-img" />
-              </div>
-            </div>
-            <p className="amz-bento-item-title">{lang === 'es' ? 'Diagnóstico Vehicular' : 'Auto Diagnostic'}</p>
-            <p className="amz-bento-item-sub">🤝 {lang === 'es' ? 'A convenir' : 'To agree'}</p>
-          </div>
-
-          <div className="amz-bento-item" onClick={() => navigate('search', { catToSelect: 'electricista' })}>
-            <div className="amz-bento-img-wrap" style={{ position: 'relative' }}>
-              <span className="amz-bento-item-tag">⚡ 24/7 URGENTE</span>
-              <img src={electrica1} alt="Electricista" className="amz-bento-img" />
-              <div className="listo-brand-watermark">
-                <img src={logoListo} alt="Pedidos Listo" className="listo-brand-watermark-img" />
-              </div>
-            </div>
-            <p className="amz-bento-item-title">{lang === 'es' ? 'Instalación Eléctrica' : 'Electrical Install'}</p>
-            <p className="amz-bento-item-sub">🤝 {lang === 'es' ? 'A convenir' : 'To agree'}</p>
-          </div>
-
-          <div className="amz-bento-item" onClick={() => navigate('search', { catToSelect: 'plomero' })}>
-            <div className="amz-bento-img-wrap" style={{ position: 'relative' }}>
-              <span className="amz-bento-item-tag">🛡️ GARANTIZADO</span>
-              <img src={plomero} alt="Plomero" className="amz-bento-img" />
-              <div className="listo-brand-watermark">
-                <img src={logoListo} alt="Pedidos Listo" className="listo-brand-watermark-img" />
-              </div>
-            </div>
-            <p className="amz-bento-item-title">{lang === 'es' ? 'Reparación de Tubería' : 'Pipe Repair'}</p>
-            <p className="amz-bento-item-sub">🤝 {lang === 'es' ? 'A convenir' : 'To agree'}</p>
-          </div>
-
-          <div className="amz-bento-item" onClick={() => navigate('search', { catToSelect: 'cerrajero' })}>
-            <div className="amz-bento-img-wrap" style={{ position: 'relative' }}>
-              <span className="amz-bento-item-tag">🔑 POPULAR</span>
-              <img src={cerrajero1} alt="Cerrajero" className="amz-bento-img" />
-              <div className="listo-brand-watermark">
-                <img src={logoListo} alt="Pedidos Listo" className="listo-brand-watermark-img" />
-              </div>
-            </div>
-            <p className="amz-bento-item-title">{lang === 'es' ? 'Apertura de Puertas' : 'Door Opening'}</p>
-            <p className="amz-bento-item-sub">🤝 {lang === 'es' ? 'A convenir' : 'To agree'}</p>
-          </div>
-        </div>
-      </section>
-
-
-
-
-
-
-      {sections.map((sec, idx) => {
-            // Colores temáticos extraidos de los Planes VIP/Platinum/Gold/Basico para dar forma
-            const amzThemes = [
-              { bg: 'linear-gradient(145deg, #EFF6FF 0%, #DBEAFE 100%)', color: '#1E3A8A', card: '#FFF' }, // VIP Blue
-              { bg: 'linear-gradient(145deg, #FFFBEB 0%, #FEF3C7 100%)', color: '#92400E', card: '#FFF' }, // Gold Orange
-              { bg: 'linear-gradient(145deg, #F8FAFC 0%, #F1F5F9 100%)', color: '#334155', card: '#FFF' }, // Básico Silver
-              { bg: 'linear-gradient(145deg, #FDF4FF 0%, #FCE7F3 100%)', color: '#831843', card: '#FFF' }, // Pink
-              { bg: 'linear-gradient(145deg, #F0FDF4 0%, #DCFCE7 100%)', color: '#166534', card: '#FFF' }, // Green
-              { bg: 'linear-gradient(145deg, #FEF2F2 0%, #FEE2E2 100%)', color: '#991B1B', card: '#FFF' }, // Red
-              { bg: 'linear-gradient(145deg, #FAF5FF 0%, #F3E8FF 100%)', color: '#4C1D95', card: '#FFF' }, // Purple
-            ];
-            const theme = amzThemes[idx % amzThemes.length];
-
-            return (
-              <section key={sec.id} className="hp-service-section reveal" style={{ background: theme.bg }}>
-                <div className="hp-sec-header amz-sec-header">
-                  <h2 className="hp-sec-title amz-sec-title" style={{ color: theme.color, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    {sec.image ? <img src={sec.image} alt={sec.titleEs} style={{ width: '24px', height: '24px', objectFit: 'contain' }} /> : sec.icon} 
-                    {lang === 'es' ? sec.titleEs : sec.titleEn}
-                  </h2>
-                  <button className="hp-see-all amz-see-all" style={{ color: theme.color }} onClick={() => navigate('search')}>
-                    {lang === 'es' ? 'Ver todo' : 'See all'} ›
-                  </button>
-                </div>
-                <div className="hp-service-cards amz-cards-scroll">
-                  {sec.services.map((s, i) => (
-                    <div key={i} className="hp-svc-card amz-bento-card" style={{ background: theme.card }} onClick={() => navigate('booking', { specialty: sec.id })}>
-                      <div className="hp-svc-img-wrap" style={{ position: 'relative' }}>
-                        {s.tag && <span className="hp-svc-tag">{s.tag}</span>}
-                        <img src={s.img} alt={s.nameEs} className="hp-svc-img" />
-                        <div className="listo-brand-watermark">
-                          <img src={logoListo} alt="Pedidos Listo" className="listo-brand-watermark-img" />
-                        </div>
-                      </div>
-                      <div className="hp-svc-info">
-                        <p className="hp-svc-name">{lang === 'es' ? s.nameEs : s.nameEn}</p>
-                        <p className="hp-svc-price">{s.price}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </section>
-            );
-          })}
 
           <section ref={allProsRef} className={`all-pros-section${allProsVisible ? ' reveal' : ''}`}>
             <div className="hp-sec-header" style={{ marginBottom: 12 }}>
@@ -1997,38 +1642,7 @@ export default function HomePage({ lang, navigate, userRole }) {
         />
       )}
       {/* ── ELEMENTOS FLOTANTES ESTILO TEMU / AMAZON ── */}
-      {/* Live Hiring Activity Toast */}
-      {showLiveToast && currentLiveToastObj?.text && (
-        <div 
-          className="live-activity-toast"
-          onClick={() => setShowLiveToast(false)}
-          style={{ cursor: 'pointer' }}
-          title="Toca para cerrar"
-        >
-          <span style={{ fontSize: '18px', flexShrink: 0 }}>{currentLiveToastObj.icon || '🔔'}</span>
-          <p className="live-activity-toast-text" style={{ flex: 1 }}>
-            {currentLiveToastObj.text}
-          </p>
-          <button 
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              setShowLiveToast(false);
-            }}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: '#AAA',
-              fontSize: '14px',
-              cursor: 'pointer',
-              padding: '0 0 0 8px',
-              fontWeight: 'bold'
-            }}
-          >
-            ✕
-          </button>
-        </div>
-      )}
+
 
       {/* Floating Lucky Wheel FAB — Se muestra ÚNICAMENTE para profesionales cuando tienen giros ganados por 4 o 5 estrellas */}
       {(isPro && (userData?.spinsAvailable || 0) > 0) && (

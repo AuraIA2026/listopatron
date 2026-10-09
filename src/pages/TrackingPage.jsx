@@ -12,6 +12,8 @@ import vanImg from '../assets/van_topdown.png'
 import { ReportModal } from './ChatPage'
 import CallModal from '../components/CallModal'
 import FloatingChat from '../components/FloatingChat'
+import ImprevistoModal from '../components/ImprevistoModal'
+import { getGoogleCalendarUrl, downloadIcsFile } from '../utils/calendarUtils'
 
 delete L.Icon.Default.prototype._getIconUrl
 L.Icon.Default.mergeOptions({
@@ -289,6 +291,7 @@ export default function TrackingPage({ lang = 'es', navigate, professional, user
   const [showArrivingAlert, setShowArrivingAlert] = useState(false)
   const [alertDismissed, setAlertDismissed] = useState(false)
   const [paymentStatus, setPaymentStatus] = useState(professional?.paymentStatus || null)
+  const [showImprevistoModal, setShowImprevistoModal] = useState(false)
 
   // Audio llegada y notificación
   const arrivingAudioRef    = useRef(null)
@@ -385,7 +388,7 @@ export default function TrackingPage({ lang = 'es', navigate, professional, user
           watcherId = await BackgroundGeolocation.addWatcher(
             {
               backgroundMessage: "Tracking activo en camino al cliente.",
-              backgroundTitle: "Listo Patrón - En camino",
+              backgroundTitle: "Pedidos Listo - En camino",
               requestPermissions: true,
               stale: false,
               distanceFilter: 10
@@ -642,10 +645,77 @@ export default function TrackingPage({ lang = 'es', navigate, professional, user
                   {userRole !== 'pro' && <div className="tracking-pro-rating">★ {pro.rating}<span className="tracking-verified">✓ {lang==='es'?'Verificado':'Verified'}</span></div>}
                 </div>
               </div>
-              <div className="tracking-pro-actions">
+              <div className="tracking-pro-actions" style={{ display: 'flex', gap: '6px' }}>
+                <button 
+                  className="track-action-btn" 
+                  onClick={() => {
+                    const url = getGoogleCalendarUrl({
+                      title: `Servicio con ${pro.name} (${pro.category})`,
+                      description: `Cita de servicio reservada en Pedidos Listo con ${pro.name}.`,
+                      location: 'República Dominicana'
+                    })
+                    window.open(url, '_blank')
+                  }}
+                  title="Guardar en Google Calendar"
+                  style={{ background: '#EFF6FF', color: '#2563EB', border: '1px solid #BFDBFE' }}
+                >
+                  📅
+                </button>
+                <button 
+                  className="track-action-btn" 
+                  onClick={() => setShowImprevistoModal(true)}
+                  title="Asistencia & Garantía 24/7"
+                  style={{ background: '#FEF2F2', color: '#DC2626', border: '1px solid #FECACA', fontWeight: 'bold' }}
+                >
+                  🛡️
+                </button>
                 <button className="track-action-btn call" onClick={() => setShowChat(true)} style={{ opacity: pro.phone ? 1 : 0.4 }}>📞</button>
                 <button className="track-action-btn chat" onClick={() => setShowChat(true)}>💬</button>
               </div>
+            </div>
+
+            {/* Banner de Garantía & Asistencia 24/7 */}
+            <div 
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justify: 'space-between',
+                background: 'linear-gradient(135deg, #FEF2F2 0%, #FFF1F2 100%)',
+                border: '1.5px solid #FECACA',
+                borderRadius: '16px',
+                padding: '12px 14px',
+                margin: '14px 0 10px',
+                gap: '10px'
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <span style={{ fontSize: '24px' }}>🛡️</span>
+                <div>
+                  <p style={{ margin: 0, fontSize: '13px', fontWeight: 900, color: '#991B1B' }}>
+                    {lang === 'es' ? 'Soporte & Mediación 24/7' : '24/7 Support & Mediation'}
+                  </p>
+                  <p style={{ margin: '2px 0 0', fontSize: '11px', color: '#7F1D1D' }}>
+                    {lang === 'es' ? 'Asistencia en vivo ante cualquier imprevisto' : 'Live assistance for any situation'}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowImprevistoModal(true)}
+                style={{
+                  background: '#DC2626',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: '12px',
+                  padding: '8px 12px',
+                  fontSize: '12px',
+                  fontWeight: 900,
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 10px rgba(220, 38, 38, 0.3)',
+                  whiteSpace: 'nowrap'
+                }}
+              >
+                🚨 {lang === 'es' ? 'Reportar' : 'Report'}
+              </button>
             </div>
 
             <div className="tracking-steps">
@@ -680,7 +750,7 @@ export default function TrackingPage({ lang = 'es', navigate, professional, user
               <div className="tracking-info-box" style={{ background:'#F0FDF4', padding:16, borderRadius:12, textAlign:'center', border:'1px dashed #34D399' }}>
                 <p style={{ margin:0, fontSize:14, color:'#065F46', fontWeight:700 }}>
                   {userRole==='pro'
-                    ? (lang==='es'?'🔧 Cuando termines ve a Pedidos → Ver orden activa → ¡Listo Patrón!':'🔧 When done go to Orders → View active order → Done Boss!')
+                    ? (lang==='es'?'🔧 Cuando termines ve a Pedidos → Ver orden activa → ¡Pedidos Listo!':'🔧 When done go to Orders → View active order → Done Boss!')
                     : (lang==='es'?'🔧 El profesional está trabajando. Te notificaremos cuando termine.':'🔧 Professional is working. We will notify you when done.')
                   }
                 </p>
@@ -722,6 +792,15 @@ export default function TrackingPage({ lang = 'es', navigate, professional, user
           lang={lang} 
           onClose={() => setShowChat(false)} 
           zIndex={5000}
+        />
+      )}
+
+      {showImprevistoModal && (
+        <ImprevistoModal 
+          lang={lang} 
+          onClose={() => setShowImprevistoModal(false)} 
+          orderInfo={professional} 
+          proName={pro.name} 
         />
       )}
     </div>

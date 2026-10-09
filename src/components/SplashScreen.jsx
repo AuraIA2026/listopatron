@@ -17,7 +17,7 @@ export default function SplashScreen({ onFinish, lang }) {
       <div className="splash-logo-wrap">
         <img src={logoBlanco} alt="Listo" className="splash-logo" />
       </div>
-      <img src={letrasLogo} alt="Listo Patrón" className="splash-letras" />
+      <img src={letrasLogo} alt="Pedidos Listo" className="splash-letras" />
       <div className="splash-loader">
         <div className="splash-bar" />
       </div>

@@ -1,17 +1,56 @@
 import React, { useState, useEffect, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import { db } from '../firebase'
 import { collection, query, where, getDocs, onSnapshot } from 'firebase/firestore'
 import HistoriasViewerModal from './HistoriasViewerModal'
 import SubirHistoriaModal from './SubirHistoriaModal'
+import { getProPlanTheme } from '../planTheme'
 import './Historias.css'
 
-export default function HistoriasCarrusel({ userData, isPro, onHirePro }) {
+const HAND_TEXTS_DELIVERY = [
+  '🍔 ¿Tienes hambre?',
+  '👇 ¡Presiona aquí!',
+  '🛵 Delivery & Mándame',
+  '🛍️ Víveres & Súper'
+];
+
+const HAND_TEXTS_SERVICES = [
+  '🛠️ ¿Buscas un técnico?',
+  '👇 Volver a Listo Patrón',
+  '⚡ Electricistas & Plomeros',
+  '🤝 Servicios Profesionales'
+];
+
+export default function HistoriasCarrusel({ userData, isPro, onHirePro, navigate, isMandameView = false, hideRibbon = false }) {
   const [stories, setStories] = useState([])
   const [viewerOpen, setViewerOpen] = useState(false)
   const [selectedStoryIndex, setSelectedStoryIndex] = useState(0)
   const [uploadModalOpen, setUploadModalOpen] = useState(false)
   const [has5StarContract, setHas5StarContract] = useState(false)
   const [showLockNotice, setShowLockNotice] = useState(false)
+  const [showIncompleteProfileNotice, setShowIncompleteProfileNotice] = useState(false)
+
+  // Estado para la animación del texto alternante de la mano indicadora
+  const [handTextIndex, setHandTextIndex] = useState(0)
+  const [showHandPointer, setShowHandPointer] = useState(true)
+
+  const activeHandTexts = isMandameView ? HAND_TEXTS_SERVICES : HAND_TEXTS_DELIVERY;
+
+  // Timer para alternar el texto animado de la mano cada 2.4 segundos
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setHandTextIndex(prev => (prev + 1) % activeHandTexts.length)
+    }, 2400)
+    return () => clearInterval(timer)
+  }, [activeHandTexts.length])
+
+  // Timer para ocultar la mano animada automáticamente a los 7 segundos de abrir la app
+  useEffect(() => {
+    const hideTimer = setTimeout(() => {
+      setShowHandPointer(false)
+    }, 7000)
+    return () => clearTimeout(hideTimer)
+  }, [])
 
   const trackRef = useRef(null)
   const [canScrollLeft, setCanScrollLeft] = useState(false)
@@ -19,34 +58,93 @@ export default function HistoriasCarrusel({ userData, isPro, onHirePro }) {
 
   const isProUser = isPro || userData?.role === 'pro' || userData?.type === 'pro' || localStorage.getItem('forceListoPro') === 'true'
 
-  // Verification if the professional has at least one 5-star completed contract
+  // Verificación estricta de Perfil Completo (Nombre y Teléfono requeridos para Clientes y Profesionales)
+  const isProfileComplete = Boolean(
+    userData?.profileComplete ||
+    (
+      (userData?.name || userData?.displayName || userData?.fullName || userData?.proName) &&
+      (userData?.phone || userData?.telefono || userData?.phoneNumber) &&
+      (!isProUser || userData?.category || userData?.especialidad || userData?.verificacion?.estado === 'aprobada' || userData?.verificacion?.estado === 'verificado')
+    )
+  )
+
+  // Mapa en tiempo real de planes de usuarios en Firestore para garantizar que cada historia muestre su plan real
+  const [usersPlanMap, setUsersPlanMap] = useState({})
+
+  useEffect(() => {
+    const unsubscribeUsers = onSnapshot(collection(db, 'users'), (snap) => {
+      const map = {}
+      snap.forEach(uDoc => {
+        const u = uDoc.data()
+        const resolved = u.currentPlan || u.planId || u.plan || u.membership || u.proPlan || u.subscription || u.userPlan || u.planName || u.tipoPlan || u.tier
+        if (resolved) {
+          map[uDoc.id] = resolved
+          if (u.uid) map[u.uid] = resolved
+          if (u.id) map[u.id] = resolved
+
+          const nameClean = String(u.name || u.displayName || u.fullName || u.proName || u.nombre || u.proNombre || '').toLowerCase().trim()
+          if (nameClean) {
+            map[nameClean] = resolved
+          }
+        }
+      })
+      setUsersPlanMap(map)
+    }, (err) => console.log('Notice reading users for plan map:', err))
+
+    return () => unsubscribeUsers()
+  }, [])
+
+  // Regla de Bienvenida (Grace Period): Pro de planes Gold, Platinum o VIP registrados en los últimos 30 días pueden subir 1 historia gratis
+  const userPlanRaw = String(userData?.plan || userData?.currentPlan || userData?.planId || userData?.planName || userData?.subscription || '').toLowerCase()
+  const userCreatedAt = userData?.createdAt ? new Date(userData.createdAt).getTime() : 0
+  const isWithin30Days = userCreatedAt > 0 ? (Date.now() - userCreatedAt <= 30 * 24 * 60 * 60 * 1000) : true
+  const isGoldOrAbove = userPlanRaw.includes('gold') || userPlanRaw.includes('platinum') || userPlanRaw.includes('vip') || userPlanRaw.includes('élite')
+  const isGracePeriodEligible = isProUser && isGoldOrAbove && isWithin30Days
+
+  // ÚNICAMENTE usuarios con Perfil Completo pueden publicar historias
+  const canPublishStory = isProfileComplete && (!isProUser || has5StarContract || isGracePeriodEligible)
+
+  // Real-time verification if the professional has at least one 4-5 star completed contract
   useEffect(() => {
     const proId = userData?.uid || userData?.id
     if (!proId || !isProUser) return
 
-    const check5StarContract = async () => {
-      try {
-        const qOrders = query(collection(db, 'orders'), where('proId', '==', proId))
-        const snap = await getDocs(qOrders)
-        let found5Star = false
-        snap.forEach(doc => {
-          const data = doc.data()
-          if (data.rated && Number(data.ratingScore) >= 5) {
-            found5Star = true
-          }
-        })
-
-        if (Number(userData?.rating) >= 5.0 || userData?.completed5StarCount > 0 || userData?.has5StarContract) {
-          found5Star = true
-        }
-
-        setHas5StarContract(found5Star)
-      } catch (err) {
-        console.log('Error checking 5-star contracts:', err)
-      }
+    // Fast check via local user state
+    if (
+      Number(userData?.rating) >= 4.0 ||
+      userData?.completed5StarCount > 0 ||
+      userData?.has5StarContract === true ||
+      localStorage.getItem('force5StarUnlock') === 'true'
+    ) {
+      setHas5StarContract(true)
     }
 
-    check5StarContract()
+    const qOrders = query(collection(db, 'orders'), where('proId', '==', proId))
+    const unsubscribeOrders = onSnapshot(qOrders, (snap) => {
+      let found5Star = false
+      snap.forEach(doc => {
+        const data = doc.data()
+        const score = Number(data.ratingScore || data.rating || data.calificacion || 0)
+        if (data.rated && score >= 4) {
+          found5Star = true
+        }
+      })
+
+      if (
+        found5Star ||
+        Number(userData?.rating) >= 4.0 ||
+        (userData?.completed5StarCount && userData?.completed5StarCount > 0) ||
+        userData?.has5StarContract === true
+      ) {
+        setHas5StarContract(true)
+      } else {
+        setHas5StarContract(false)
+      }
+    }, (err) => {
+      console.log('Error listening to 5-star orders:', err)
+    })
+
+    return () => unsubscribeOrders()
   }, [userData, isProUser])
 
   // Real-time listener for stories from Firestore
@@ -54,98 +152,29 @@ export default function HistoriasCarrusel({ userData, isPro, onHirePro }) {
     const qStories = query(collection(db, 'historias'))
     const unsubscribe = onSnapshot(qStories, (snapshot) => {
       const fetched = []
-      const now = new Date().getTime()
+      const now = Date.now()
 
       snapshot.forEach(doc => {
         const data = doc.data()
-        const expiresTime = data.expiresAt ? new Date(data.expiresAt).getTime() : now + 86400000
-        if (expiresTime > now - 86400000) {
+        const isRejected = data.status === 'rejected' || data.moderated === 'rejected' || data.approved === false || data.rejected === true
+        const isApproved = (data.status === 'approved' || data.approved === true || (data.moderated === true && data.status !== 'rejected')) && !isRejected
+        
+        // Calcular tiempo exacto de expiración (24 horas)
+        let expiresTime = 0
+        if (data.expiresAt) {
+          expiresTime = new Date(data.expiresAt).getTime()
+        } else if (data.createdAt) {
+          expiresTime = new Date(data.createdAt).getTime() + (24 * 60 * 60 * 1000)
+        }
+
+        // Historia válida ÚNICAMENTE dentro de sus 24 horas y aprobada sin rechazo
+        if (isApproved && !isRejected && expiresTime > now) {
           fetched.push({ id: doc.id, ...data })
         }
       })
 
       fetched.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-
-      const sampleStories = [
-        {
-          id: 'sample_1',
-          proId: 'pro_demo_1',
-          proName: 'mym_smart...',
-          fullName: 'M&M Smart Phone',
-          proAvatar: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=200&q=80',
-          proCategory: 'Reparación de Celulares',
-          imageUrl: 'https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?auto=format&fit=crop&w=800&q=80',
-          caption: '📱 Cambio de pantalla AMOLED & batería para iPhone 15 Pro Max listo en 20 mins.',
-          likesCount: 38,
-          createdAt: new Date().toISOString()
-        },
-        {
-          id: 'sample_2',
-          proId: 'pro_demo_2',
-          proName: 'ebusinesst...',
-          fullName: 'E-Business Store',
-          proAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
-          proCategory: 'Soporte Técnico VIP',
-          imageUrl: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80',
-          caption: '💻 Instalación y optimización de redes de fibra óptica en torre residencial.',
-          likesCount: 45,
-          createdAt: new Date().toISOString()
-        },
-        {
-          id: 'sample_3',
-          proId: 'pro_demo_3',
-          proName: 'controlpiz...',
-          fullName: 'Control Pizza Burger',
-          proAvatar: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=200&q=80',
-          proCategory: 'Chef & Catering 24h',
-          imageUrl: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=800&q=80',
-          caption: '🍕 Servicio VIP de Pizza Artesanal a la leña para eventos corporativos.',
-          likesCount: 62,
-          createdAt: new Date().toISOString()
-        },
-        {
-          id: 'sample_4',
-          proId: 'pro_demo_4',
-          proName: 'santanaxoo',
-          fullName: 'Carlos Santana',
-          proAvatar: 'https://randomuser.me/api/portraits/men/32.jpg',
-          proCategory: 'Electricista Certificado',
-          imageUrl: 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=800&q=80',
-          caption: '⚡ Montaje de breakers inteligentes y luces LED ocultas en techo flotante.',
-          likesCount: 29,
-          createdAt: new Date().toISOString()
-        },
-        {
-          id: 'sample_5',
-          proId: 'pro_demo_5',
-          proName: 'roanrafael',
-          fullName: 'Roan Rafael',
-          proAvatar: 'https://randomuser.me/api/portraits/men/46.jpg',
-          proCategory: 'Plomería & Tuberías',
-          imageUrl: 'https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?auto=format&fit=crop&w=800&q=80',
-          caption: '🔧 Detección de fugas de agua no destructiva con escáner ultrasónico.',
-          likesCount: 51,
-          createdAt: new Date().toISOString()
-        },
-        {
-          id: 'sample_6',
-          proId: 'pro_demo_6',
-          proName: 'oscaraleja...',
-          fullName: 'Oscar Alejandro',
-          proAvatar: 'https://randomuser.me/api/portraits/men/68.jpg',
-          proCategory: 'Mecánica Móvil 24/7',
-          imageUrl: 'https://images.unsplash.com/photo-1486006920555-c77dce18193b?auto=format&fit=crop&w=800&q=80',
-          caption: '🚗 Auxilio vial y cambio de alternador directo en la carretera.',
-          likesCount: 77,
-          createdAt: new Date().toISOString()
-        }
-      ]
-
-      if (fetched.length > 0) {
-        setStories(fetched)
-      } else {
-        setStories(sampleStories)
-      }
+      setStories(fetched)
     }, (error) => {
       console.log('Error reading historias snapshot:', error)
     })
@@ -194,25 +223,73 @@ export default function HistoriasCarrusel({ userData, isPro, onHirePro }) {
   }
 
   const handleAddStoryClick = () => {
-    if (!isProUser || has5StarContract) {
+    if (!isProfileComplete) {
+      setShowIncompleteProfileNotice(true)
+      return
+    }
+    if (canPublishStory) {
       setUploadModalOpen(true)
     } else {
       setShowLockNotice(true)
     }
   }
 
+  const handleRibbonClick = () => {
+    if (typeof navigate === 'function') {
+      navigate(isMandameView ? 'home' : 'mandame');
+    } else {
+      const el = document.getElementById('hp-categories-section');
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <div className="historias-carrusel-wrapper">
-      <div className="historias-carrusel-header">
-        <div className="historias-title-left">
-          <div className="historias-live-pulse" />
-          <span className="historias-title-icon">📸</span>
-          <span className="historias-title-text">Trabajos Realizados Recientemente</span>
+      {/* ── CINTA MAMEY LLAMATIVA CON DESTELLOS Y MANO ANIMADA CON TEXTO ── */}
+      {!hideRibbon && (
+        <div className="cinta-pedidos-listo-container">
+          {/* Mano animada presionando la cinta con texto alternante (Solo dura 7s al abrir la app) */}
+          {showHandPointer && (
+            <div 
+              className="animated-hand-pointer"
+              onClick={handleRibbonClick}
+              title={isMandameView ? "¡Haz clic para volver a Listo Patrón!" : "¡Haz clic para entrar a Pedidos Listo!"}
+            >
+              <div className="hand-badge animated-fade-text" key={handTextIndex}>
+                {activeHandTexts[handTextIndex]}
+              </div>
+              <span className="hand-emoji">👇</span>
+            </div>
+          )}
+
+          <div 
+            className="cinta-pedidos-listo-wrapper"
+            onClick={handleRibbonClick}
+          >
+            <div className="cinta-pedidos-listo" style={isMandameView ? { background: 'linear-gradient(135deg, #2563eb 0%, #3b82f6 40%, #1d4ed8 80%, #1e40af 100%)', boxShadow: '0 5px 16px rgba(37, 99, 235, 0.45), 0 0 10px rgba(255, 255, 255, 0.35) inset' } : {}}>
+              {isMandameView ? (
+                <span className="cinta-icon moto-speed-wrap">
+                  <span className="moto-emoji">🤝</span>
+                </span>
+              ) : (
+                <span className="cinta-icon moto-speed-wrap" title="¡Delivery a toda velocidad!">
+                  <span className="moto-emoji">🛵</span>
+                  <span className="moto-smoke-trail">💨</span>
+                  <span className="moto-speed-lines">⚡</span>
+                </span>
+              )}
+              <div className="cinta-text-container">
+                <span className="cinta-text">{isMandameView ? 'LISTO PATRÓN' : 'PEDIDOS LISTO'}</span>
+                <span className="cinta-subtext">{isMandameView ? 'SERVICIOS & TÉCNICOS' : 'DELIVERY & MÁNDAME'}</span>
+              </div>
+              <span className="cinta-icon">{isMandameView ? '🛠️' : '🛍️'}</span>
+              <span className="sparkle-right">✨</span>
+              <div className="cinta-shine"></div>
+            </div>
+          </div>
         </div>
-        <div className="historias-title-right">
-          <span className="historias-badge-24h">⚡ 24h Stories</span>
-        </div>
-      </div>
+      )}
+
 
       <div className="historias-track-container">
         {canScrollLeft && (
@@ -232,7 +309,7 @@ export default function HistoriasCarrusel({ userData, isPro, onHirePro }) {
         >
           {/* Add Story Button for both Clients and Professionals */}
           <div className="historia-item" onClick={handleAddStoryClick}>
-            <div className={`historia-ring add-story-ring ${isProUser && !has5StarContract ? 'locked' : ''}`}>
+            <div className={`historia-ring add-story-ring ${!canPublishStory ? 'locked' : ''}`}>
               <div className="historia-avatar-inner">
                 <img
                   src={userData?.photoURL || userData?.avatarUrl || userData?.profilePhoto || 'https://randomuser.me/api/portraits/men/32.jpg'}
@@ -241,38 +318,114 @@ export default function HistoriasCarrusel({ userData, isPro, onHirePro }) {
                 />
               </div>
               <div className="historia-add-plus">
-                {isProUser ? (has5StarContract ? '+' : '🔒') : '+'}
+                {canPublishStory ? '+' : '🔒'}
               </div>
             </div>
             <span className="historia-label pro-label">
-              {isProUser ? (has5StarContract ? 'Tu Historia' : '⭐ 5 Estrellas') : 'Tu Historia'}
+              {!isProfileComplete ? '🔒 Completar' : (canPublishStory ? 'Tu Historia' : '⭐ 5 Estrellas')}
             </span>
           </div>
 
-          {/* Stories List */}
-          {stories.map((story, index) => {
-            const isSeen = seenStories.includes(story.id)
-            return (
-              <div
-                key={story.id || index}
-                className="historia-item"
-                onClick={() => handleOpenViewer(index)}
-              >
-                <div className={`historia-ring ${isSeen ? 'seen' : ''}`}>
-                  <div className="historia-avatar-inner">
-                    <img
-                      src={story.proAvatar || 'https://randomuser.me/api/portraits/men/32.jpg'}
-                      alt={story.fullName || story.proName}
-                      className="historia-avatar"
-                    />
+          {/* Unique Professionals Stories List with Custom Plan Color Themes */}
+          {(() => {
+            const uniquePros = []
+            const seenKeys = new Set()
+
+            stories.forEach((story, idx) => {
+              const key = story.proId || story.proUid || story.proName || story.fullName || story.id
+              if (!seenKeys.has(key)) {
+                seenKeys.add(key)
+                const allStoryIds = stories.filter(s => (s.proId || s.proUid || s.proName || s.fullName || s.id) === key).map(s => s.id)
+                const proUidKey = story.proId || story.proUid
+                const proNameClean = String(story.proName || story.fullName || '').toLowerCase().trim()
+                const words = proNameClean.split(' ').filter(Boolean)
+                const twoWords = words.length >= 2 ? `${words[0]} ${words[1]}` : ''
+                const firstWord = words.length >= 1 && words[0].length >= 3 ? words[0] : ''
+
+                const livePlan = (proUidKey && usersPlanMap[proUidKey]) ||
+                                 (proNameClean && usersPlanMap[proNameClean])
+
+                const finalPlan = livePlan || story.proPlan || story.plan || story.currentPlan || story.planId || story.membership || story.subscription || story.userPlan || story.planName
+
+                // Detectar si el usuario o alguna de sus historias tiene una oferta activa
+                const proStories = stories.filter(s => (s.proId || s.proUid || s.proName || s.fullName || s.id) === key)
+                const offerStory = proStories.find(s => s.sticker || s.hasOffer || s.type === 'oferta_flash' || s.offerText)
+                const rawSticker = offerStory?.sticker || story.sticker || story.offerSticker || ''
+                const percentMatch = rawSticker.match(/\d+%/)?.[0]
+                const offerBadgeText = percentMatch ? `${percentMatch} OFF` : '% OFF'
+                const hasOffer = Boolean(offerStory || story.hasOffer || rawSticker || story.type === 'oferta_flash')
+
+                uniquePros.push({
+                  key,
+                  firstIndex: idx,
+                  proName: story.proName || story.fullName,
+                  proAvatar: story.proAvatar,
+                  proPlan: finalPlan,
+                  proRating: story.proRating || story.rating || story.calificacion || 5.0,
+                  allStoryIds,
+                  hasOffer,
+                  offerBadgeText,
+                  rawSticker
+                })
+              }
+            })
+
+            return uniquePros.map((pro) => {
+              const isAllSeen = pro.allStoryIds.every(id => seenStories.includes(id))
+              const theme = getProPlanTheme(pro.proPlan, pro.proRating)
+
+              return (
+                <div
+                  key={pro.key}
+                  className="historia-item"
+                  onClick={() => handleOpenViewer(pro.firstIndex)}
+                >
+                  <div
+                    className={`historia-ring ${isAllSeen ? 'seen' : ''}`}
+                    style={isAllSeen ? {
+                      background: 'rgba(255, 255, 255, 0.15)',
+                      border: `2px solid ${theme.color}`,
+                      boxShadow: `0 2px 8px ${theme.color}44`
+                    } : {
+                      background: theme.ringGradient,
+                      boxShadow: `0 4px 14px ${theme.color}55`
+                    }}
+                  >
+                    <div className="historia-avatar-inner">
+                      <img
+                        src={pro.proAvatar || 'https://randomuser.me/api/portraits/men/32.jpg'}
+                        alt={pro.proName}
+                        className="historia-avatar"
+                      />
+                    </div>
+                    {/* STICKER CIRCULAR ANIMADO % OFF CUANDO EL USUARIO TIENE OFERTA */}
+                    {pro.hasOffer && (
+                      <div 
+                        className="historia-offer-badge-circle"
+                        title={pro.rawSticker || '¡Este usuario tiene una oferta activa!'}
+                      >
+                        <span>{pro.offerBadgeText}</span>
+                      </div>
+                    )}
+                    {/* El distintivo de plan (GOLD, PLATINUM, VIP, BÁSICO) SIEMPRE permanece visible */}
+                    <span 
+                      className="historia-plan-badge-tag" 
+                      style={{ 
+                        background: theme.badgeBg, 
+                        color: theme.badgeColor,
+                        opacity: isAllSeen ? 0.85 : 1
+                      }}
+                    >
+                      {theme.tag}
+                    </span>
                   </div>
+                  <span className="historia-label" title={pro.proName}>
+                    {pro.proName}
+                  </span>
                 </div>
-                <span className="historia-label" title={story.fullName || story.proName}>
-                  {story.proName || story.fullName}
-                </span>
-              </div>
-            )
-          })}
+              )
+            })
+          })()}
         </div>
 
         {canScrollRight && (
@@ -294,6 +447,7 @@ export default function HistoriasCarrusel({ userData, isPro, onHirePro }) {
         initialIndex={selectedStoryIndex}
         userData={userData}
         onHirePro={onHirePro}
+        navigate={navigate}
       />
 
       {/* Upload Story Modal for 5-Star Eligible Professionals */}
@@ -301,44 +455,130 @@ export default function HistoriasCarrusel({ userData, isPro, onHirePro }) {
         isOpen={uploadModalOpen}
         onClose={() => setUploadModalOpen(false)}
         userData={userData}
-        onStoryUploaded={() => console.log('Nueva historia subida con éxito.')}
+        onStoryUploaded={() => console.log('Historia subida')}
       />
 
-      {/* Lock Notice Modal for Professionals without 5-star completed contracts */}
-      {showLockNotice && (
+      {/* Exotic Floating Lock Notice Modal for Professionals needing 4-5 stars */}
+      {showLockNotice && createPortal(
         <div className="subir-historia-modal-overlay" onClick={() => setShowLockNotice(false)}>
-          <div className="subir-historia-modal-card" onClick={e => e.stopPropagation()} style={{ textAlign: 'center', padding: '24px' }}>
-            <div style={{ fontSize: '48px', marginBottom: '12px' }}>🔒</div>
-            <h3 style={{ margin: '0 0 8px 0', fontSize: '18px', fontWeight: 800, color: '#1e293b' }}>
-              ⭐ Requiere 1 Contrato Perfecto (5 Estrellas)
+          <div 
+            className="subir-historia-modal-card" 
+            onClick={e => e.stopPropagation()} 
+            style={{ 
+              textAlign: 'center', 
+              padding: '28px 22px', 
+              background: 'linear-gradient(145deg, #0F172A 0%, #1E1B4B 50%, #0F172A 100%)',
+              border: '1.5px solid rgba(245, 158, 11, 0.4)',
+              boxShadow: '0 25px 60px rgba(0, 0, 0, 0.85), 0 0 35px rgba(245, 158, 11, 0.25)',
+              borderRadius: '24px',
+              color: '#FFFFFF'
+            }}
+          >
+            {/* Exotic Animated Trophy & Star Badge */}
+            <div style={{ position: 'relative', display: 'inline-block', margin: '0 auto 12px' }}>
+              <div style={{ fontSize: '54px', filter: 'drop-shadow(0 0 16px rgba(245, 158, 11, 0.6))' }}>
+                🏆
+              </div>
+              <span style={{ position: 'absolute', bottom: '-4px', right: '-8px', fontSize: '20px' }}>⭐</span>
+            </div>
+
+            <div style={{ display: 'inline-block', background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(242, 96, 0, 0.2))', border: '1px solid rgba(245, 158, 11, 0.5)', padding: '4px 12px', borderRadius: '20px', fontSize: '11px', fontWeight: '900', color: '#FBBF24', letterSpacing: '0.5px', marginBottom: '10px' }}>
+              👑 REQUISITO DE SOCIO VIP
+            </div>
+
+            <h3 style={{ margin: '0 0 10px 0', fontSize: '19px', fontWeight: '900', background: 'linear-gradient(135deg, #FFFFFF, #FDE68A)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+              Desbloquea tus Historias de 24h
             </h3>
-            <p style={{ fontSize: '13px', color: '#64748b', lineHeight: 1.5, marginBottom: '20px' }}>
-              Para garantizar la máxima calidad en Listo Patrón, la función de publicar historias de 24h está reservada exclusivamente para profesionales que hayan completado al menos 1 trabajo con calificación perfecta de <strong>5 estrellas ⭐⭐⭐⭐⭐</strong>.
+
+            <p style={{ fontSize: '13.5px', color: '#CBD5E1', lineHeight: 1.6, marginBottom: '22px' }}>
+              Para garantizar la máxima calidad en Pedidos Listo, la función de publicar Historias de Trabajo de 24h está reservada exclusivamente para profesionales que hayan obtenido una calificación de <strong style={{ color: '#FBBF24' }}>4 a 5 Estrellas ⭐⭐⭐⭐⭐ por contrato / trabajo finalizado</strong>.
               <br /><br />
-              ¡Completa tu próximo trabajo con responsabilidad y excelencia para recibir 5 estrellas de tu cliente y desbloquear tus Historias!
+              ¡Completa tu próximo contrato con responsabilidad, puntualidad y excelencia para recibir de 4 a 5 estrellas de tu cliente y desbloquear tus Historias!
             </p>
+
             <button
               onClick={() => setShowLockNotice(false)}
               style={{
                 width: '100%',
-                padding: '12px',
-                borderRadius: '12px',
+                padding: '14px',
+                borderRadius: '16px',
                 border: 'none',
-                background: 'linear-gradient(135deg, #ff5e00, #ff8c00)',
+                background: 'linear-gradient(135deg, #F59E0B 0%, #F26000 100%)',
                 color: '#ffffff',
-                fontWeight: 700,
-                fontSize: '14px',
+                fontWeight: '900',
+                fontSize: '14.5px',
                 cursor: 'pointer',
-                boxShadow: '0 4px 12px rgba(255, 94, 0, 0.3)'
+                boxShadow: '0 6px 20px rgba(242, 96, 0, 0.5)',
+                transition: 'all 0.2s ease'
               }}
             >
-              ¡Entendido! 👍
+              ⭐ ¡Entendido, a dar un servicio de 5 Estrellas!
             </button>
           </div>
-        </div>
+        </div>,
+        document.body
+      )}
+
+      {/* Exotic Floating Lock Notice Modal for Incomplete Profile */}
+      {showIncompleteProfileNotice && createPortal(
+        <div className="subir-historia-modal-overlay" onClick={() => setShowIncompleteProfileNotice(false)}>
+          <div 
+            className="subir-historia-modal-card" 
+            onClick={e => e.stopPropagation()} 
+            style={{ 
+              textAlign: 'center', 
+              padding: '28px 22px', 
+              background: 'linear-gradient(145deg, #0F172A 0%, #1E1B4B 50%, #0F172A 100%)',
+              border: '1.5px solid rgba(239, 68, 68, 0.5)',
+              boxShadow: '0 25px 60px rgba(0, 0, 0, 0.85), 0 0 35px rgba(239, 68, 68, 0.25)',
+              borderRadius: '24px',
+              color: '#FFFFFF'
+            }}
+          >
+            <div style={{ position: 'relative', display: 'inline-block', margin: '0 auto 12px' }}>
+              <div style={{ fontSize: '54px', filter: 'drop-shadow(0 0 16px rgba(239, 68, 68, 0.6))' }}>
+                📝
+              </div>
+              <span style={{ position: 'absolute', bottom: '-4px', right: '-8px', fontSize: '20px' }}>🔒</span>
+            </div>
+
+            <div style={{ display: 'inline-block', background: 'rgba(239, 68, 68, 0.2)', border: '1px solid #EF4444', padding: '4px 12px', borderRadius: '20px', fontSize: '11px', fontWeight: '900', color: '#F87171', letterSpacing: '0.5px', marginBottom: '10px' }}>
+              🔒 PERFIL INCOMPLETO
+            </div>
+
+            <h3 style={{ margin: '0 0 10px 0', fontSize: '19px', fontWeight: '900', color: '#FFFFFF' }}>
+              ¡Completa tu Perfil para publicar Historias!
+            </h3>
+
+            <p style={{ fontSize: '13.5px', color: '#CBD5E1', lineHeight: 1.6, marginBottom: '22px' }}>
+              Para garantizar la seguridad, autenticidad y confianza en la comunidad de Pedidos Listo, <strong style={{ color: '#F87171' }}>solo los usuarios con su Perfil Completo (Nombre y Teléfono)</strong> pueden publicar Historias de Trabajo de 24h.
+            </p>
+
+            <button
+              onClick={() => {
+                setShowIncompleteProfileNotice(false)
+                if (navigate) navigate('profile')
+              }}
+              style={{
+                width: '100%',
+                padding: '14px',
+                borderRadius: '16px',
+                border: 'none',
+                background: 'linear-gradient(135deg, #F26000 0%, #FF7A1A 100%)',
+                color: '#ffffff',
+                fontWeight: '900',
+                fontSize: '14.5px',
+                cursor: 'pointer',
+                boxShadow: '0 6px 20px rgba(242, 96, 0, 0.5)',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              👉 ¡Ir a Completar mi Perfil Ahora!
+            </button>
+          </div>
+        </div>,
+        document.body
       )}
     </div>
   )
 }
-
-

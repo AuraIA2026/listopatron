@@ -8,6 +8,10 @@ import SubirHistoriaModal from '../components/SubirHistoriaModal'
 import VerificacionPage    from './VerificacionPage'
 import RegistroClientePage from './RegistroClientePage'
 import PlanSelectionModal from '../components/PlanSelectionModal'
+import ProFinanzasModal from '../components/ProFinanzasModal'
+import StoryAvatar from '../components/StoryAvatar'
+import HistoriasViewerModal from '../components/HistoriasViewerModal'
+import { useStories } from '../hooks/useStories'
 
 
 const txt = {
@@ -35,29 +39,29 @@ const txt = {
     termsTitle: 'Términos y Condiciones', termsLastUpdate: 'Última actualización: 1 de marzo de 2026',
     privacyDocTitle: 'Política de Privacidad', privacyDocLastUpdate: 'Última actualización: 1 de marzo de 2026',
     terms: [
-      { title: '1. Naturaleza del Servicio', body: 'Listo Patrón es una plataforma tecnológica de intermediación digital que conecta usuarios con profesionales independientes.\n\nLa plataforma no participa en la ejecución de los servicios ofrecidos ni en los acuerdos comerciales entre las partes.\n\nEl profesional reconoce que actúa de manera independiente, sin que exista relación laboral, sociedad o representación con la plataforma.\n\nEl acuerdo de servicio, precios y condiciones son responsabilidad exclusiva entre el profesional y el usuario.\n\nEste acuerdo se rige por las leyes de la República Dominicana.' },
-      { title: '2. Modelo de Uso y Planes', body: 'Para utilizar la plataforma, el profesional deberá adquirir uno de los planes disponibles dentro de la aplicación.\n\nCada plan otorga una cantidad específica de servicios, contactos o contratos que el profesional podrá gestionar dentro de la plataforma.\n\nUna vez consumidos los beneficios del plan, el profesional deberá adquirir uno nuevo para continuar utilizando la plataforma.\n\nLos pagos de los planes deberán realizarse exclusivamente mediante métodos digitales habilitados por la plataforma (transferencia o tarjeta). No se aceptan pagos en efectivo para la compra de planes.\n\nLa plataforma podrá modificar los planes, precios y beneficios notificando previamente dentro de la aplicación.' },
-      { title: '3. Pagos por Servicios', body: 'Los pagos por los servicios realizados podrán efectuarse mediante:\n\n- Efectivo\n- Transferencia bancaria\n- Tarjeta (a través de la plataforma)\n\nCuando el pago se realice con tarjeta dentro de la aplicación, la plataforma actuará como facilitador del procesamiento del pago y podrá gestionar temporalmente los fondos antes de transferirlos al profesional.\n\nEn pagos realizados fuera de la plataforma (efectivo o transferencia directa), la plataforma no interviene en la transacción.' },
+      { title: '1. Naturaleza del Servicio', body: 'Pedidos Listo es una plataforma tecnológica de intermediación digital que conecta usuarios con profesionales independientes.\n\nLa plataforma no participa en la ejecución de los servicios ofrecidos ni en los acuerdos comerciales entre las partes.\n\nEl profesional reconoce que actúa de manera independiente, sin que exista relación laboral, sociedad o representación con la plataforma.\n\nEl acuerdo de servicio, precios y condiciones son responsabilidad exclusiva entre el profesional y el usuario.\n\nEste acuerdo se rige por las leyes de la República Dominicana.' },
+      { title: '2. Modelo de Uso y Planes', body: 'Para utilizar la plataforma, el profesional deberá adquirir uno de los planes disponibles dentro de la aplicación.\n\nCada plan otorga una cantidad específica de servicios, contactos o contratos que el profesional podrá gestionar dentro de la plataforma.\n\nUna vez consumidos los beneficios del plan, el profesional deberá adquirir uno nuevo para continuar utilizando la plataforma.\n\nLos pagos de los planes deberán realizarse mediante transferencia bancaria. No se aceptan pagos en efectivo para la compra de planes.\n\nLa plataforma podrá modificar los planes, precios y beneficios notificando previamente dentro de la aplicación.' },
+      { title: '3. Pagos por Servicios', body: 'Los pagos por los servicios realizados entre el cliente y el profesional se realizarán exclusivamente mediante:\n\n- Efectivo\n- Transferencia bancaria directa\n\nLos usuarios pagarán el 100% del servicio directamente al profesional en efectivo o mediante transferencia. La plataforma no procesa ni cobra tarjetas de crédito para el pago de servicios.' },
       { title: '4. Responsabilidad del Profesional', body: 'El profesional es el único responsable por:\n- La calidad del servicio prestado\n- El cumplimiento de los acuerdos con el usuario\n- La veracidad de la información proporcionada\n- Su comportamiento dentro y fuera de la plataforma' },
       { title: '5. Sistema Disciplinario', body: 'Se consideran faltas graves:\n- Proporcionar información falsa\n- Conducta inapropiada hacia usuarios\n- Uso indebido de la plataforma\n- Actividades ilegales o fraudulentas\n\nPenalizaciones:\n- Primer strike: Advertencia formal\n- Segundo strike: Suspensión temporal\n- Tercer strike: Cancelación permanente e irreversible\n\nEn casos graves, la cancelación podrá ser inmediata sin previo aviso.' },
       { title: '6. Protección de Datos', body: 'El profesional autoriza el tratamiento de sus datos conforme a la Ley 172-13 sobre Protección de Datos de la República Dominicana.' },
-      { title: '7. Limitación de Responsabilidad', body: 'Listo Patrón no garantiza ingresos, cantidad de clientes ni volumen de trabajo.\n\nLa plataforma no es responsable por:\n- Disputas entre usuario y profesional\n- Incumplimientos de acuerdos\n- Resultados del servicio prestado' },
+      { title: '7. Limitación de Responsabilidad', body: 'Pedidos Listo no garantiza ingresos, cantidad de clientes ni volumen de trabajo.\n\nLa plataforma no es responsable por:\n- Disputas entre usuario y profesional\n- Incumplimientos de acuerdos\n- Resultados del servicio prestado' },
       { title: '8. Resolución de Conflictos', body: 'Cualquier conflicto entre el profesional y el usuario deberá resolverse directamente entre ambas partes.\n\nLa plataforma podrá facilitar canales de comunicación sin asumir responsabilidad en la resolución.' },
       { title: '9. Fuerza Mayor', body: 'La plataforma no será responsable por interrupciones causadas por fallos técnicos, desastres naturales, decisiones gubernamentales o situaciones fuera de su control.' },
       { title: '10. Aceptación', body: 'El uso de la plataforma implica la aceptación total de estos términos y condiciones.' },
     ],
     termsUser: [
-      { title: '1. Bienvenido', body: 'Gracias por usar Listo Patrón. Nuestra plataforma conecta usuarios con profesionales independientes que ofrecen servicios.\n\nAl utilizar la aplicación, aceptas estos términos y condiciones.' },
-      { title: '2. Naturaleza del Servicio', body: 'Listo Patrón actúa exclusivamente como intermediario tecnológico entre usuarios y profesionales independientes.\n\nLos profesionales son responsables de la ejecución, calidad, precios y condiciones del servicio.\n\nLa plataforma no participa directamente en la prestación del servicio.' },
-      { title: '3. Pagos', body: 'Los pagos por los servicios podrán realizarse mediante:\n\n💵 Efectivo\n\n🏦 Transferencia bancaria\n\n💳 Tarjeta (a través de la aplicación)\n\nCuando el pago se realice con tarjeta dentro de la aplicación, este será procesado mediante herramientas tecnológicas que permiten transferir el pago directamente al profesional.\n\nLa plataforma no retiene, administra ni gestiona fondos en ningún momento.\n\nEn pagos realizados en efectivo o transferencia directa, la plataforma no interviene en la transacción.' },
+      { title: '1. Bienvenido', body: 'Gracias por usar Pedidos Listo. Nuestra plataforma conecta usuarios con profesionales independientes que ofrecen servicios.\n\nAl utilizar la aplicación, aceptas estos términos y condiciones.' },
+      { title: '2. Naturaleza del Servicio', body: 'Pedidos Listo actúa exclusivamente como intermediario tecnológico entre usuarios y profesionales independientes.\n\nLos profesionales son responsables de la ejecución, calidad, precios y condiciones del servicio.\n\nLa plataforma no participa directamente en la prestación del servicio.' },
+      { title: '3. Pagos', body: 'Los pagos por los servicios podrán realizarse únicamente mediante:\n\n💵 Efectivo\n\n🏦 Transferencia bancaria directa\n\nLos usuarios acuerdan el pago directamente con el profesional. La plataforma no cobra ni procesa tarjetas de crédito para los servicios.' },
       { title: '4. Registro y Cuenta', body: 'El usuario debe proporcionar información veraz y actualizada.\n\nEs responsable del uso de su cuenta y de mantener la confidencialidad de sus datos.\n\nLa plataforma podrá suspender cuentas en caso de uso indebido.' },
       { title: '5. Solicitud de Servicios', body: 'El usuario es responsable de:\n\n- Describir correctamente el servicio requerido\n- Acordar detalles con el profesional\n- Verificar condiciones antes de aceptar el servicio\n\nSe recomienda mantener la comunicación dentro de la aplicación.' },
-      { title: '6. Cancelaciones', body: 'El usuario podrá cancelar un servicio.\n\nLas condiciones de cancelación podrán ser acordadas directamente con el profesional.\n\nEn servicios pagados con tarjeta dentro de la aplicación, podrán aplicarse condiciones técnicas del proveedor de pago.\n\nCancelaciones abusivas podrán generar restricciones en el uso de la plataforma.' },
+      { title: '6. Cancelaciones', body: 'El usuario podrá cancelar un servicio.\n\nLas condiciones de cancelación podrán ser acordadas directamente con el profesional.\n\nCancelaciones abusivas podrán generar restricciones en el uso de la plataforma.' },
       { title: '7. Conducta', body: 'El usuario se compromete a:\n\n- Tratar con respeto a los profesionales\n- No realizar actividades ilegales\n- No utilizar la plataforma de forma indebida\n\nEl incumplimiento podrá resultar en suspensión de la cuenta.' },
       { title: '8. Protección de Datos', body: 'Los datos serán tratados conforme a la Ley 172-13 sobre Protección de Datos de la República Dominicana.' },
-      { title: '9. Limitación de Responsabilidad', body: 'Listo Patrón no garantiza resultados ni la calidad del servicio.\n\nLa plataforma no es responsable por:\n\n- La ejecución del trabajo por parte del profesional\n- Acuerdos realizados fuera de la aplicación\n- Incumplimientos entre las partes\n- Transacciones realizadas entre usuario y profesional\n\nEn pagos con tarjeta, la responsabilidad de la plataforma se limita a facilitar la conexión tecnológica con el proveedor de pago.' },
+      { title: '9. Limitación de Responsabilidad', body: 'Pedidos Listo no garantiza resultados ni la calidad del servicio.\n\nLa plataforma no es responsable por:\n\n- La ejecución del trabajo por parte del profesional\n- Acuerdos realizados fuera de la aplicación\n- Incumplimientos entre las partes\n- Transacciones realizadas entre usuario y profesional\n\nEn pagos con tarjeta, la responsabilidad de la plataforma se limita a facilitar la conexión tecnológica con el proveedor de pago.' },
       { title: '10. Resolución de Conflictos', body: 'Los conflictos entre usuario y profesional deberán resolverse directamente entre ambas partes.\n\nLa plataforma podrá facilitar comunicación sin asumir responsabilidad en la resolución.' },
-      { title: '11. Modificaciones', body: 'Listo Patrón podrá modificar estos términos en cualquier momento.\n\nEl uso continuo de la plataforma implica la aceptación de los cambios.' },
+      { title: '11. Modificaciones', body: 'Pedidos Listo podrá modificar estos términos en cualquier momento.\n\nEl uso continuo de la plataforma implica la aceptación de los cambios.' },
       { title: '12. Aceptación', body: 'Al registrarte y utilizar la aplicación, confirmas que has leído y aceptado estos términos y condiciones.' },
     ],
   },
@@ -84,12 +88,13 @@ const txt = {
     photoCancel: 'Cancel', photoSaved: 'Photo updated!', photoError: 'Error saving. Please try again.',
     termsTitle: 'Terms & Conditions', termsLastUpdate: 'Last updated: March 1, 2026',
     privacyDocTitle: 'Privacy Policy', privacyDocLastUpdate: 'Last updated: March 1, 2026',
-    terms: [{ title: '1. Legal Nature', body: 'Listo Patrón is a digital intermediation platform.' }],
-    termsUser: [{ title: '1. Welcome', body: 'Thank you for using Listo Patrón.' }],
+    terms: [{ title: '1. Legal Nature', body: 'Pedidos Listo is a digital intermediation platform.' }],
+    termsUser: [{ title: '1. Welcome', body: 'Thank you for using Pedidos Listo.' }],
   }
 }
 
 const menuItems = [
+  { icon: '📊', labelEs: 'Mis Ganancias y Finanzas (RD$)', labelEn: 'My Earnings & Financials', action: 'finances' },
   { icon: '🛡️', labelEs: 'Verificación Profesional',  labelEn: 'Professional Verification', action: 'verification' },
   { icon: '📋', labelEs: 'Mis pedidos',                labelEn: 'My orders',                 action: 'orders' },
   { icon: '❤️', labelEs: 'Favoritos',                  labelEn: 'Favorites',                 action: 'favorites' },
@@ -541,7 +546,7 @@ function PrivacyDocScreen({ lang, onBack }) {
           </div>
         </div>
         <div style={{ fontSize: '14px', lineHeight: '1.6', color: '#444', marginTop: '20px' }}>
-          <p><strong>1. Recopilación de Datos</strong><br/>Recopilamos su nombre, teléfono, ubicación GPS, imágenes de su perfil y rasgos biométricos (reconocimiento facial) únicamente para la seguridad y el correcto funcionamiento de 'Listo Patrón'.</p>
+          <p><strong>1. Recopilación de Datos</strong><br/>Recopilamos su nombre, teléfono, ubicación GPS, imágenes de su perfil y rasgos biométricos (reconocimiento facial) únicamente para la seguridad y el correcto funcionamiento de 'Pedidos Listo'.</p>
           <br/>
           <p><strong>2. Uso de la Ubicación</strong><br/>La aplicación requiere acceso a su ubicación en primer y segundo plano para conectar clientes con los profesionales más cercanos y permitir el seguimiento en tiempo real del trayecto.</p>
           <br/>
@@ -639,6 +644,31 @@ function EditRequestScreen({ lang, user, onBack }) {
     <div className="sub-screen" style={{display:'flex', flexDirection:'column', height:'100%', background:'#FAFAFA'}}>
       <ScreenHeader title={lang==='es' ? 'Cambio de Datos' : 'Request Data Change'} onBack={onBack} />
       <div style={{flex: 1, overflowY: 'auto', padding: '20px'}}>
+        <div style={{
+          background: '#FEF2F2',
+          border: '1.5px solid #FCA5A5',
+          borderRadius: '14px',
+          padding: '14px 16px',
+          marginBottom: '16px',
+          fontSize: '13px',
+          color: '#991B1B',
+          lineHeight: '1.55',
+          boxShadow: '0 2px 10px rgba(239, 68, 68, 0.08)'
+        }}>
+          <div style={{ fontWeight: '900', marginBottom: '6px', fontSize: '13.5px', color: '#991B1B', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <span>⚠️</span> <span>{lang === 'es' ? 'Importante:' : 'Important:'}</span>
+          </div>
+          {lang === 'es' ? (
+            <>
+              No coloques publicidad, teléfonos ni redes sociales en tu perfil o portada. Las fotos con publicidad no serán aceptadas. Los tratos deben realizarse únicamente dentro de <strong>Pedidos Listo</strong>.
+            </>
+          ) : (
+            <>
+              Do not place advertising, phone numbers, or social media links on your profile or cover. Photos with advertising will not be accepted. Deals must be conducted solely within <strong>Pedidos Listo</strong>.
+            </>
+          )}
+        </div>
+
         <div style={{background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: '12px', padding: '12px', marginBottom: '20px', fontSize: '13px', color: '#92400E', lineHeight: '1.5'}}>
           💡 Por seguridad, como tu perfil ya está activo, cualquier cambio principal debe ser aprobado por la administración (demora hasta 72 horas laborales).
         </div>
@@ -703,8 +733,13 @@ export default function ProfilePage({ lang, setLang, navigate, onLogout, initial
   const [photoStatus, setPhotoStatus] = useState(null)
   const [ordersCount, setOrdersCount] = useState(0)
   const [showSubirHistoria, setShowSubirHistoria] = useState(false)
+  const [showStoryViewer, setShowStoryViewer] = useState(false)
   const [showPlanModal, setShowPlanModal] = useState(false)
+  const [showFinanzasModal, setShowFinanzasModal] = useState(false)
   const [hideUpgrade, setHideUpgrade] = useState(() => localStorage.getItem('hideUpgrade_Listo_' + (userData?.uid || 'guest')) === 'true')
+
+  const { getProStoryData } = useStories()
+  const userStoryData = getProStoryData(userData)
 
   useEffect(() => {
     if (!userData?.uid) return
@@ -729,6 +764,7 @@ export default function ProfilePage({ lang, setLang, navigate, onLogout, initial
   const displayEmail = userData?.email || ''
   const photoURL     = userData?.photoURL || null
   const memberSince  = getMemberSince(lang)
+  const initials     = (displayName || 'U').substring(0, 2).toUpperCase()
   const vf = userData?.verificacion || {}
   const vfDocs = vf.docs || {}
   const isProVerifComplete = Boolean(
@@ -794,6 +830,7 @@ export default function ProfilePage({ lang, setLang, navigate, onLogout, initial
   }
 
   const handleMenu = (action) => {
+    if (action === 'finances') { setShowFinanzasModal(true); return }
     if (action === 'orders') { navigate('orders'); return }
     if (action === 'clientProfile') { 
       if (userRole === 'pro') {
@@ -873,14 +910,17 @@ export default function ProfilePage({ lang, setLang, navigate, onLogout, initial
       <input ref={cameraInputRef} type="file" accept="image/*" capture="user" style={{ display:'none' }} onChange={handleFileSelected} />
 
       <div className="profile-header">
-        <div className="profile-avatar-wrap" onClick={() => setShowPhoto(true)} style={{ cursor: 'pointer' }}>
-          <div className="profile-avatar" style={photoURL ? { padding:0, overflow:'hidden' } : {}}>
-            {photoURL
-              ? <img src={photoURL} alt="perfil" style={{ width:'100%', height:'100%', objectFit:'cover' }} />
-              : initials
-            }
-          </div>
-          <button className="profile-edit-btn" onClick={(e) => { e.stopPropagation(); setShowPhoto(true); }} disabled={photoStatus==='saving'}>
+        <div className="profile-avatar-wrap" onClick={userStoryData?.stories?.length > 0 ? () => setShowStoryViewer(true) : () => setShowPhoto(true)} style={{ cursor: 'pointer', position: 'relative' }}>
+          <StoryAvatar
+            pro={userData}
+            src={photoURL}
+            alt={displayName}
+            size={92}
+            storyData={userStoryData}
+            onOpenStory={() => setShowStoryViewer(true)}
+            fallbackAvatar={initials}
+          />
+          <button className="profile-edit-btn" onClick={(e) => { e.stopPropagation(); setShowPhoto(true); }} disabled={photoStatus==='saving'} style={{ zIndex: 15 }}>
             {photoStatus === 'saving' ? '⏳' : '✏️'}
           </button>
         </div>
@@ -976,13 +1016,55 @@ export default function ProfilePage({ lang, setLang, navigate, onLogout, initial
         {userRole === 'pro' && (
           <div className="pro-performance-dash">
             <div className="perf-header">
-              <span className="perf-title">📈 {lang==='es' ? 'Rendimiento' : 'Performance'}</span>
+              <span className="perf-title">📈 {lang==='es' ? 'Rendimiento e Ingresos' : 'Performance & Earnings'}</span>
               <span className="perf-badge">🚀 TOP {Math.max(1, Math.floor((6 - (userData?.rating || 0)) * 10))}%</span>
             </div>
             <div className="perf-bar-bg">
               <div className="perf-bar-fill" style={{ width: `${Math.min(((userData?.rating || 0.0) / 5) * 100, 100)}%` }} />
             </div>
+
+            {/* Métrica de Ingresos y Trabajos */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px', margin: '12px 0', textAlign: 'center' }}>
+              <div style={{ background: 'rgba(255,255,255,0.06)', borderRadius: '12px', padding: '8px 4px', border: '1px solid rgba(255,255,255,0.08)' }}>
+                <span style={{ fontSize: '10px', color: '#94A3B8', display: 'block' }}>{lang === 'es' ? 'Completados' : 'Completed'}</span>
+                <span style={{ fontSize: '16px', fontWeight: '900', color: '#fff' }}>{userData?.contractsUsed || ordersCount || 0}</span>
+              </div>
+              <div style={{ background: 'rgba(255,255,255,0.06)', borderRadius: '12px', padding: '8px 4px', border: '1px solid rgba(255,255,255,0.08)' }}>
+                <span style={{ fontSize: '10px', color: '#94A3B8', display: 'block' }}>{lang === 'es' ? 'Ingresos Est.' : 'Est. Earnings'}</span>
+                <span style={{ fontSize: '13.5px', fontWeight: '900', color: '#34D399' }}>
+                  RD$ {((userData?.contractsUsed || ordersCount || 0) * 1800).toLocaleString()}
+                </span>
+              </div>
+              <div style={{ background: 'rgba(255,255,255,0.06)', borderRadius: '12px', padding: '8px 4px', border: '1px solid rgba(255,255,255,0.08)' }}>
+                <span style={{ fontSize: '10px', color: '#94A3B8', display: 'block' }}>{lang === 'es' ? 'Respuesta' : 'Response'}</span>
+                <span style={{ fontSize: '16px', fontWeight: '900', color: '#FF7A1A' }}>98%</span>
+              </div>
+            </div>
+
             <p className="perf-sub">{lang==='es' ? '¡Tu perfil destaca sobre los demás!' : 'Your profile stands out!'} {lang==='es' ? 'Mantén el buen servicio.' : 'Keep up the good work.'}</p>
+            
+            <button 
+              onClick={() => setShowFinanzasModal(true)}
+              style={{
+                width: '100%',
+                margin: '10px 0 0',
+                padding: '12px 14px',
+                borderRadius: '14px',
+                background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
+                color: '#fff',
+                fontWeight: '800',
+                fontSize: '13px',
+                border: 'none',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                boxShadow: '0 4px 14px rgba(16,185,129,0.35)'
+              }}
+            >
+              <span>📊</span> {lang === 'es' ? 'Ver Dashboard de Ganancias y Propinas' : 'View Earnings & Tips Dashboard'}
+            </button>
             
             {(!hideUpgrade && (!userData?.planId || userData?.planId === 'basico' || userData?.currentPlan === 'basico' || localStorage.getItem('showUpgradeOverride_Listo_' + userData?.uid) === 'true')) && (
               <div style={{ position: 'relative', marginTop: '12px' }}>
@@ -1071,6 +1153,14 @@ export default function ProfilePage({ lang, setLang, navigate, onLogout, initial
           <span className="pmi-arrow">›</span>
         </button>
 
+        {userRole === 'pro' && (
+          <button className="profile-menu-item" onClick={() => setShowSubirHistoria(true)} style={{ background: 'linear-gradient(135deg, #FFF3EC, #FFE6D5)', border: '1px solid rgba(242,96,0,0.2)' }}>
+            <span className="pmi-icon" style={{ background: '#F26000', color: '#FFF', borderRadius: '8px', fontSize: '16px' }}>📸</span>
+            <span className="pmi-label" style={{ fontWeight: '800', color: '#F26000' }}>{lang==='es' ? 'Publicar Historia de Trabajo (24h)' : 'Post Work Story (24h)'}</span>
+            <span className="pmi-arrow" style={{ color: '#F26000', fontWeight: '900', fontSize: '18px' }}>+</span>
+          </button>
+        )}
+
         {(profileComplete || isProVerifComplete) && (
           <button className="profile-menu-item" onClick={() => handleMenu('edit-request')}>
             <span className="pmi-icon" style={{background:'#FFFBEB', color:'#F59E0B', borderRadius:'8px', fontSize:'16px'}}>✏️</span>
@@ -1101,7 +1191,7 @@ export default function ProfilePage({ lang, setLang, navigate, onLogout, initial
         )}
 
         {menuItems
-          .filter(item => item.action !== 'verification' || userRole === 'pro')
+          .filter(item => (item.action !== 'verification' || userRole === 'pro') && (item.action !== 'finances' || userRole === 'pro'))
           .map((item, i) => {
             let btnClass = 'profile-menu-item '
             if (item.action === 'verification') {
@@ -1188,14 +1278,33 @@ export default function ProfilePage({ lang, setLang, navigate, onLogout, initial
       {showLogout && <LogoutModal lang={lang} onConfirm={handleLogout} onCancel={() => setShowLogout(false)} />}
       {showDelete && <DeleteAccountModal lang={lang} onConfirm={handleDeleteAccount} onCancel={() => setShowDelete(false)} />}
 
+      {showFinanzasModal && (
+        <ProFinanzasModal 
+          lang={lang} 
+          onClose={() => setShowFinanzasModal(false)} 
+          proUserData={userData} 
+        />
+      )}
+
       <PlanSelectionModal 
         isOpen={showPlanModal} 
         onClose={() => setShowPlanModal(false)} 
         onSelectPlan={(plan) => {
-          alert(`Has seleccionado el ${plan.name} (${plan.price}). Por favor comunícate con la administración de Listo Patrón o realiza tu transferencia para activar tus contratos.`);
+          alert(`Has seleccionado el ${plan.name} (${plan.price}). Por favor comunícate con la administración de Pedidos Listo o realiza tu transferencia para activar tus contratos.`);
           setShowPlanModal(false);
         }} 
       />
+
+      {showStoryViewer && userStoryData?.stories?.length > 0 && (
+        <HistoriasViewerModal
+          isOpen={showStoryViewer}
+          onClose={() => setShowStoryViewer(false)}
+          stories={userStoryData.stories}
+          initialIndex={userStoryData.firstIndex || 0}
+          userData={userData}
+          navigate={navigate}
+        />
+      )}
     </div>
   )
 }

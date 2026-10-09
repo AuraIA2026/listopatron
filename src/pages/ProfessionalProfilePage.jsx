@@ -4,6 +4,10 @@ import { db } from '../firebase'
 import { CATEGORIES, ALL_SUBCATEGORIES } from '../categories'
 import { useUserData } from '../useUserData'
 import logoListo from '../assets/logo_listo.png'
+import HistoriasViewerModal from '../components/HistoriasViewerModal'
+import StoryAvatar from '../components/StoryAvatar'
+import { useStories } from '../hooks/useStories'
+import ExoticWorkPortfolio from '../components/ExoticWorkPortfolio'
 import './ProfessionalProfilePage.css'
 
 const txt = {
@@ -124,7 +128,7 @@ function ReviewCard({ review }) {
   )
 }
 
-function PhotoGrid({ photos, lang, isOwnProfile, onUploadPhoto, onDeletePhoto, hasPendingWork }) {
+function PhotoGrid({ photos, lang, isOwnProfile, onUploadPhoto, onDeletePhoto, hasPendingWork, proName = '', proCategory = '', onHireClick }) {
   const T = txt[lang]
   const [lightbox, setLightbox] = useState(null)
 
@@ -160,6 +164,17 @@ function PhotoGrid({ photos, lang, isOwnProfile, onUploadPhoto, onDeletePhoto, h
          </div>
       )}
 
+      {/* Álbum Exótico de Trabajos Realizados */}
+      <ExoticWorkPortfolio 
+        lang={lang}
+        photos={photos}
+        proName={proName}
+        proCategory={proCategory}
+        onHireClick={onHireClick}
+        isOwnProfile={isOwnProfile}
+        onUploadPhoto={onUploadPhoto}
+      />
+
       <div className="photos-grid-title-wrap">
         <h2 className="photos-grid-title">{T.photos}</h2>
       </div>
@@ -181,7 +196,7 @@ function PhotoGrid({ photos, lang, isOwnProfile, onUploadPhoto, onDeletePhoto, h
           return (
             <div key={photoId} className="photo-thumb-wrapper">
               <button className="photo-thumb" onClick={() => setLightbox({ url: photoUrl, caption })}>
-                <img src={photoUrl} alt={caption} />
+                <img src={photoUrl} alt={caption} loading="lazy" decoding="async" />
                 <div className="photo-overlay"><span>{caption}</span></div>
               </button>
               {isOwnProfile && !isMockPhoto && (
@@ -281,7 +296,7 @@ const formatFirstNameAndInitial = (fullName) => {
 }
 
 const formatProfession = (category) => {
-  if (!category) return ''
+  if (!category || String(category).toLowerCase() === 'unknown' || String(category).toLowerCase() === 'desconocido') return ''
   return category.charAt(0).toUpperCase() + category.slice(1).toLowerCase()
 }
 
@@ -325,6 +340,51 @@ export default function ProfessionalProfilePage({ lang = 'es', navigate, profess
   const [showWriteReview, setShowWriteReview] = useState(pro.autoWriteReview || false)
   const [showPhotoOptions, setShowPhotoOptions] = useState(false)
   const [pendingRequests, setPendingRequests] = useState([])
+  const [proStories, setProStories] = useState([])
+  const [showStoryViewer, setShowStoryViewer] = useState(false)
+  const [hasHiredPro, setHasHiredPro] = useState(false)
+  const [showGuaranteeModal, setShowGuaranteeModal] = useState(false)
+
+  const { getProStoryData } = useStories()
+  const fetchedStoryData = getProStoryData(displayPro)
+  const proStoryData = (proStories && proStories.length > 0)
+    ? { stories: proStories, firstIndex: 0, isAllSeen: false, count: proStories.length }
+    : fetchedStoryData
+
+  const handleBookClick = () => {
+    if (navigate) navigate('booking', displayPro)
+  }
+
+  useEffect(() => {
+    const proUid = displayPro.uid || displayPro.id
+    if (!proUid) return
+
+    const qStories = query(collection(db, 'historias'), where('proId', '==', proUid))
+    const unsub = onSnapshot(qStories, (snapshot) => {
+      const now = Date.now()
+      const list = []
+      snapshot.forEach(docSnap => {
+        const data = docSnap.data()
+        const isRejected = data.status === 'rejected' || data.moderated === 'rejected' || data.approved === false || data.rejected === true
+        const isApproved = (data.status === 'approved' || data.approved === true || (data.moderated === true && data.status !== 'rejected')) && !isRejected
+        
+        let expiresTime = 0
+        if (data.expiresAt) {
+          expiresTime = new Date(data.expiresAt).getTime()
+        } else if (data.createdAt) {
+          expiresTime = new Date(data.createdAt).getTime() + (24 * 60 * 60 * 1000)
+        }
+
+        if (isApproved && !isRejected && expiresTime > now) {
+          list.push({ id: docSnap.id, ...data })
+        }
+      })
+      list.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      setProStories(list)
+    }, err => console.log('Error fetching pro stories:', err))
+
+    return () => unsub()
+  }, [displayPro.uid, displayPro.id])
 
   useEffect(() => {
     if (!isOwnProfile || !userData?.uid) return
@@ -357,9 +417,11 @@ export default function ProfessionalProfilePage({ lang = 'es', navigate, profess
         const fetchedReviews = []
         const fetchedEvidences = []
         let photoIdCounter = 1
-
         snapshot.forEach(doc => {
           const d = doc.data()
+          if (userData?.uid && d.clientId === userData.uid) {
+            setHasHiredPro(true)
+          }
           if (d.rated === true || typeof d.ratingScore === 'number') {
             fetchedReviews.push({
               id: doc.id,
@@ -526,6 +588,41 @@ export default function ProfessionalProfilePage({ lang = 'es', navigate, profess
     }
   };
 
+  const handleDeleteCover = async () => {
+    if (!window.confirm(lang === 'es' ? "¿Seguro que deseas eliminar tu foto de portada?" : "Are you sure you want to delete your cover photo?")) return;
+    try {
+      await updateDoc(doc(db, 'users', userData.uid), {
+        coverURL: null,
+        coverPhoto: null
+      });
+      setShowPhotoOptions(false);
+      alert(lang === 'es' ? "Foto de portada eliminada correctamente." : "Cover photo deleted successfully.");
+    } catch (err) {
+      console.error("Error al eliminar foto de portada:", err);
+      alert(lang === 'es' ? "Error al eliminar la portada." : "Error deleting cover photo.");
+    }
+  };
+
+  const handleSetCoverPosition = async (pos) => {
+    try {
+      if (userData?.uid) {
+        await updateDoc(doc(db, 'users', userData.uid), { coverPos: pos });
+      }
+    } catch (err) {
+      console.error("Error al cambiar posición de portada:", err);
+    }
+  };
+
+  const handleSetAvatarPosition = async (pos) => {
+    try {
+      if (userData?.uid) {
+        await updateDoc(doc(db, 'users', userData.uid), { avatarPos: pos });
+      }
+    } catch (err) {
+      console.error("Error al cambiar posición de avatar:", err);
+    }
+  };
+
   const handleWorkUpload = async (files) => {
     try {
       const uploadPromises = Array.from(files).map(file => compressImage(file))
@@ -644,6 +741,7 @@ export default function ProfessionalProfilePage({ lang = 'es', navigate, profess
         <div 
           className="pro-cover-bg"
           style={{
+            backgroundPosition: displayPro.coverPos || 'center center',
             backgroundImage: (displayPro.coverURL || displayPro.coverPhoto)
               ? `url(${displayPro.coverURL || displayPro.coverPhoto})`
               : (displayPro.photoURL || displayPro.profilePhoto || displayPro.img || displayPro.verificacion?.docs?.selfie)
@@ -653,7 +751,7 @@ export default function ProfessionalProfilePage({ lang = 'es', navigate, profess
         />
         <div className="pro-cover-overlay" />
         <div className="pro-logo-overlay">
-          <img src={logoListo} alt="Listo Patrón Logo" className="pro-logo-img" />
+          <img src={logoListo} alt="Pedidos Listo Logo" className="pro-logo-img" />
         </div>
 
         {/* Card de Plan Superpuesto */}
@@ -662,14 +760,14 @@ export default function ProfessionalProfilePage({ lang = 'es', navigate, profess
         }}>
           <div className="pro-card-overlay-text">
             <span className="pro-card-overlay-name">{formatFirstNameAndInitial(displayPro.name)}</span>
-            <span className="pro-card-overlay-profession">{formatProfession(displayPro.category || displayPro.categoryEs || displayPro.specEs)}</span>
+            <span className="pro-card-overlay-profession">{formatProfession(displayPro.category || displayPro.especialidad || displayPro.verificacion?.especialidad || displayPro.categoryEs || displayPro.specEs)}</span>
           </div>
         </div>
 
         {isOwnProfile && (
           <div style={{ position: 'absolute', top: '12px', right: '12px', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '6px', zIndex: 10 }}>
-            <button className="edit-cover-btn-facebook" onClick={() => document.getElementById('pro-cover-upload').click()} title="Cambiar Foto de Portada">
-              📷 {lang === 'es' ? 'Portada' : 'Cover'}
+            <button className="edit-cover-btn-facebook" onClick={() => setShowPhotoOptions(true)} title="Editar Foto de Portada">
+              📷 {lang === 'es' ? 'Editar Portada' : 'Edit Cover'}
             </button>
             {hasPendingCover && (
               <span style={{ background: 'rgba(245, 158, 11, 0.95)', color: '#fff', fontSize: '10px', fontWeight: '800', padding: '3px 8px', borderRadius: '12px', backdropFilter: 'blur(4px)', boxShadow: '0 2px 6px rgba(0,0,0,0.3)' }}>
@@ -682,35 +780,39 @@ export default function ProfessionalProfilePage({ lang = 'es', navigate, profess
 
       {/* Info del profesional */}
       <div className="pro-info-section">
-        <div className="pro-avatar-wrap" onClick={isOwnProfile ? () => setShowPhotoOptions(true) : undefined} style={{ cursor: isOwnProfile ? 'pointer' : 'default', position: 'relative' }}>
-          {(displayPro.photoURL || displayPro.profilePhoto || displayPro.img || displayPro.verificacion?.docs?.selfie) ? (
-            <img 
-              src={displayPro.photoURL || displayPro.profilePhoto || displayPro.img || displayPro.verificacion?.docs?.selfie} 
-              alt={displayPro.name} 
-              className="pro-avatar-large" 
-              style={{ objectFit: 'cover' }} 
-            />
-          ) : (
-            <div className="pro-avatar-large" style={{ background: proColor }}>
-              {displayPro.avatar || pro.avatar || (displayPro.name ? displayPro.name.substring(0,2).toUpperCase() : 'P')}
-            </div>
-          )}
+        <div 
+          className="pro-avatar-wrap" 
+          onClick={proStoryData?.stories?.length > 0 ? () => setShowStoryViewer(true) : (isOwnProfile ? () => setShowPhotoOptions(true) : undefined)} 
+          style={{ 
+            cursor: (proStoryData?.stories?.length > 0 || isOwnProfile) ? 'pointer' : 'default', 
+            position: 'relative'
+          }}
+        >
+          <StoryAvatar
+            pro={displayPro}
+            src={displayPro.photoURL || displayPro.profilePhoto || displayPro.img || displayPro.verificacion?.docs?.selfie}
+            alt={displayPro.name}
+            size={96}
+            storyData={proStoryData}
+            onOpenStory={() => setShowStoryViewer(true)}
+            fallbackAvatar={displayPro.avatar || pro.avatar || (displayPro.name ? displayPro.name.substring(0,2).toUpperCase() : 'P')}
+          />
 
           {hasPendingPhoto && (
-            <span style={{ position: 'absolute', bottom: '-8px', left: '50%', transform: 'translateX(-50%)', background: '#F59E0B', color: '#fff', fontSize: '9px', fontWeight: '800', padding: '2px 7px', borderRadius: '10px', whiteSpace: 'nowrap', zIndex: 10, boxShadow: '0 2px 6px rgba(0,0,0,0.2)' }}>
+            <span style={{ position: 'absolute', bottom: '-10px', left: '50%', transform: 'translateX(-50%)', background: '#F59E0B', color: '#fff', fontSize: '9px', fontWeight: '800', padding: '2px 7px', borderRadius: '10px', whiteSpace: 'nowrap', zIndex: 12, boxShadow: '0 2px 6px rgba(0,0,0,0.2)' }}>
               ⏳ {lang === 'es' ? 'En revisión' : 'Pending'}
             </span>
           )}
 
           {isOwnProfile ? (
-            <button className="edit-avatar-btn" onClick={(e) => { e.stopPropagation(); setShowPhotoOptions(true); }} title="Cambiar Foto de Perfil">
+            <button className="edit-avatar-btn" onClick={(e) => { e.stopPropagation(); setShowPhotoOptions(true); }} title="Cambiar Foto de Perfil" style={{ zIndex: 15 }}>
               ✏️
             </button>
-          ) : (
-            <button className="pro-chat-floating-btn" onClick={(e) => { e.stopPropagation(); navigate('chat', displayPro); }} title="Enviar mensaje">
+          ) : hasHiredPro ? (
+            <button className="pro-chat-floating-btn" onClick={(e) => { e.stopPropagation(); navigate('chat', displayPro); }} title="Enviar mensaje" style={{ zIndex: 15 }}>
               💬
             </button>
-          )}
+          ) : null}
         </div>
 
         <div className="pro-info-main">
@@ -720,8 +822,43 @@ export default function ProfessionalProfilePage({ lang = 'es', navigate, profess
               {displayPro.available ? T.available : T.busy}
             </span>
             <span className="pro-verified-badge">✓ {T.verifiedPro}</span>
+            <span className="pro-verified-badge" style={{ background: '#ECFDF5', color: '#059669', borderColor: '#A7F3D0' }}>🪪 {lang === 'es' ? 'Cédula Validada' : 'ID Verified'}</span>
+            <span className="pro-verified-badge" onClick={() => setShowGuaranteeModal(true)} style={{ background: '#FFF3EC', color: '#F26000', borderColor: '#FFD4B0', cursor: 'pointer' }}>🛡️ {lang === 'es' ? 'Respaldo 24h' : '24h Support'}</span>
           </div>
         </div>
+      </div>
+
+      {/* Banner interactivo de Garantía de Satisfacción 24h */}
+      <div 
+        onClick={() => setShowGuaranteeModal(true)}
+        style={{
+          margin: '12px 16px 0',
+          background: 'linear-gradient(135deg, #1E293B, #0F172A)',
+          borderRadius: '16px',
+          padding: '14px 18px',
+          color: '#fff',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          cursor: 'pointer',
+          boxShadow: '0 6px 18px rgba(15, 23, 42, 0.25)',
+          border: '1px solid rgba(255,255,255,0.1)'
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <span style={{ fontSize: '26px' }}>🛡️</span>
+          <div>
+            <p style={{ margin: 0, fontWeight: '900', fontSize: '13px', color: '#F26000', letterSpacing: '0.3px' }}>
+              {lang === 'es' ? 'RESPALDO Y MEDIACIÓN PEDIDOS LISTO (24 HORAS)' : 'LISTO PATRON 24H SUPPORT & MEDIATION'}
+            </p>
+            <p style={{ margin: '2px 0 0', fontSize: '11px', color: '#94A3B8' }}>
+              {lang === 'es' ? 'Soporte y mediación directa si surge cualquier detalle.' : 'Direct support and mediation for any service details.'}
+            </p>
+          </div>
+        </div>
+        <span style={{ fontSize: '12px', fontWeight: '800', background: 'rgba(242,96,0,0.2)', color: '#FF7A1A', padding: '6px 12px', borderRadius: '100px', whiteSpace: 'nowrap', border: '1px solid rgba(242,96,0,0.4)' }}>
+          {lang === 'es' ? 'Ver Cobertura →' : 'Details →'}
+        </span>
       </div>
 
       {/* Stats */}
@@ -767,6 +904,9 @@ export default function ProfessionalProfilePage({ lang = 'es', navigate, profess
             onUploadPhoto={handleWorkUpload}
             onDeletePhoto={handleDeleteWorkPhoto}
             hasPendingWork={hasPendingWork}
+            proName={displayPro.name}
+            proCategory={displayPro.category || displayPro.especialidad || displayPro.categoryEs || ''}
+            onHireClick={handleBookClick}
           />
         )}
 
@@ -860,30 +1000,205 @@ export default function ProfessionalProfilePage({ lang = 'es', navigate, profess
       )}
       {showPhotoOptions && (
         <div className="modal-overlay" onClick={() => setShowPhotoOptions(false)}>
-          <div className="modal-card" onClick={e => e.stopPropagation()}>
-            <span className="modal-icon">📸</span>
-            <h3 className="modal-title">{lang === 'es' ? 'Foto de perfil y portada' : 'Profile & Cover photo'}</h3>
-            <button className="modal-btn danger" style={{ background:'linear-gradient(135deg,#F26000,#C24E00)' }}
-              onClick={() => { setShowPhotoOptions(false); document.getElementById('pro-avatar-upload').click(); }}>
-              {lang === 'es' ? '📷 Cambiar foto de perfil (Galería)' : '📷 Change profile photo (Gallery)'}
-            </button>
-            <button className="modal-btn danger" style={{ background:'linear-gradient(135deg,#3B82F6,#2563EB)', marginTop:8 }}
-              onClick={() => { setShowPhotoOptions(false); document.getElementById('pro-avatar-camera').click(); }}>
-              {lang === 'es' ? '🤳 Tomar foto de perfil (Cámara)' : '🤳 Take profile photo (Camera)'}
-            </button>
-            <button className="modal-btn danger" style={{ background:'linear-gradient(135deg,#10B981,#059669)', marginTop:8 }}
-              onClick={() => { setShowPhotoOptions(false); document.getElementById('pro-cover-upload').click(); }}>
-              {lang === 'es' ? '🖼️ Cambiar foto de portada' : '🖼️ Change cover photo'}
-            </button>
-            {(displayPro.photoURL || displayPro.coverURL) && (
-              <button className="modal-btn danger" style={{ background:'#EF4444', marginTop:8 }}
-                onClick={handleDeleteAvatar}>
-                {lang === 'es' ? '🗑️ Eliminar foto actual' : '🗑️ Delete current photo'}
+          <div className="modal-card" onClick={e => e.stopPropagation()} style={{ maxWidth: 440, padding: 24, borderRadius: 24 }}>
+            <div style={{ textAlign: 'center', marginBottom: 16 }}>
+              <span style={{ fontSize: 32, display: 'block', marginBottom: 4 }}>📸</span>
+              <h3 style={{ margin: 0, fontSize: 18, fontWeight: 900, color: '#0F172A' }}>
+                {lang === 'es' ? 'Gestión de Fotos & Posicionamiento' : 'Photo Management & Alignment'}
+              </h3>
+              <p style={{ margin: '4px 0 0', fontSize: 12, color: '#64748B' }}>
+                {lang === 'es' ? 'Personaliza, cambia, centra o elimina tus fotos del perfil' : 'Customize, change, center or remove your profile photos'}
+              </p>
+            </div>
+
+            {/* SECCIÓN FOTO DE PERFIL */}
+            <div style={{ background: '#F8FAFC', borderRadius: 16, padding: 14, marginBottom: 14, border: '1px solid #E2E8F0', textAlign: 'left' }}>
+              <h4 style={{ margin: '0 0 10px', fontSize: 13, fontWeight: 800, color: '#1E293B', display: 'flex', alignItems: 'center', gap: 6 }}>
+                👤 {lang === 'es' ? 'Foto de Perfil (Avatar)' : 'Profile Photo'}
+              </h4>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 10 }}>
+                <button className="modal-btn" style={{ background: 'linear-gradient(135deg,#F26000,#C24E00)', color: '#fff', padding: '10px 8px', fontSize: 12, fontWeight: 700, borderRadius: 10, border: 'none', cursor: 'pointer' }}
+                  onClick={() => { setShowPhotoOptions(false); document.getElementById('pro-avatar-upload').click(); }}>
+                  📷 Galería
+                </button>
+                <button className="modal-btn" style={{ background: 'linear-gradient(135deg,#3B82F6,#2563EB)', color: '#fff', padding: '10px 8px', fontSize: 12, fontWeight: 700, borderRadius: 10, border: 'none', cursor: 'pointer' }}
+                  onClick={() => { setShowPhotoOptions(false); document.getElementById('pro-avatar-camera').click(); }}>
+                  🤳 Cámara
+                </button>
+              </div>
+
+              {/* Alineación / Centrar Foto Perfil */}
+              <div style={{ marginTop: 8 }}>
+                <span style={{ fontSize: 11, fontWeight: 700, color: '#64748B', display: 'block', marginBottom: 6 }}>
+                  🎯 {lang === 'es' ? 'Centrar / Posicionar Perfil:' : 'Align Profile Position:'}
+                </span>
+                <div style={{ display: 'flex', gap: 6 }}>
+                  <button 
+                    type="button"
+                    style={{ flex: 1, padding: '6px 4px', fontSize: 11, fontWeight: 700, borderRadius: 8, border: (displayPro.avatarPos === 'top center') ? '2px solid #F26000' : '1px solid #CBD5E1', background: '#fff', cursor: 'pointer' }}
+                    onClick={() => handleSetAvatarPosition('top center')}
+                  >
+                    ⬆️ Arriba
+                  </button>
+                  <button 
+                    type="button"
+                    style={{ flex: 1, padding: '6px 4px', fontSize: 11, fontWeight: 700, borderRadius: 8, border: (displayPro.avatarPos === 'center center' || !displayPro.avatarPos) ? '2px solid #F26000' : '1px solid #CBD5E1', background: '#fff', cursor: 'pointer' }}
+                    onClick={() => handleSetAvatarPosition('center center')}
+                  >
+                    🎯 Centro
+                  </button>
+                  <button 
+                    type="button"
+                    style={{ flex: 1, padding: '6px 4px', fontSize: 11, fontWeight: 700, borderRadius: 8, border: (displayPro.avatarPos === 'bottom center') ? '2px solid #F26000' : '1px solid #CBD5E1', background: '#fff', cursor: 'pointer' }}
+                    onClick={() => handleSetAvatarPosition('bottom center')}
+                  >
+                    ⬇️ Abajo
+                  </button>
+                </div>
+              </div>
+
+              {(displayPro.photoURL || displayPro.profilePhoto) && (
+                <button className="modal-btn" style={{ width: '100%', background: '#FEE2E2', color: '#DC2626', padding: '8px', fontSize: 12, fontWeight: 700, borderRadius: 10, border: 'none', cursor: 'pointer', marginTop: 10 }}
+                  onClick={handleDeleteAvatar}>
+                  🗑️ {lang === 'es' ? 'Eliminar Foto de Perfil' : 'Delete Profile Photo'}
+                </button>
+              )}
+            </div>
+
+            {/* SECCIÓN FOTO DE PORTADA */}
+            <div style={{ background: '#F8FAFC', borderRadius: 16, padding: 14, marginBottom: 14, border: '1px solid #E2E8F0', textAlign: 'left' }}>
+              <h4 style={{ margin: '0 0 10px', fontSize: 13, fontWeight: 800, color: '#1E293B', display: 'flex', alignItems: 'center', gap: 6 }}>
+                🖼️ {lang === 'es' ? 'Foto de Portada' : 'Cover Photo'}
+              </h4>
+              <button className="modal-btn" style={{ width: '100%', background: 'linear-gradient(135deg,#10B981,#059669)', color: '#fff', padding: '10px', fontSize: 12, fontWeight: 700, borderRadius: 10, border: 'none', cursor: 'pointer', marginBottom: 10 }}
+                onClick={() => { setShowPhotoOptions(false); document.getElementById('pro-cover-upload').click(); }}>
+                🖼️ {lang === 'es' ? 'Cambiar Foto de Portada' : 'Change Cover Photo'}
               </button>
-            )}
-            <button className="modal-btn ghost" onClick={() => setShowPhotoOptions(false)}>{lang === 'es' ? 'Cancelar' : 'Cancel'}</button>
+
+              {/* Alineación / Centrar Foto Portada */}
+              <div>
+                <span style={{ fontSize: 11, fontWeight: 700, color: '#64748B', display: 'block', marginBottom: 6 }}>
+                  🎯 {lang === 'es' ? 'Centrar / Posicionar Portada:' : 'Align Cover Position:'}
+                </span>
+                <div style={{ display: 'flex', gap: 6 }}>
+                  <button 
+                    type="button"
+                    style={{ flex: 1, padding: '6px 4px', fontSize: 11, fontWeight: 700, borderRadius: 8, border: (displayPro.coverPos === 'top center') ? '2px solid #10B981' : '1px solid #CBD5E1', background: '#fff', cursor: 'pointer' }}
+                    onClick={() => handleSetCoverPosition('top center')}
+                  >
+                    ⬆️ Arriba
+                  </button>
+                  <button 
+                    type="button"
+                    style={{ flex: 1, padding: '6px 4px', fontSize: 11, fontWeight: 700, borderRadius: 8, border: (displayPro.coverPos === 'center center' || !displayPro.coverPos) ? '2px solid #10B981' : '1px solid #CBD5E1', background: '#fff', cursor: 'pointer' }}
+                    onClick={() => handleSetCoverPosition('center center')}
+                  >
+                    🎯 Centro
+                  </button>
+                  <button 
+                    type="button"
+                    style={{ flex: 1, padding: '6px 4px', fontSize: 11, fontWeight: 700, borderRadius: 8, border: (displayPro.coverPos === 'bottom center') ? '2px solid #10B981' : '1px solid #CBD5E1', background: '#fff', cursor: 'pointer' }}
+                    onClick={() => handleSetCoverPosition('bottom center')}
+                  >
+                    ⬇️ Abajo
+                  </button>
+                </div>
+              </div>
+
+              {(displayPro.coverURL || displayPro.coverPhoto) && (
+                <button className="modal-btn" style={{ width: '100%', background: '#FEE2E2', color: '#DC2626', padding: '8px', fontSize: 12, fontWeight: 700, borderRadius: 10, border: 'none', cursor: 'pointer', marginTop: 10 }}
+                  onClick={handleDeleteCover}>
+                  🗑️ {lang === 'es' ? 'Eliminar Foto de Portada' : 'Delete Cover Photo'}
+                </button>
+              )}
+            </div>
+
+            <button className="modal-btn ghost" style={{ width: '100%', padding: '12px', background: '#E2E8F0', color: '#334155', fontWeight: 800, borderRadius: 12, border: 'none', cursor: 'pointer' }} onClick={() => setShowPhotoOptions(false)}>
+              {lang === 'es' ? 'Listo / Cerrar' : 'Done / Close'}
+            </button>
           </div>
         </div>
+      )}
+
+      {/* Visor de historias del profesional */}
+      <HistoriasViewerModal
+        isOpen={showStoryViewer}
+        onClose={() => setShowStoryViewer(false)}
+        stories={proStories.map(s => ({
+          proPlan: displayPro.currentPlan || displayPro.planId || displayPro.plan || displayPro.membership || displayPro.subscription || displayPro.proPlan || s.proPlan,
+          proRating: displayPro.rating || s.proRating,
+          proCategory: displayPro.category || displayPro.especialidad || displayPro.categoryEs || s.proCategory,
+          ...s
+        }))}
+        userData={userData}
+        navigate={navigate}
+      />
+
+      {/* Modal de Cobertura de Garantía 24h */}
+      {/* Modal de Asistencia y Mediación Pedidos Listo 24h */}
+      {showGuaranteeModal && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }} onClick={() => setShowGuaranteeModal(false)}>
+          <div style={{ background: '#fff', borderRadius: 24, padding: '28px 24px', width: '100%', maxWidth: 420, textAlign: 'left', boxShadow: '0 20px 40px rgba(0,0,0,0.25)', maxHeight: '90vh', overflowY: 'auto' }} onClick={e => e.stopPropagation()}>
+            <div style={{ width: 52, height: 52, borderRadius: '50%', background: '#FFF3EC', color: '#F26000', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26, marginBottom: 16 }}>🛡️</div>
+            <h3 style={{ margin: '0 0 8px', fontSize: 18, color: '#1A1A2E', fontWeight: 800 }}>
+              {lang === 'es' ? 'Respaldo y Mediación Pedidos Listo' : 'Pedidos Listo Support & Mediation'}
+            </h3>
+            <p style={{ fontSize: 13, color: '#64748B', lineHeight: 1.5, margin: '0 0 16px' }}>
+              {lang === 'es' 
+                ? 'Facilitamos una contratación transparente. Los servicios reservados a través de Pedidos Listo cuentan con soporte de mediación directa durante las primeras 24 horas.' 
+                : 'We facilitate transparent bookings with direct support mediation during the first 24 hours.'}
+            </p>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 16 }}>
+              <div style={{ background: '#F8FAFC', padding: 12, borderRadius: 14, border: '1px solid #E2E8F0', display: 'flex', gap: 10 }}>
+                <span style={{ fontSize: 18 }}>✅</span>
+                <div>
+                  <h4 style={{ margin: 0, fontSize: 13, color: '#1E293B', fontWeight: 700 }}>{lang === 'es' ? 'Identidad Auditada' : 'Audited Identity'}</h4>
+                  <p style={{ margin: '2px 0 0', fontSize: '11px', color: '#64748B' }}>{lang === 'es' ? 'Cédula oficial del profesional auditada y registrada por Central de Mando.' : 'Official ID audited by Central Command.'}</p>
+                </div>
+              </div>
+              <div style={{ background: '#F8FAFC', padding: 12, borderRadius: 14, border: '1px solid #E2E8F0', display: 'flex', gap: 10 }}>
+                <span style={{ fontSize: 18 }}>🛠️</span>
+                <div>
+                  <h4 style={{ margin: 0, fontSize: 13, color: '#1E293B', fontWeight: 700 }}>{lang === 'es' ? 'Revisión por el Profesional' : 'Pro Revision Agreement'}</h4>
+                  <p style={{ margin: '2px 0 0', fontSize: '11px', color: '#64748B' }}>{lang === 'es' ? 'El profesional independiente se compromete a solucionar cualquier detalle de mano de obra sin cargo extra en 24h.' : 'Independent pro agrees to correct labor issues without extra charge.'}</p>
+                </div>
+              </div>
+              <div style={{ background: '#F8FAFC', padding: 12, borderRadius: 14, border: '1px solid #E2E8F0', display: 'flex', gap: 10 }}>
+                <span style={{ fontSize: 18 }}>📞</span>
+                <div>
+                  <h4 style={{ margin: 0, fontSize: 13, color: '#1E293B', fontWeight: 700 }}>{lang === 'es' ? 'Soporte y Mediación Directa' : 'Direct Support & Mediation'}</h4>
+                  <p style={{ margin: '2px 0 0', fontSize: '11px', color: '#64748B' }}>{lang === 'es' ? 'Nuestro equipo asiste vía WhatsApp para canalizar reclamos y facilitar soluciones.' : 'Our team assists via WhatsApp to route claims & solutions.'}</p>
+                </div>
+              </div>
+            </div>
+
+            <div style={{ background: '#FFFBEB', border: '1px solid #FDE68A', padding: '10px 12px', borderRadius: 12, marginBottom: 20 }}>
+              <p style={{ margin: 0, fontSize: '11px', color: '#B45309', lineHeight: 1.4, fontStyle: 'italic' }}>
+                ⚖️ <strong>{lang === 'es' ? 'Términos de la Plataforma:' : 'Platform Terms:'}</strong> {lang === 'es' ? 'Pedidos Listo es una plataforma tecnológica de conexión e intermediación entre usuarios y profesionales independientes. La ejecución física del servicio y cualquier garantía técnica o de materiales es responsabilidad exclusiva del profesional contratado.' : 'Pedidos Listo is a technological platform connecting clients and independent pros. Physical execution & damages are the sole responsibility of the hired professional.'}
+              </p>
+            </div>
+
+            <button 
+              onClick={() => setShowGuaranteeModal(false)}
+              style={{ width: '100%', padding: '14px', borderRadius: 16, border: 'none', background: 'linear-gradient(135deg, #F26000, #C24D00)', color: '#fff', fontWeight: 'bold', fontSize: 14, cursor: 'pointer', boxShadow: '0 4px 14px rgba(242,96,0,0.3)' }}
+            >
+              Entendido 👍
+            </button>
+          </div>
+        </div>
+      )}
+
+      {showStoryViewer && proStoryData?.stories?.length > 0 && (
+        <HistoriasViewerModal
+          isOpen={showStoryViewer}
+          onClose={() => setShowStoryViewer(false)}
+          stories={proStoryData.stories}
+          initialIndex={0}
+          userData={userData}
+          onHirePro={() => handleBookClick()}
+          navigate={navigate}
+        />
       )}
     </div>
   )

@@ -25,6 +25,232 @@
 .hp-greeting h1 { font-family: var(--font-display, inherit); font-size: 22px; font-weight: 900; color: #1a1a2e; margin: 0 0 4px; line-height: 1.2; letter-spacing: -0.5px; }
 .hp-greeting p { font-size: 14px; color: #555; margin: 0; font-weight: 600; }
 
+/* ── BOTONES HERO ANIMADOS CON CARRUSEL DUAL ── */
+.hp-dual-hero-buttons-wrapper {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  width: 100%;
+  margin: 8px 0 12px 0;
+}
+
+.hp-dual-hero-button {
+  background: linear-gradient(135deg, #FF4500 0%, #FF6200 100%);
+  border-radius: 24px;
+  padding: 12px 10px 10px 10px;
+  color: #FFFFFF;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  cursor: pointer;
+  box-shadow: 0 10px 25px rgba(255, 69, 0, 0.45), 0 2px 4px rgba(0,0,0,0.1);
+  border: 2px solid #FFFFFF;
+  transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  overflow: hidden;
+  position: relative;
+}
+
+.hp-dual-hero-button:hover {
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 14px 30px rgba(255, 69, 0, 0.6), 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.hp-dual-hero-button:active {
+  transform: scale(0.95);
+}
+
+.hp-dual-hero-button.compact {
+  padding: 8px 6px 6px 6px;
+  border-radius: 16px;
+  gap: 6px;
+  box-shadow: 0 6px 16px rgba(255, 69, 0, 0.4);
+}
+
+.hp-dual-hero-button.compact .hp-hero-badge {
+  width: 32px;
+  height: 32px;
+  font-size: 10px;
+  border-width: 2px;
+}
+
+.hp-dual-hero-button.compact .hp-hero-btn-title {
+  font-size: 11px;
+}
+
+.hp-dual-hero-button.compact .hp-hero-btn-sub {
+  font-size: 9px;
+}
+
+.hp-dual-hero-button.compact .hp-hero-carousel-container {
+  height: 56px;
+  border-radius: 10px;
+}
+
+.hp-dual-hero-button.compact .hp-hero-carousel-slide {
+  width: 90px;
+  height: 48px;
+}
+
+.historias-dual-buttons-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.hp-hero-btn-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.hp-hero-badge {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #FF4500;
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 13px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+  border: 2.5px solid #FFFFFF;
+  flex-shrink: 0;
+  letter-spacing: -0.5px;
+}
+
+.hp-hero-badge span {
+  font-family: var(--font-display, sans-serif);
+  font-style: italic;
+}
+
+.hp-hero-btn-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.hp-hero-btn-title {
+  font-weight: 900;
+  font-size: 13px;
+  line-height: 1.1;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  color: #FFFFFF;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.hp-hero-btn-sub {
+  font-weight: 800;
+  font-size: 11px;
+  color: #FFFFFF;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  opacity: 0.95;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 1px;
+}
+
+/* CAROUSEL CONTENEDOR INTERNO */
+.hp-hero-carousel-container {
+  width: 100%;
+  height: 80px;
+  background: rgba(0, 0, 0, 0.28);
+  border-radius: 16px;
+  overflow: hidden;
+  position: relative;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(4px);
+}
+
+.hp-hero-carousel-track {
+  display: flex;
+  width: max-content;
+  height: 100%;
+  align-items: center;
+}
+
+.hp-hero-carousel-track.track-food {
+  animation: dualMarqueeFood 12s linear infinite;
+}
+
+.hp-hero-carousel-track.track-pros {
+  animation: dualMarqueePros 12s linear infinite;
+}
+
+.hp-dual-hero-button:hover .hp-hero-carousel-track {
+  animation-play-state: paused;
+}
+
+.hp-hero-carousel-slide {
+  width: 115px;
+  height: 70px;
+  margin: 0 5px;
+  border-radius: 12px;
+  overflow: hidden;
+  position: relative;
+  flex-shrink: 0;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+  border: 1px solid rgba(255,255,255,0.2);
+}
+
+.hp-hero-carousel-slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.hp-hero-carousel-slide span {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(0deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0) 100%);
+  color: #FFFFFF;
+  font-size: 9px;
+  font-weight: 800;
+  padding: 14px 4px 4px 4px;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+}
+
+@keyframes dualMarqueeFood {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes dualMarqueePros {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* ── TARJETA OSCURA HERO CON BUSCADOR Y TU HISTORIA (COMO EN LA FOTO DEL CLIENTE) ── */
+.hp-hero-dark-card {
+  background: linear-gradient(180deg, #101625 0%, #0a0e18 100%);
+  border-radius: 24px;
+  padding: 16px 12px 10px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+
 .hp-hero-search-btn {
   display: flex; align-items: center; gap: 12px;
   background: white; border: 2px solid rgba(242,96,0,0.1); border-radius: 0px;
@@ -154,8 +380,8 @@
 .hp-cat-label { font-size: 11px; font-weight: 600; color: #444; white-space: nowrap; }
 
 /* ── SEC HEADER ───────────────────────────────── */
-.hp-sec-header { display: flex; align-items: center; justify-content: space-between; padding: 0 16px; margin-bottom: 0px; margin-top: 0px; }
-.hp-sec-title  { font-size: 17px; font-weight: 800; color: #1A1A2E; }
+.hp-sec-header { display: flex; align-items: center; justify-content: space-between; padding: 0 16px; margin-bottom: 4px; margin-top: 6px; }
+.hp-sec-title  { font-size: 17px; font-weight: 800; color: #1A1A2E; margin: 0; }
 .hp-see-all {
   background: none; border: 1.5px solid #F26000; color: #F26000;
   border-radius: 0px; padding: 5px 12px; font-size: 12px; font-weight: 700;
@@ -168,8 +394,8 @@
 .star-num    { color: #666; font-size: 12px; font-weight: 600; }
 
 /* ── PROFESIONALES DESTACADOS ─────────────────── */
-.featured-section { margin: 0; opacity: 0; transform: translateY(30px); transition: opacity .6s ease, transform .6s ease; }
-.featured-section.reveal { opacity: 1; transform: translateY(0); }
+.featured-section { margin: 2px 0 6px; opacity: 1 !important; transform: none !important; }
+.featured-section.reveal { opacity: 1; transform: none; }
 .featured-scroll {
   display: flex;
   gap: 8px;
@@ -230,12 +456,8 @@
 .featured-price strong { color: #1A1A2E; font-size: 13px; }
 
 /* ── SERVICE SECTIONS ─────────────────────────── */
-.hp-service-section { margin-bottom: 2px; opacity: 0; transform: translateY(30px); transition: opacity .6s ease, transform .6s ease; }
-.hp-service-section.reveal {
-  opacity: 1; transform: translateY(0);
-  border-radius: 0px; margin: 2px 0; padding: 6px 0;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.06);
-}
+.hp-service-section { margin: 2px 0; padding: 6px 0; opacity: 1 !important; transform: none !important; border-radius: 0px; box-shadow: 0 4px 16px rgba(0,0,0,0.06); }
+.hp-service-section.reveal { opacity: 1; transform: none; }
 .amz-sec-header { margin-bottom: 6px; padding: 0 16px; }
 .amz-sec-title { font-size: 19px; font-weight: 900; }
 .amz-see-all {
@@ -299,11 +521,11 @@
 
 /* ── TODOS LOS PROFESIONALES ──────────────────── */
 .all-pros-section {
-  margin: 0; padding: 4px 16px; background: #fff;
+  margin: 2px 0; padding: 4px 16px; background: #fff;
   border-radius: 0px; box-shadow: 0 -4px 16px rgba(0,0,0,0.03);
-  opacity: 0; transform: translateY(40px); transition: opacity .7s ease, transform .7s ease;
+  opacity: 1 !important; transform: none !important;
 }
-.all-pros-section.reveal { opacity: 1; transform: translateY(0); }
+.all-pros-section.reveal { opacity: 1; transform: none; }
 .pros-count { font-size: 12px; color: #64748B; font-weight: 700; background: #F1F5F9; padding: 5px 12px; border-radius: 0px; }
 .pros-filter-scroll { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding-bottom: 10px; margin-top: 4px; }
 .pros-filter-scroll::-webkit-scrollbar { display: none; }
@@ -347,7 +569,7 @@
 .pro-list-price { font-size: 12px; color: #64748B; margin-top: 4px; }
 .pro-list-price strong { color: #0F172A; }
 .pro-list-book {
-  background: linear-gradient(135deg, #FF7A1A, #F26000); color: #fff; border: none; border-radius: 0px;
+  background: linear-gradient(135deg, #FF7A1A, #F26000); color: #fff; border: none; border-radius: 22px;
   padding: 10px 18px; font-size: 12.5px; font-weight: 900;
   cursor: pointer; flex-shrink: 0; transition: all .25s cubic-bezier(0.34, 1.56, 0.64, 1);
   box-shadow: 0 4px 12px rgba(242,96,0,0.3);
@@ -356,8 +578,8 @@
 .pro-list-book:hover { background: #C24D00; transform: scale(1.05); }
 
 /* ── LISTA DE CATEGORÍAS ──────────────────────── */
-.cat-list-section { margin: 0; padding: 12px 16px; background: #fff; opacity: 0; transform: translateY(40px); transition: opacity .6s ease, transform .6s ease; }
-.cat-list-section.reveal { opacity: 1; transform: translateY(0); }
+.cat-list-section { margin: 2px 0; padding: 12px 16px; background: #fff; opacity: 1 !important; transform: none !important; }
+.cat-list-section.reveal { opacity: 1; transform: none; }
 .cat-list { display: flex; flex-direction: column; }
 .cat-list-item {
   display: flex; align-items: center; gap: 14px; padding: 12px 4px;
@@ -373,14 +595,13 @@
 
 /* ── TESTIMONIOS CARRUSEL ─────────────────────── */
 .testimonials-section {
-  margin: 0 16px;
-  opacity: 0;
-  transform: translateY(20px);
-  transition: opacity 0.5s ease, transform 0.5s ease;
+  margin: 2px 16px 4px;
+  opacity: 1 !important;
+  transform: none !important;
 }
 .testimonials-section.reveal {
   opacity: 1;
-  transform: translateY(0);
+  transform: none;
 }
 .testimonials-section .hp-sec-title {
   color: #1A1A2E;
@@ -731,11 +952,15 @@
 /* Amazon Top Horizontal Nav Pill Carousel */
 .amz-top-nav-bar {
   display: flex;
-  gap: 10px;
-  padding: 6px 16px;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 16px;
   overflow-x: auto;
   overflow-y: visible;
   scrollbar-width: none;
+  -ms-overflow-style: none;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-x;
   background: #1A1A2E;
   margin-bottom: 0px;
   position: relative;
@@ -1184,11 +1409,11 @@
   border: 1px solid rgba(242, 96, 0, 0.4);
   border-left: 4px solid #F26000;
   border-radius: 0px;
-  padding: 10px 14px;
+  padding: 8px 10px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 8px;
   cursor: pointer;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
   position: relative;
@@ -1205,13 +1430,13 @@
 .store-ribbon-content {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   flex: 1;
   min-width: 0;
 }
 
 .store-ribbon-icon {
-  font-size: 22px;
+  font-size: 20px;
   flex-shrink: 0;
   animation: storeCartBounce 2.5s infinite ease-in-out;
 }
@@ -1225,17 +1450,24 @@
   display: flex;
   flex-direction: column;
   min-width: 0;
+  flex: 1;
 }
 
 .store-ribbon-title {
-  font-size: 13.5px;
+  font-size: 12.5px;
   font-weight: 900;
   color: #FFFFFF;
   margin: 0;
-  line-height: 1.2;
+  line-height: 1.25;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+@media (max-width: 400px) {
+  .store-ribbon-title {
+    font-size: 11.5px;
+  }
 }
 
 .store-ribbon-title strong {
@@ -1243,10 +1475,10 @@
 }
 
 .store-ribbon-sub {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 600;
   color: #CBD5E1;
-  margin: 2px 0 0;
+  margin: 1px 0 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1257,8 +1489,8 @@
   color: #FFFFFF;
   border: none;
   border-radius: 0px;
-  padding: 8px 14px;
-  font-size: 12px;
+  padding: 6px 10px;
+  font-size: 11.5px;
   font-weight: 900;
   cursor: pointer;
   flex-shrink: 0;
@@ -1274,4 +1506,112 @@
   background: #C24D00;
   transform: scale(1.04);
 }
+
+/* ── ANIMACIÓN PARPADEO / PULSO PARA BARRA DE ESTADO INACTIVO ── */
+@keyframes warningPulseBlink {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+    box-shadow: 0 2px 10px rgba(220, 38, 38, 0.25);
+  }
+  50% {
+    opacity: 0.35;
+    transform: scale(0.993);
+    box-shadow: 0 0 18px 4px rgba(239, 68, 68, 0.5);
+  }
+}
+
+.warning-pulse-banner {
+  animation: warningPulseBlink 1.4s infinite ease-in-out !important;
+}
+
+/* ── BANNER FLOTANTE ANIMADO DE EMERGENCIAS "¿QUÉ PROBLEMA TIENES HOY?" ── */
+.emergency-floating-banner {
+  margin: 10px 16px;
+  background: linear-gradient(135deg, #1A1A2E 0%, #2A1706 60%, #F26000 100%);
+  border: 1.5px solid rgba(242, 96, 0, 0.4);
+  border-radius: 20px;
+  box-shadow: 0 8px 26px rgba(242, 96, 0, 0.22);
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+}
+
+.emergency-banner-header {
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  user-select: none;
+  background: transparent;
+  gap: 12px;
+}
+
+.emergency-banner-shimmer {
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.18), transparent);
+  transform: skewX(-20deg);
+  animation: bannerShimmer 3.2s infinite;
+  pointer-events: none;
+}
+
+@keyframes bannerShimmer {
+  0% { left: -100%; }
+  30% { left: 200%; }
+  100% { left: 200%; }
+}
+
+.emergency-siren-anim {
+  font-size: 26px;
+  display: inline-block;
+  animation: sirenPulse 1.2s ease-in-out infinite alternate;
+  filter: drop-shadow(0 0 8px rgba(255, 61, 0, 0.8));
+}
+
+@keyframes sirenPulse {
+  0% { transform: scale(1) rotate(-8deg); }
+  100% { transform: scale(1.22) rotate(8deg); }
+}
+
+.emergency-banner-deploy-badge {
+  background: linear-gradient(135deg, #FF7A1A, #F26000);
+  color: #FFFFFF;
+  font-size: 11px;
+  font-weight: 900;
+  padding: 6px 12px;
+  border-radius: 20px;
+  box-shadow: 0 4px 12px rgba(242, 96, 0, 0.4);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  transition: transform 0.2s;
+}
+
+.emergency-banner-deploy-badge:hover {
+  transform: scale(1.05);
+}
+
+.emergency-grid-container {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: max-height 0.45s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease, padding 0.35s ease;
+  padding: 0 14px 0;
+  background: #FFF7F2;
+  border-top: 1px dashed rgba(242, 96, 0, 0.3);
+}
+
+.emergency-grid-container.expanded {
+  max-height: 1200px;
+  opacity: 1;
+  padding: 14px 14px 16px;
+}
+
 
