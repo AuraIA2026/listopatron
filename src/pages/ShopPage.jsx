@@ -437,8 +437,9 @@ export default function ShopPage({ onNavigate, navigate }) {
             {filteredProducts.map((product) => (
               <div key={product.id} className="product-card">
                 {product.badge && <span className="product-card-badge">{product.badge}</span>}
-                <div className="product-img-wrapper">
+                <div className="product-img-wrapper" style={{ position: 'relative' }}>
                   <img src={product.image} alt={product.name} className="product-img" />
+                  <img src="./assets/logo_esquina.png" alt="Listo" className="shop-product-corner-badge" />
                 </div>
                 <div className="product-content">
                   <div className="product-rating">

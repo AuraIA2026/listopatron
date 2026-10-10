@@ -1154,40 +1154,49 @@ export default function LandingPage({ navigate, lang }) {
       <button onClick={() => { shiftSlider(-1) }} aria-label="Anterior" style={{"position": "absolute", "left": "-20px", "top": "50%", "transform": "translateY(-50%)", "width": "44px", "height": "44px", "borderRadius": "50%", "border": "none", "cursor": "pointer", "background": "#F26000", "color": "#fff", "fontSize": "22px", "zIndex": "10", "boxShadow": "0 4px 16px rgba(242,96,0,0.4)", "display": "flex", "alignItems": "center", "justifyContent": "center"}}>‹</button>
 
       <div id="proSliderTrack" style={{"display": "flex", "transition": "transform 0.5s ease-out", "gap": "20px"}}>
-        <div className="pro-slide" style={{"flex": "0 0 calc(100% / 4 - 15px)", "minWidth": "220px"}}>
+        <div className="pro-slide" style={{"flex": "0 0 calc(100% / 4 - 15px)", "minWidth": "220px", "position": "relative"}}>
           <img src="./assets/extracted_6.png" alt="Mecánico" />
+          <img src="./assets/logo_esquina.png" alt="Listo" className="pro-slide-corner-logo" />
           <div className="pro-slide-label">🔧 Mecánico</div>
         </div>
-        <div className="pro-slide" style={{"flex": "0 0 calc(100% / 4 - 15px)", "minWidth": "220px"}}>
+        <div className="pro-slide" style={{"flex": "0 0 calc(100% / 4 - 15px)", "minWidth": "220px", "position": "relative"}}>
           <img src="./assets/extracted_7.png" alt="Limpieza" />
+          <img src="./assets/logo_esquina.png" alt="Listo" className="pro-slide-corner-logo" />
           <div className="pro-slide-label">🧹 Limpieza</div>
         </div>
-        <div className="pro-slide" style={{"flex": "0 0 calc(100% / 4 - 15px)", "minWidth": "220px"}}>
+        <div className="pro-slide" style={{"flex": "0 0 calc(100% / 4 - 15px)", "minWidth": "220px", "position": "relative"}}>
           <img src="./assets/extracted_8.png" alt="Limpieza 2" />
+          <img src="./assets/logo_esquina.png" alt="Listo" className="pro-slide-corner-logo" />
           <div className="pro-slide-label">🧹 Limpieza</div>
         </div>
-        <div className="pro-slide" style={{"flex": "0 0 calc(100% / 4 - 15px)", "minWidth": "220px"}}>
+        <div className="pro-slide" style={{"flex": "0 0 calc(100% / 4 - 15px)", "minWidth": "220px", "position": "relative"}}>
           <img src="./assets/extracted_9.png" alt="Jardinero" />
+          <img src="./assets/logo_esquina.png" alt="Listo" className="pro-slide-corner-logo" />
           <div className="pro-slide-label">🌿 Jardinero</div>
         </div>
-        <div className="pro-slide" style={{"flex": "0 0 calc(100% / 4 - 15px)", "minWidth": "220px"}}>
+        <div className="pro-slide" style={{"flex": "0 0 calc(100% / 4 - 15px)", "minWidth": "220px", "position": "relative"}}>
           <img src="./assets/extracted_10.png" alt="Jardinero 2" />
+          <img src="./assets/logo_esquina.png" alt="Listo" className="pro-slide-corner-logo" />
           <div className="pro-slide-label">🌿 Jardinero</div>
         </div>
-        <div className="pro-slide" style={{"flex": "0 0 calc(100% / 4 - 15px)", "minWidth": "220px"}}>
+        <div className="pro-slide" style={{"flex": "0 0 calc(100% / 4 - 15px)", "minWidth": "220px", "position": "relative"}}>
           <img src="./assets/extracted_11.png" alt="Plomero" />
+          <img src="./assets/logo_esquina.png" alt="Listo" className="pro-slide-corner-logo" />
           <div className="pro-slide-label">🔩 Plomero</div>
         </div>
-        <div className="pro-slide" style={{"flex": "0 0 calc(100% / 4 - 15px)", "minWidth": "220px"}}>
+        <div className="pro-slide" style={{"flex": "0 0 calc(100% / 4 - 15px)", "minWidth": "220px", "position": "relative"}}>
           <img src="./assets/extracted_12.png" alt="Enfermería" />
+          <img src="./assets/logo_esquina.png" alt="Listo" className="pro-slide-corner-logo" />
           <div className="pro-slide-label">🏥 Enfermería</div>
         </div>
-        <div className="pro-slide" style={{"flex": "0 0 calc(100% / 4 - 15px)", "minWidth": "220px"}}>
+        <div className="pro-slide" style={{"flex": "0 0 calc(100% / 4 - 15px)", "minWidth": "220px", "position": "relative"}}>
           <img src="./assets/extracted_13.png" alt="Masajes" />
+          <img src="./assets/logo_esquina.png" alt="Listo" className="pro-slide-corner-logo" />
           <div className="pro-slide-label">💆 Masajes</div>
         </div>
-        <div className="pro-slide" style={{"flex": "0 0 calc(100% / 4 - 15px)", "minWidth": "220px"}}>
+        <div className="pro-slide" style={{"flex": "0 0 calc(100% / 4 - 15px)", "minWidth": "220px", "position": "relative"}}>
           <img src="./assets/extracted_14.jpeg" alt="Pintor" />
+          <img src="./assets/logo_esquina.png" alt="Listo" className="pro-slide-corner-logo" />
           <div className="pro-slide-label">🎨 Pintor</div>
         </div>
       </div>
@@ -1241,10 +1250,10 @@ export default function LandingPage({ navigate, lang }) {
     <div style={{"textAlign": "center", "fontSize": "11px", "color": "#999", "letterSpacing": "1.5px", "textTransform": "uppercase", "marginBottom": "12px"}}>Publicidad</div>
     <div style={{"position": "relative", "maxWidth": "960px", "margin": "0 auto", "overflow": "hidden", "borderRadius": "16px", "boxShadow": "0 8px 30px rgba(0,0,0,0.1)"}}>
       <div id="ad-track" style={{"display": "flex", "transition": "transform .6s ease"}}>
-        <div className="ad-slide"><img src={ad15} alt="Caney Discoteca" style={{"width": "100%", "display": "block", "objectFit": "cover", "maxHeight": "200px"}}/></div>
-        <div className="ad-slide"><img src={ad16} alt="Arte Urbano" style={{"width": "100%", "display": "block", "objectFit": "cover", "maxHeight": "200px"}}/></div>
-        <div className="ad-slide"><img src={ad17} alt="Arte Medios" style={{"width": "100%", "display": "block", "objectFit": "cover", "maxHeight": "200px"}}/></div>
-        <div className="ad-slide"><img src={ad18} alt="FCO Ren Cars" style={{"width": "100%", "display": "block", "objectFit": "cover", "maxHeight": "200px"}}/></div>
+        <div className="ad-slide" style={{"position": "relative"}}><img src={ad15} alt="Caney Discoteca" style={{"width": "100%", "display": "block", "objectFit": "cover", "maxHeight": "200px"}}/><img src="./assets/logo_esquina.png" alt="Listo" className="pro-slide-corner-logo" /></div>
+        <div className="ad-slide" style={{"position": "relative"}}><img src={ad16} alt="Arte Urbano" style={{"width": "100%", "display": "block", "objectFit": "cover", "maxHeight": "200px"}}/><img src="./assets/logo_esquina.png" alt="Listo" className="pro-slide-corner-logo" /></div>
+        <div className="ad-slide" style={{"position": "relative"}}><img src={ad17} alt="Arte Medios" style={{"width": "100%", "display": "block", "objectFit": "cover", "maxHeight": "200px"}}/><img src="./assets/logo_esquina.png" alt="Listo" className="pro-slide-corner-logo" /></div>
+        <div className="ad-slide" style={{"position": "relative"}}><img src={ad18} alt="FCO Ren Cars" style={{"width": "100%", "display": "block", "objectFit": "cover", "maxHeight": "200px"}}/><img src="./assets/logo_esquina.png" alt="Listo" className="pro-slide-corner-logo" /></div>
       </div>
       <button onClick={() => { adSlide(-1) }} style={{"position": "absolute", "left": "10px", "top": "50%", "transform": "translateY(-50%)", "background": "rgba(0,0,0,0.4)", "color": "#fff", "border": "none", "borderRadius": "50%", "width": "36px", "height": "36px", "fontSize": "20px", "cursor": "pointer", "zIndex": "10"}}>‹</button>
       <button onClick={() => { adSlide(1) }} style={{"position": "absolute", "right": "10px", "top": "50%", "transform": "translateY(-50%)", "background": "rgba(0,0,0,0.4)", "color": "#fff", "border": "none", "borderRadius": "50%", "width": "36px", "height": "36px", "fontSize": "20px", "cursor": "pointer", "zIndex": "10"}}>›</button>

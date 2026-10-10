@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { collection, query, where, getDocs, doc, getDoc, addDoc, serverTimestamp } from 'firebase/firestore'
 import { db } from '../firebase'
 import { CATEGORIES, FILTERS, ALL_SUBCATEGORIES, PROVINCES_LIST } from '../categories'
@@ -479,7 +479,10 @@ function ProDelMes({ lang, navigate, userRole }) {
           <div className="pdm-divider" />
 
           <div className="pdm-left">
-            <div className="pdm-photo-wrap">
+            <div className="pdm-photo-wrap" style={{ position: 'relative' }}>
+              <div className="listo-brand-watermark" style={{ top: '-4px', right: '-4px' }}>
+                <img src={logoListo} alt="Pedidos Listo" className="listo-brand-watermark-img" />
+              </div>
               {proDelMes.foto
                 ? <img src={proDelMes.foto} alt={proDelMes.nombre} className="pdm-photo" />
                 : <div className="pdm-avatar" style={{ background: avatarBg }}>{proDelMes.avatar}</div>

@@ -181,25 +181,26 @@ html {
 /* ── BRAND LOGO WATERMARK BADGE FOR CARDS & PHOTOS ── */
 .listo-brand-watermark {
   position: absolute;
-  top: 6px;
-  right: 6px;
+  top: 8px;
+  right: 8px;
   z-index: 9;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.45));
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.45));
   pointer-events: none;
   transition: transform 0.2s ease;
 }
 
 .listo-brand-watermark-img {
-  height: 22px;
-  width: 22px;
+  height: 32px;
+  width: 32px;
   object-fit: contain;
   border-radius: 50%;
-  border: 1.5px solid #FFFFFF;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  border: 2px solid #FFFFFF;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
   display: block;
+  background: #FFFFFF;
 }
 
 /* Para avatares pequeños en listas (Todos los Profesionales) */
@@ -210,8 +211,41 @@ html {
 }
 
 .pro-list-img-wrap .listo-brand-watermark-img {
-  height: 14px;
-  width: 14px;
+  height: 18px;
+  width: 18px;
   border: 1.5px solid #FFFFFF;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+}
+
+/* Badge de esquina para fotos en carrusel de profesionales */
+.pro-slide-corner-logo {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: contain;
+  border: 2px solid #FFFFFF;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.45);
+  z-index: 5;
+  pointer-events: none;
+  background: #FFFFFF;
+  transition: transform 0.2s ease;
+}
+
+/* Badge de esquina para fotos de productos en la tienda */
+.shop-product-corner-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  object-fit: contain;
+  border: 1.5px solid #FFFFFF;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  z-index: 4;
+  pointer-events: none;
+  background: #FFFFFF;
 }

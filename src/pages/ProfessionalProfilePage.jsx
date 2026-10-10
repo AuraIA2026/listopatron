@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { collection, query, where, getDocs, doc, updateDoc, arrayUnion, arrayRemove, addDoc, serverTimestamp, onSnapshot } from 'firebase/firestore'
 import { db } from '../firebase'
 import { CATEGORIES, ALL_SUBCATEGORIES } from '../categories'
@@ -197,6 +197,9 @@ function PhotoGrid({ photos, lang, isOwnProfile, onUploadPhoto, onDeletePhoto, h
             <div key={photoId} className="photo-thumb-wrapper">
               <button className="photo-thumb" onClick={() => setLightbox({ url: photoUrl, caption })}>
                 <img src={photoUrl} alt={caption} loading="lazy" decoding="async" />
+                <div className="listo-brand-watermark" style={{ top: '8px', right: '8px' }}>
+                  <img src={logoListo} alt="Listo" className="listo-brand-watermark-img" />
+                </div>
                 <div className="photo-overlay"><span>{caption}</span></div>
               </button>
               {isOwnProfile && !isMockPhoto && (

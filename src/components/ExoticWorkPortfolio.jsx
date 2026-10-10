@@ -175,8 +175,11 @@ export default function ExoticWorkPortfolio({ lang = 'es', photos = [], proName 
             onClick={() => setSelectedWork(work)}
           >
             {/* Foto con gradiente y zoom */}
-            <div className="exotic-card-image-wrap">
+            <div className="exotic-card-image-wrap" style={{ position: 'relative' }}>
               <img src={work.img} alt={work.title} loading="lazy" />
+              <div className="listo-brand-watermark" style={{ top: '10px', right: '10px' }}>
+                <img src="/assets/logo_esquina.png" alt="Listo" className="listo-brand-watermark-img" />
+              </div>
               <div className="exotic-card-overlay" />
               
               {/* Badge de fecha flotante */}
