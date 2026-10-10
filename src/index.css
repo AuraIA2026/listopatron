@@ -5147,8 +5147,8 @@ footer{background:#F26000;padding:28px 5% 24px}
   }
 }
 
-@media (max-width: 1120px) {
-  /* Trigger the hamburger menu at 1120px instead of 900px to prevent overflow */
+@media (max-width: 1400px) {
+  /* Trigger the hamburger menu at 1400px to prevent overflow between action buttons and links */
   .nav-links:not(.open) {
     display: none !important;
   }
@@ -5163,28 +5163,55 @@ footer{background:#F26000;padding:28px 5% 24px}
     top: 70px !important;
     left: 0 !important;
     right: 0 !important;
-    background: #fff !important;
+    background: #ffffff !important;
     padding: 24px 5% !important;
-    gap: 20px !important;
-    box-shadow: 0 8px 30px rgba(242,96,0,0.12) !important;
+    gap: 16px !important;
+    box-shadow: 0 10px 35px rgba(242,96,0,0.15) !important;
     border-top: 2px solid rgba(242,96,0,0.1) !important;
-    z-index: 199 !important;
+    z-index: 1000 !important;
+  }
+  .nav-links.open a {
+    width: 100% !important;
+    padding: 8px 0 !important;
+    font-size: 15px !important;
+    color: #222 !important;
+    border-bottom: 1px solid rgba(0,0,0,0.05) !important;
+  }
+  .nav-links.open .nav-btn-inside-menu {
+    display: inline-flex !important;
+    width: auto !important;
+    margin-top: 8px !important;
+    color: #ffffff !important;
+    border-bottom: none !important;
   }
   .nav-btn-order {
     display: none !important;
   }
   .nav-header-buttons {
     display: flex !important;
-    gap: 4px !important;
-    margin-left: 6px !important;
+    gap: 6px !important;
+    margin-left: 8px !important;
   }
   .nav-header-buttons .nav-action-btn,
   .nav-header-buttons .dropdown-container button {
     font-size: 11px !important;
-    padding: 6px 8px !important;
+    padding: 4px 8px !important;
     white-space: nowrap !important;
   }
-  .nav-btn-buy-plan {
-    display: inline-flex !important;
+}
+
+@media (min-width: 1401px) {
+  .nav-btn-inside-menu {
+    display: none !important;
   }
+}
+
+@media (max-width: 600px) {
+  .nav-btn-direct {
+    display: none !important;
+  }
+}
+
+.nav-btn-buy-plan {
+  display: inline-flex !important;
 }
