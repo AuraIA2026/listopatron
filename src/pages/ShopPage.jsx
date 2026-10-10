@@ -344,39 +344,35 @@ export default function ShopPage({ onNavigate, navigate }) {
       
       {/* SHOP NAVIGATION BAR */}
       <nav id="nav" className="shop-nav">
-        <div style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={handleBackToWeb} title="Ir a la portada de Listo Patrón">
-          <img className="nav-logo" src="./assets/logo_listo_patron.png" alt="Listo Patrón" style={{ height: '75px', objectFit: 'contain' }} />
-          <span className="shop-logo-text">Tienda</span>
+        <div className="shop-nav-brand" onClick={handleBackToWeb} title="Ir a la portada de Listo Patrón">
+          <img 
+            className="shop-brand-logo" 
+            src="./assets/logo_listo_patron.png" 
+            alt="Listo Patrón" 
+          />
+          <span className="shop-nav-badge">
+            Tienda Oficial 🛒
+          </span>
         </div>
 
-        <div className="nav-links shop-header-actions" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <div className="shop-header-actions">
+          {/* BOTÓN REGRESAR A LA WEB ADAPTADO AL ESTILO CÁPSULA (IMAGEN 6) */}
           <button 
             type="button" 
             onClick={handleBackToWeb} 
-            className="shop-back-btn"
-            style={{
-              background: 'rgba(255, 107, 0, 0.05)',
-              border: '1.5px solid #FF6B00',
-              color: '#FF6B00',
-              padding: '8px 18px',
-              borderRadius: '50px',
-              fontSize: '14px',
-              fontWeight: '800',
-              cursor: 'pointer',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '6px',
-              whiteSpace: 'nowrap',
-              boxShadow: '0 2px 8px rgba(255, 107, 0, 0.15)',
-              transition: 'all 0.2s ease',
-              zIndex: 100
-            }}
+            className="shop-back-capsule-btn"
             title="Regresar a la página principal de Listo Patrón"
           >
-            ← Volver al Inicio
+            <span className="shop-capsule-brand">
+              Listo<span style={{ color: '#FF6B00' }}>Patrón</span>
+            </span>
+            <span className="shop-capsule-pill">
+              ← Regresar a la Web
+            </span>
           </button>
           
-          <button className="cart-nav-btn" onClick={() => setIsCartOpen(true)}>
+          {/* BOTÓN CARRITO DE COMPRAS */}
+          <button className="cart-nav-btn" onClick={() => setIsCartOpen(true)} title="Ver carrito de compras">
             <span className="cart-icon-wrapper">
               🛒
               {cartItemCount > 0 && <span className="cart-badge-count">{cartItemCount}</span>}
@@ -391,9 +387,13 @@ export default function ShopPage({ onNavigate, navigate }) {
         <div className="shop-hero-overlay"></div>
         <div className="shop-hero-content">
           <span className="shop-tag">INSUMOS PROFESIONALES</span>
-          <h1 style={{ "display": "flex", "flexDirection": "column", "alignItems": "center", "gap": "15px", "fontSize": "clamp(28px, 4vw, 44px)" }}>
-            Equípate con
-            <img src="./assets/logo_listo_patron.png" alt="Listo Patrón" style={{ "height": "75px", "objectFit": "contain" }} />
+          <h1 style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '14px', fontSize: 'clamp(28px, 4vw, 44px)' }}>
+            <span>Equípate con</span>
+            <img 
+              src="./assets/logo_listo_patron_blanco.png" 
+              alt="Listo Patrón" 
+              style={{ height: '70px', maxWidth: '320px', width: 'auto', objectFit: 'contain', filter: 'drop-shadow(0 4px 14px rgba(0,0,0,0.6))' }} 
+            />
           </h1>
           <p>Herramientas y accesorios de seguridad industrial con envíos rápidos a todo el país. Especialmente seleccionados para los profesionales de Listo Patrón.</p>
         </div>
