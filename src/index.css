@@ -5210,8 +5210,20 @@ footer{background:#F26000;padding:28px 5% 24px}
   .nav-btn-direct {
     display: none !important;
   }
+  .nav-header-buttons .btn-brand-label {
+    display: none !important;
+  }
+  .nav-header-buttons {
+    margin-left: 4px !important;
+    gap: 4px !important;
+    justify-content: center !important;
+  }
+  .nav-header-buttons .nav-action-btn {
+    padding: 3px 6px !important;
+  }
 }
 
 .nav-btn-buy-plan {
   display: inline-flex !important;
 }
+
