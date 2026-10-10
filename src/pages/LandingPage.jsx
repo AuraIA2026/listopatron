@@ -288,16 +288,7 @@ function DeliveryPartnerModal({ onClose, navigate }) {
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                     {/* Foto 1: Motorista Uniformado */}
                     <div style={{ position: 'relative', borderRadius: '18px', overflow: 'hidden', boxShadow: '0 6px 18px rgba(0,0,0,0.1)', border: '1.5px solid #E2E8F0' }}>
-                      <img src="/assets/partner/delivery_rider.png" alt="Repartidor Listo Patrón" style={{ width: '100%', height: '180px', objectFit: 'cover', display: 'block' }} />
-                      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(13,14,21,0.85) 0%, transparent 60%)' }}></div>
-                      <div style={{ position: 'absolute', bottom: '12px', left: '14px', right: '14px', color: '#FFF' }}>
-                        <div style={{ fontSize: '11px', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '1px', color: '#FF6B00', marginBottom: '2px' }}>
-                          🛵 FLOTA PROPIA Y CERTIFICADA
-                        </div>
-                        <div style={{ fontSize: '13px', fontWeight: '800' }}>
-                          Repartidores equipados con mochilas térmicas oficial PedidosListo
-                        </div>
-                      </div>
+                      <img src="/assets/partner/delivery_rider.png" alt="Repartidor Listo Patrón" style={{ width: '100%', height: 'auto', display: 'block' }} />
                     </div>
 
                     {/* Testimonio 1: Aliado Perfecto */}
@@ -316,8 +307,8 @@ function DeliveryPartnerModal({ onClose, navigate }) {
                     </div>
 
                     {/* Foto 2: Entrega en Mano */}
-                    <div style={{ position: 'relative', borderRadius: '18px', overflow: 'hidden', border: '1.5px solid #E2E8F0', height: '130px' }}>
-                      <img src="/assets/partner/delivery_handover.png" alt="Entrega de paquete Listo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    <div style={{ position: 'relative', borderRadius: '18px', overflow: 'hidden', border: '1.5px solid #E2E8F0', boxShadow: '0 6px 18px rgba(0,0,0,0.1)' }}>
+                      <img src="/assets/partner/delivery_handover.png" alt="Entrega de paquete Listo" style={{ width: '100%', height: 'auto', display: 'block' }} />
                     </div>
                   </div>
                 </div>
