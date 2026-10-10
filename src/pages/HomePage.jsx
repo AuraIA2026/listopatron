@@ -42,8 +42,8 @@ import pintor1    from '../assets/pros/Pintor1.jpg'
 import jardinero  from '../assets/pros/Jardinero.jpg'
 import ninera     from '../assets/pros/Niñera.jpg'
 import ninera1    from '../assets/pros/Niñera1.jpg'
-import bannerPros from '../assets/banner_pros.jpg'
 import logoListo  from '../assets/logo-mamey.png'
+import logoEsquina from '../assets/logo_esquina.png'
 
 const testimonials = [
   { nameEs:'MarÃ­a GonzÃ¡lez',  photo: electrica1, rating:5, dateEs:'Hace 2 dÃ­as',    dateEn:'2 days ago',   specEs:'Electricista', specEn:'Electrician', textEs:'Excelente servicio, llegÃ³ puntual y resolviÃ³ el problema en menos de una hora. Lo recomiendo 100%.', textEn:'Excellent service, arrived on time and fixed the problem in less than an hour. 100% recommended.' },
@@ -1531,8 +1531,8 @@ export default function HomePage({ lang, navigate, userRole }) {
                     <div key={i} className="pro-list-card" style={{ animationDelay: `${i * 0.05}s` }} onClick={() => navigate('booking', { professional: pro })}>
                       <div className="pro-list-img-wrap" style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         <img src={pro.img || pro.photoURL} alt={pro.nameEs} className="pro-list-img" />
-                        <div className="listo-brand-watermark">
-                          <img src={logoListo} alt="Pedidos Listo" className="listo-brand-watermark-img" />
+                        <div className="listo-brand-watermark" style={{ zIndex: 10 }}>
+                          <img src={logoEsquina || logoListo} alt="Pedidos Listo" className="listo-brand-watermark-img" />
                         </div>
                         
                         {hasStory && (

@@ -193,12 +193,12 @@ html {
 }
 
 .listo-brand-watermark-img {
-  height: 32px;
-  width: 32px;
+  height: 34px;
+  width: 34px;
   object-fit: contain;
   border-radius: 50%;
   border: 2px solid #FFFFFF;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
   display: block;
   background: #FFFFFF;
 }

@@ -21,8 +21,8 @@ import 'leaflet/dist/leaflet.css'
 import L from 'leaflet'
 import recomendarIcon from '../assets/icons/recomendar.png'
 import opinionesIcon from '../assets/icons/opiniones.png'
-import compartirIcon from '../assets/icons/compartir.png'
 import logoListo from '../assets/logo-mamey.png'
+import logoEsquina from '../assets/logo_esquina.png'
 import './SearchPage.css'
 
 const customProIcon = new L.Icon({
@@ -481,7 +481,7 @@ function ProDelMes({ lang, navigate, userRole }) {
           <div className="pdm-left">
             <div className="pdm-photo-wrap" style={{ position: 'relative' }}>
               <div className="listo-brand-watermark" style={{ top: '-4px', right: '-4px' }}>
-                <img src={logoListo} alt="Pedidos Listo" className="listo-brand-watermark-img" />
+                <img src={logoEsquina || logoListo} alt="Pedidos Listo" className="listo-brand-watermark-img" />
               </div>
               {proDelMes.foto
                 ? <img src={proDelMes.foto} alt={proDelMes.nombre} className="pdm-photo" />
@@ -1108,8 +1108,8 @@ export default function SearchPage({ lang = 'es', navigate, initialCategory = 'a
             return (
               <div key={pro.id} className="pro-card-premium" style={{ animationDelay:`${i * 0.06}s` }} onClick={() => navigate('proProfile', pro)}>
                 <div className="premium-photo-wrap" style={{ position: 'relative' }}>
-                  <div className="listo-brand-watermark" style={{ top: '12px', right: '12px' }}>
-                    <img src={logoListo} alt="Pedidos Listo" className="listo-brand-watermark-img" />
+                  <div className="listo-brand-watermark vip-corner-watermark" style={{ top: '10px', right: '10px', zIndex: 10 }}>
+                    <img src={logoEsquina || logoListo} alt="Pedidos Listo" className="listo-brand-watermark-img vip-corner-logo-img" />
                   </div>
                   <div className="premium-badges-top">
                     <span className="premium-amz-badge" style={{background: 'linear-gradient(135deg, #FF6B00, #FF3D00)'}}>âœ¨ Exclusivo VIP</span>
@@ -1265,8 +1265,8 @@ export default function SearchPage({ lang = 'es', navigate, initialCategory = 'a
           return (
             <div key={pro.id} className={`pro-card ${cardTierClass} ${isTopRated ? 'top-rated' : ''}`} style={{ animationDelay:`${i * 0.06}s` }}>
               <div className="card-photo" style={{ position: 'relative' }}>
-                <div className="listo-brand-watermark">
-                  <img src={logoListo} alt="Pedidos Listo" className="listo-brand-watermark-img" />
+                <div className="listo-brand-watermark" style={{ top: '8px', right: '8px', zIndex: 10 }}>
+                  <img src={logoEsquina || logoListo} alt="Pedidos Listo" className="listo-brand-watermark-img" />
                 </div>
                 <img 
                   src={pro.photoURL || pro.img} 

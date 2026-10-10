@@ -1,4 +1,4 @@
-﻿import React from 'react'
+import React from 'react'
 import './VIPSection.css'
 import StoryAvatar from './StoryAvatar'
 import { getProPlanTheme } from '../planTheme'
@@ -9,7 +9,8 @@ import electrica1 from '../assets/pros/Electricista1.jpg'
 import plomero    from '../assets/pros/Plomero.jpg'
 import cerrajero1 from '../assets/pros/Cerrajero1.jpg'
 import jardinero  from '../assets/pros/Jardinero.jpg'
-import logoListo  from '../assets/pedidos-listo-mamey.png'
+import logoListo  from '../assets/logo-mamey.png'
+import logoEsquina from '../assets/logo_esquina.png'
 
 const demoVipPros = [
   {
@@ -254,8 +255,12 @@ function VIPProCard({ pro, lang, navigate, getProStoryData, onOpenStory }) {
     >
       {/* CONTENEDOR FOTO GRANDE DEL PROFESIONAL */}
       <div className="vip-photo-wrapper">
-        <div className="listo-brand-watermark" style={{ top: '12px', right: '12px' }}>
-          <img src={logoListo} alt="Pedidos Listo" className="listo-brand-watermark-img" />
+        <div className="listo-brand-watermark vip-corner-watermark" style={{ top: '10px', right: '10px', zIndex: 10 }}>
+          <img 
+            src={logoEsquina || logoListo} 
+            alt="Listo Patrón" 
+            className="listo-brand-watermark-img vip-corner-logo-img" 
+          />
         </div>
 
         <img 
@@ -544,13 +549,16 @@ export default function VIPSection({
               ðŸ“¦ PEDIDOS LISTO
             </span>
             <img 
-              src={logoListo} 
+              src={logoEsquina || logoListo} 
               alt="Pedidos Listo Logo" 
               style={{ 
-                height: '28px', 
-                width: 'auto', 
+                height: '32px', 
+                width: '32px', 
+                borderRadius: '50%',
+                border: '2px solid #FFFFFF',
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.35)',
                 objectFit: 'contain',
-                filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))' 
+                background: '#FFFFFF' 
               }} 
             />
           </div>
