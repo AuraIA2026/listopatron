@@ -43,77 +43,77 @@ import jardinero  from '../assets/pros/Jardinero.jpg'
 import ninera     from '../assets/pros/Niñera.jpg'
 import ninera1    from '../assets/pros/Niñera1.jpg'
 import bannerPros from '../assets/banner_pros.jpg'
-import logoListo  from '../assets/logo_listo.png'
+import logoListo  from '../assets/logo-mamey.png'
 
 const testimonials = [
-  { nameEs:'María González',  photo: electrica1, rating:5, dateEs:'Hace 2 días',    dateEn:'2 days ago',   specEs:'Electricista', specEn:'Electrician', textEs:'Excelente servicio, llegó puntual y resolvió el problema en menos de una hora. Lo recomiendo 100%.', textEn:'Excellent service, arrived on time and fixed the problem in less than an hour. 100% recommended.' },
-  { nameEs:'Juan Pérez',      photo: plomero,    rating:5, dateEs:'Hace 5 días',    dateEn:'5 days ago',   specEs:'Plomero',      specEn:'Plumber',      textEs:'Muy profesional y limpio en su trabajo. El precio fue justo y quedé muy satisfecho con el resultado.', textEn:'Very professional and clean work. The price was fair and I was very satisfied with the result.' },
-  { nameEs:'Carmen Díaz',     photo: pintor1,    rating:4, dateEs:'Hace 1 semana',  dateEn:'1 week ago',   specEs:'Pintora',      specEn:'Painter',      textEs:'Buen trabajo en general. La pintura quedó perfecta, aunque tardó un poco más de lo previsto.', textEn:'Good work overall. The paint job was perfect, though it took a bit longer than expected.' },
-  { nameEs:'Roberto Núñez',   photo: cerrajero1, rating:5, dateEs:'Hace 2 semanas', dateEn:'2 weeks ago',  specEs:'Cerrajero',    specEn:'Locksmith',    textEs:'Me quedé encerrado a las 11pm y llegó en 20 minutos. Un salvavidas, literalmente. Gracias!', textEn:'I was locked out at 11pm and he arrived in 20 minutes. A lifesaver, literally. Thank you!' },
-  { nameEs:'Luisa Martínez',  photo: mecanico1,  rating:5, dateEs:'Hace 3 semanas', dateEn:'3 weeks ago',  specEs:'Mecánico',     specEn:'Mechanic',     textEs:'El mejor mecánico que he encontrado. Honesto, rápido y con precios razonables. Ya es mi mecánico fijo.', textEn:'The best mechanic I have found. Honest, fast and with reasonable prices. Already my go-to mechanic.' },
-  { nameEs:'Carlos Herrera',  photo: jardinero,  rating:5, dateEs:'Hace 1 mes',     dateEn:'1 month ago',  specEs:'Jardinero',    specEn:'Gardener',     textEs:'Transformó mi jardín completamente. Muy creativo y trabajador. El resultado superó mis expectativas.', textEn:'He completely transformed my garden. Very creative and hardworking. The result exceeded my expectations.' },
+  { nameEs:'MarÃ­a GonzÃ¡lez',  photo: electrica1, rating:5, dateEs:'Hace 2 dÃ­as',    dateEn:'2 days ago',   specEs:'Electricista', specEn:'Electrician', textEs:'Excelente servicio, llegÃ³ puntual y resolviÃ³ el problema en menos de una hora. Lo recomiendo 100%.', textEn:'Excellent service, arrived on time and fixed the problem in less than an hour. 100% recommended.' },
+  { nameEs:'Juan PÃ©rez',      photo: plomero,    rating:5, dateEs:'Hace 5 dÃ­as',    dateEn:'5 days ago',   specEs:'Plomero',      specEn:'Plumber',      textEs:'Muy profesional y limpio en su trabajo. El precio fue justo y quedÃ© muy satisfecho con el resultado.', textEn:'Very professional and clean work. The price was fair and I was very satisfied with the result.' },
+  { nameEs:'Carmen DÃ­az',     photo: pintor1,    rating:4, dateEs:'Hace 1 semana',  dateEn:'1 week ago',   specEs:'Pintora',      specEn:'Painter',      textEs:'Buen trabajo en general. La pintura quedÃ³ perfecta, aunque tardÃ³ un poco mÃ¡s de lo previsto.', textEn:'Good work overall. The paint job was perfect, though it took a bit longer than expected.' },
+  { nameEs:'Roberto NÃºÃ±ez',   photo: cerrajero1, rating:5, dateEs:'Hace 2 semanas', dateEn:'2 weeks ago',  specEs:'Cerrajero',    specEn:'Locksmith',    textEs:'Me quedÃ© encerrado a las 11pm y llegÃ³ en 20 minutos. Un salvavidas, literalmente. Gracias!', textEn:'I was locked out at 11pm and he arrived in 20 minutes. A lifesaver, literally. Thank you!' },
+  { nameEs:'Luisa MartÃ­nez',  photo: mecanico1,  rating:5, dateEs:'Hace 3 semanas', dateEn:'3 weeks ago',  specEs:'MecÃ¡nico',     specEn:'Mechanic',     textEs:'El mejor mecÃ¡nico que he encontrado. Honesto, rÃ¡pido y con precios razonables. Ya es mi mecÃ¡nico fijo.', textEn:'The best mechanic I have found. Honest, fast and with reasonable prices. Already my go-to mechanic.' },
+  { nameEs:'Carlos Herrera',  photo: jardinero,  rating:5, dateEs:'Hace 1 mes',     dateEn:'1 month ago',  specEs:'Jardinero',    specEn:'Gardener',     textEs:'TransformÃ³ mi jardÃ­n completamente. Muy creativo y trabajador. El resultado superÃ³ mis expectativas.', textEn:'He completely transformed my garden. Very creative and hardworking. The result exceeded my expectations.' },
 ]
 
 const topHomeCategories = [
-  { id: 'mecanico',    icon:'🔧', image: '/icons/mecanico.webp', labelEs:'Mecánico',      labelEn:'Mechanic' },
-  { id: 'electricista', icon:'⚡', image: '/icons/electricista.webp', labelEs:'Electricista',  labelEn:'Electrician' },
-  { id: 'plomero',     icon:'🔩', image: '/icons/plomero.webp', labelEs:'Plomero',       labelEn:'Plumber' },
-  { id: 'cerrajero',   icon:'🔑', image: '/icons/cerrajero.webp', labelEs:'Cerrajero',     labelEn:'Locksmith' },
-  { id: 'pintor',      icon:'🎨', image: '/icons/pintor.webp', labelEs:'Pintor',        labelEn:'Painter' },
-  { id: 'sheetrock',   icon:'🏗️', labelEs:'Instalación de Shirrok', labelEn:'Drywall' },
-  { id: 'jardinero',   icon:'🌿', image: '/icons/jardinero.webp', labelEs:'Jardinero',     labelEn:'Gardener' },
-  { id: 'ninera',      icon:'👶', image: '/icons/ninera.webp', labelEs:'Niñera',        labelEn:'Nanny' },
-  { id: 'refrigeracion',icon:'❄️', labelEs:'Refrigeración', labelEn:'A/C' },
-  { id: 'limpieza_hogar',icon:'🧹', image: '/icons/limpieza.webp', labelEs:'Limpieza',     labelEn:'Cleaning' },
+  { id: 'mecanico',    icon:'ðŸ”§', image: '/icons/mecanico.webp', labelEs:'MecÃ¡nico',      labelEn:'Mechanic' },
+  { id: 'electricista', icon:'âš¡', image: '/icons/electricista.webp', labelEs:'Electricista',  labelEn:'Electrician' },
+  { id: 'plomero',     icon:'ðŸ”©', image: '/icons/plomero.webp', labelEs:'Plomero',       labelEn:'Plumber' },
+  { id: 'cerrajero',   icon:'ðŸ”‘', image: '/icons/cerrajero.webp', labelEs:'Cerrajero',     labelEn:'Locksmith' },
+  { id: 'pintor',      icon:'ðŸŽ¨', image: '/icons/pintor.webp', labelEs:'Pintor',        labelEn:'Painter' },
+  { id: 'sheetrock',   icon:'ðŸ—ï¸', labelEs:'InstalaciÃ³n de Shirrok', labelEn:'Drywall' },
+  { id: 'jardinero',   icon:'ðŸŒ¿', image: '/icons/jardinero.webp', labelEs:'Jardinero',     labelEn:'Gardener' },
+  { id: 'ninera',      icon:'ðŸ‘¶', image: '/icons/ninera.webp', labelEs:'NiÃ±era',        labelEn:'Nanny' },
+  { id: 'refrigeracion',icon:'â„ï¸', labelEs:'RefrigeraciÃ³n', labelEn:'A/C' },
+  { id: 'limpieza_hogar',icon:'ðŸ§¹', image: '/icons/limpieza.webp', labelEs:'Limpieza',     labelEn:'Cleaning' },
 ]
 
 const REAL_PROBLEMS = [
-  { id: 'plomero', icon: '🚰', tag: 'URGENTE', labelEs: 'Se me desbordó la tubería', labelEn: 'Overflowing pipe emergency', descEs: 'Plomero 24/7 a tu puerta' },
-  { id: 'mecanico', icon: '🚗', tag: 'EN RUTA', labelEs: 'Mi carro no enciende', labelEn: 'Car won\'t start', descEs: 'Mecánico móvil a domicilio' },
-  { id: 'electricista', icon: '⚡', tag: 'SIN LUZ', labelEs: 'Se fue la luz en la casa', labelEn: 'Power outage at home', descEs: 'Electricista para emergencias' },
-  { id: 'cerrajero', icon: '🔑', tag: 'LLAVES', labelEs: 'Me quedé fuera de la casa', labelEn: 'Locked out of home', descEs: 'Cerrajero abre sin daño' },
-  { id: 'refrigeracion', icon: '❄️', tag: 'A/C', labelEs: 'El aire acondicionado gotea', labelEn: 'A/C is leaking', descEs: 'Técnico en refrigeración' },
-  { id: 'limpieza_hogar', icon: '🧹', tag: 'HOGAR', labelEs: 'Necesito limpieza profunda', labelEn: 'Need deep cleaning', descEs: 'Personal de limpieza experto' },
-  { id: 'pintor', icon: '🎨', tag: 'PARED', labelEs: 'Quiero pintar una pared', labelEn: 'Want to paint a wall', descEs: 'Pintor profesional' },
-  { id: 'ninera', icon: '👶', tag: 'CUIDADO', labelEs: 'Necesito niñera de urgencia', labelEn: 'Need urgent nanny', descEs: 'Niñeras verificadas' },
+  { id: 'plomero', icon: 'ðŸš°', tag: 'URGENTE', labelEs: 'Se me desbordÃ³ la tuberÃ­a', labelEn: 'Overflowing pipe emergency', descEs: 'Plomero 24/7 a tu puerta' },
+  { id: 'mecanico', icon: 'ðŸš—', tag: 'EN RUTA', labelEs: 'Mi carro no enciende', labelEn: 'Car won\'t start', descEs: 'MecÃ¡nico mÃ³vil a domicilio' },
+  { id: 'electricista', icon: 'âš¡', tag: 'SIN LUZ', labelEs: 'Se fue la luz en la casa', labelEn: 'Power outage at home', descEs: 'Electricista para emergencias' },
+  { id: 'cerrajero', icon: 'ðŸ”‘', tag: 'LLAVES', labelEs: 'Me quedÃ© fuera de la casa', labelEn: 'Locked out of home', descEs: 'Cerrajero abre sin daÃ±o' },
+  { id: 'refrigeracion', icon: 'â„ï¸', tag: 'A/C', labelEs: 'El aire acondicionado gotea', labelEn: 'A/C is leaking', descEs: 'TÃ©cnico en refrigeraciÃ³n' },
+  { id: 'limpieza_hogar', icon: 'ðŸ§¹', tag: 'HOGAR', labelEs: 'Necesito limpieza profunda', labelEn: 'Need deep cleaning', descEs: 'Personal de limpieza experto' },
+  { id: 'pintor', icon: 'ðŸŽ¨', tag: 'PARED', labelEs: 'Quiero pintar una pared', labelEn: 'Want to paint a wall', descEs: 'Pintor profesional' },
+  { id: 'ninera', icon: 'ðŸ‘¶', tag: 'CUIDADO', labelEs: 'Necesito niÃ±era de urgencia', labelEn: 'Need urgent nanny', descEs: 'NiÃ±eras verificadas' },
 ]
 
 const featuredStatic = [
-  { id: '1', nameEs: 'Juan Pérez', nameEn: 'Juan Pérez', specEs: 'Plomero', specEn: 'Plumber', rating: 5.0, reviews: 124, price: 'A convenir', img: plomero, badge: 'Popular', avail: true },
-  { id: '2', nameEs: 'María González', nameEn: 'María González', specEs: 'Electricista', specEn: 'Electrician', rating: 4.8, reviews: 89, price: 'A convenir', img: electrica1, badge: 'Top', avail: true },
+  { id: '1', nameEs: 'Juan PÃ©rez', nameEn: 'Juan PÃ©rez', specEs: 'Plomero', specEn: 'Plumber', rating: 5.0, reviews: 124, price: 'A convenir', img: plomero, badge: 'Popular', avail: true },
+  { id: '2', nameEs: 'MarÃ­a GonzÃ¡lez', nameEn: 'MarÃ­a GonzÃ¡lez', specEs: 'Electricista', specEn: 'Electrician', rating: 4.8, reviews: 89, price: 'A convenir', img: electrica1, badge: 'Top', avail: true },
   { id: '3', nameEs: 'Carlos Herrera', nameEn: 'Carlos Herrera', specEs: 'Jardinero', specEn: 'Gardener', rating: 4.9, reviews: 45, price: 'A convenir', img: jardinero, badge: '24/7', avail: true },
-  { id: '4', nameEs: 'Roberto Núñez', nameEn: 'Roberto Núñez', specEs: 'Cerrajero', specEn: 'Locksmith', rating: 5.0, reviews: 210, price: 'A convenir', img: cerrajero1, badge: 'Urgente', avail: true },
-  { id: '5', nameEs: 'Luisa Martínez', nameEn: 'Luisa Martínez', specEs: 'Mecánico', specEn: 'Mechanic', rating: 4.7, reviews: 156, price: 'A convenir', img: mecanico1, badge: null, avail: true },
-  { id: '6', nameEs: 'Carmen Díaz', nameEn: 'Carmen Díaz', specEs: 'Pintor', specEn: 'Painter', rating: 4.6, reviews: 78, price: 'A convenir', img: pintor1, badge: null, avail: true }
+  { id: '4', nameEs: 'Roberto NÃºÃ±ez', nameEn: 'Roberto NÃºÃ±ez', specEs: 'Cerrajero', specEn: 'Locksmith', rating: 5.0, reviews: 210, price: 'A convenir', img: cerrajero1, badge: 'Urgente', avail: true },
+  { id: '5', nameEs: 'Luisa MartÃ­nez', nameEn: 'Luisa MartÃ­nez', specEs: 'MecÃ¡nico', specEn: 'Mechanic', rating: 4.7, reviews: 156, price: 'A convenir', img: mecanico1, badge: null, avail: true },
+  { id: '6', nameEs: 'Carmen DÃ­az', nameEn: 'Carmen DÃ­az', specEs: 'Pintor', specEn: 'Painter', rating: 4.6, reviews: 78, price: 'A convenir', img: pintor1, badge: null, avail: true }
 ]
 
 const sections = [
-  { id:'mecanico',     image: '/icons/mecanico.webp', icon:'🔧', titleEs:'Mecánico',     titleEn:'Mechanic',    services:[
-    { img:mecanico1,  nameEs:'Diagnóstico vehicular', nameEn:'Vehicle diagnostic',  price:'A convenir',   tag:'Popular' },
+  { id:'mecanico',     image: '/icons/mecanico.webp', icon:'ðŸ”§', titleEs:'MecÃ¡nico',     titleEn:'Mechanic',    services:[
+    { img:mecanico1,  nameEs:'DiagnÃ³stico vehicular', nameEn:'Vehicle diagnostic',  price:'A convenir',   tag:'Popular' },
     { img:mecanico,   nameEs:'Cambio de aceite',      nameEn:'Oil change',          price:'A convenir',   tag:null },
   ]},
-  { id:'electricista', image: '/icons/electricista.webp', icon:'⚡', titleEs:'Electricista', titleEn:'Electrician', services:[
-    { img:electrica1, nameEs:'Instalación eléctrica',  nameEn:'Electrical install', price:'A convenir',   tag:'Popular' },
-    { img:electrica,  nameEs:'Reparación de circuito', nameEn:'Circuit repair',     price:'A convenir',   tag:null },
+  { id:'electricista', image: '/icons/electricista.webp', icon:'âš¡', titleEs:'Electricista', titleEn:'Electrician', services:[
+    { img:electrica1, nameEs:'InstalaciÃ³n elÃ©ctrica',  nameEn:'Electrical install', price:'A convenir',   tag:'Popular' },
+    { img:electrica,  nameEs:'ReparaciÃ³n de circuito', nameEn:'Circuit repair',     price:'A convenir',   tag:null },
   ]},
-  { id:'plomero',      image: '/icons/plomero.webp', icon:'🔩', titleEs:'Plomero',      titleEn:'Plumber',     services:[
-    { img:plomero,    nameEs:'Reparación de tubería', nameEn:'Pipe repair',          price:'A convenir',   tag:'Popular' },
-    { img:refrig,     nameEs:'Refrigeración y A/C',   nameEn:'A/C & Refrigeration', price:'A convenir', tag:'24/7' },
+  { id:'plomero',      image: '/icons/plomero.webp', icon:'ðŸ”©', titleEs:'Plomero',      titleEn:'Plumber',     services:[
+    { img:plomero,    nameEs:'ReparaciÃ³n de tuberÃ­a', nameEn:'Pipe repair',          price:'A convenir',   tag:'Popular' },
+    { img:refrig,     nameEs:'RefrigeraciÃ³n y A/C',   nameEn:'A/C & Refrigeration', price:'A convenir', tag:'24/7' },
   ]},
-  { id:'cerrajero',    image: '/icons/cerrajero.webp', icon:'🔑', titleEs:'Cerrajero',    titleEn:'Locksmith',   services:[
+  { id:'cerrajero',    image: '/icons/cerrajero.webp', icon:'ðŸ”‘', titleEs:'Cerrajero',    titleEn:'Locksmith',   services:[
     { img:cerrajero,  nameEs:'Apertura de puertas',  nameEn:'Door opening',    price:'A convenir',   tag:'Urgente' },
     { img:cerrajero1, nameEs:'Cambio de cerraduras', nameEn:'Lock replacement', price:'A convenir',   tag:null },
   ]},
-  { id:'pintor',       image: '/icons/pintor.webp', icon:'🎨', titleEs:'Pintor',       titleEn:'Painter',     services:[
+  { id:'pintor',       image: '/icons/pintor.webp', icon:'ðŸŽ¨', titleEs:'Pintor',       titleEn:'Painter',     services:[
     { img:pintor,     nameEs:'Pintura interior',   nameEn:'Interior painting', price:'A convenir', tag:'Popular' },
     { img:pintor1,    nameEs:'Pintura de fachada', nameEn:'Exterior painting', price:'A convenir', tag:null },
   ]},
-  { id:'jardinero',    image: '/icons/jardinero.webp', icon:'🌿', titleEs:'Jardinero',    titleEn:'Gardener',    services:[
+  { id:'jardinero',    image: '/icons/jardinero.webp', icon:'ðŸŒ¿', titleEs:'Jardinero',    titleEn:'Gardener',    services:[
     { img:jardinero,  nameEs:'Poda y mantenimiento', nameEn:'Pruning & maintenance', price:'A convenir',   tag:'Popular' },
-    { img:ninera,     nameEs:'Diseño de jardín',     nameEn:'Garden design',         price:'A convenir', tag:null },
+    { img:ninera,     nameEs:'DiseÃ±o de jardÃ­n',     nameEn:'Garden design',         price:'A convenir', tag:null },
   ]},
-  { id:'ninera',       image: '/icons/ninera.webp', icon:'👶', titleEs:'Niñera',       titleEn:'Nanny',       services:[
-    { img:ninera,     nameEs:'Cuidado de niños', nameEn:'Child care',          price:'A convenir', tag:'Popular' },
+  { id:'ninera',       image: '/icons/ninera.webp', icon:'ðŸ‘¶', titleEs:'NiÃ±era',       titleEn:'Nanny',       services:[
+    { img:ninera,     nameEs:'Cuidado de niÃ±os', nameEn:'Child care',          price:'A convenir', tag:'Popular' },
     { img:ninera1,    nameEs:'Apoyo educativo',  nameEn:'Educational support', price:'A convenir', tag:null },
   ]},
 ]
@@ -122,7 +122,7 @@ function StarRating({ rating }) {
   if (!rating || rating <= 0) return null;
   return (
     <span className="star-rating">
-      {'★'.repeat(Math.floor(rating))}{'☆'.repeat(5 - Math.floor(rating))}
+      {'â˜…'.repeat(Math.floor(rating))}{'â˜†'.repeat(5 - Math.floor(rating))}
       <span className="star-num">{Number(rating).toFixed(1)}</span>
     </span>
   )
@@ -144,7 +144,7 @@ function useScrollReveal(threshold = 0.15) {
 
 
 
-/* ── BOTÓN COMPLETAR PERFIL ── */
+/* â”€â”€ BOTÃ“N COMPLETAR PERFIL â”€â”€ */
 function CompletarPerfilBtn({ profileComplete, onClick }) {
   const isComplete = profileComplete;
   const label = isComplete ? 'PERFIL COMPLETO' : 'COMPLETAR PERFIL';
@@ -172,7 +172,7 @@ function CompletarPerfilBtn({ profileComplete, onClick }) {
       onMouseDown={e => e.currentTarget.style.transform = 'scale(0.95)'}
       onMouseUp={e => e.currentTarget.style.transform = 'scale(1)'}
     >
-      {isComplete ? '✅ ' : '📝 '}{label}
+      {isComplete ? 'âœ… ' : 'ðŸ“ '}{label}
     </button>
   )
 }
@@ -201,7 +201,7 @@ function TestimonialsCarousel({ lang, navigate }) {
           dateEn: d.dateToken || 'Recent',
           specEs: d.proSpecialty || d.specialty || 'Servicio',
           specEn: d.proSpecialty || d.specialty || 'Service',
-          textEs: d.ratingComment?.trim() ? d.ratingComment : (d.ratingScore >= 4 ? '¡Excelente servicio! Muy profesional.' : 'Servicio completado.'),
+          textEs: d.ratingComment?.trim() ? d.ratingComment : (d.ratingScore >= 4 ? 'Â¡Excelente servicio! Muy profesional.' : 'Servicio completado.'),
           textEn: d.ratingComment?.trim() ? d.ratingComment : (d.ratingScore >= 4 ? 'Excellent service! Very professional.' : 'Service completed.')
         }))
         if (formatted.length > 0) setAllTestimonials([...formatted, ...testimonials])
@@ -245,7 +245,7 @@ function TestimonialsCarousel({ lang, navigate }) {
   return (
     <section ref={ref} className={`testimonials-section${visible ? ' reveal' : ''}`}>
       <div className="hp-sec-header">
-        <h2 className="hp-sec-title">💬 {lang === 'es' ? 'Lo que dicen nuestros clientes' : 'What our clients say'}</h2>
+        <h2 className="hp-sec-title">ðŸ’¬ {lang === 'es' ? 'Lo que dicen nuestros clientes' : 'What our clients say'}</h2>
       </div>
 
       <div 
@@ -271,12 +271,12 @@ function TestimonialsCarousel({ lang, navigate }) {
                 <img src={t.proPhoto || t.photo} alt={t.proName || t.nameEs} className="testi-new-photo" />
               ) : (
                 <div className="testi-new-photo-placeholder">
-                  {(t.proName?.charAt(0) || t.nameEs?.charAt(0) || '👤').toUpperCase()}
+                  {(t.proName?.charAt(0) || t.nameEs?.charAt(0) || 'ðŸ‘¤').toUpperCase()}
                 </div>
               )}
               
               <div className="testi-new-overlap-group">
-                <span style={{ fontSize: '9px', fontWeight: 900, color: '#F26000', marginRight: '2px' }}>★</span>
+                <span style={{ fontSize: '9px', fontWeight: 900, color: '#F26000', marginRight: '2px' }}>â˜…</span>
                 <span style={{ fontSize: '9px', fontWeight: 800, color: '#1a1a2e' }}>Listo</span>
               </div>
             </div>
@@ -288,12 +288,12 @@ function TestimonialsCarousel({ lang, navigate }) {
               <p className="testi-new-spec">{lang === 'es' ? t.specEs : t.specEn}</p>
               
               <div className="testi-new-plan-badge">
-                <span className="testi-new-plan-icon">💎</span>
+                <span className="testi-new-plan-icon">ðŸ’Ž</span>
                 <span>Listo Socio</span>
               </div>
 
               <div className="testi-new-stars">
-                {'★'.repeat(Math.max(0, Math.min(5, Math.floor(t.rating || 0))))}{'☆'.repeat(Math.max(0, Math.min(5, 5 - Math.floor(t.rating || 0))))}
+                {'â˜…'.repeat(Math.max(0, Math.min(5, Math.floor(t.rating || 0))))}{'â˜†'.repeat(Math.max(0, Math.min(5, 5 - Math.floor(t.rating || 0))))}
               </div>
               
               <p className="testi-new-heading">{lang === 'es' ? 'Socio Verificado' : 'Verified Partner'}</p>
@@ -304,10 +304,10 @@ function TestimonialsCarousel({ lang, navigate }) {
             </div>
           </div>
 
-          {/* Bloque Naranja de la Reseña (Abajo) */}
+          {/* Bloque Naranja de la ReseÃ±a (Abajo) */}
           <div className="testi-new-review-block">
             <div className="testi-new-quote-card">
-              <span className="quote-card-badge-top">💬 Reseña</span>
+              <span className="quote-card-badge-top">ðŸ’¬ ReseÃ±a</span>
               <p className="testi-new-quote-text">
                 "{lang === 'es' ? t.textEs : t.textEn}"
               </p>
@@ -328,9 +328,9 @@ function TestimonialsCarousel({ lang, navigate }) {
           </div>
         </div>
 
-        {/* Fila de Navegación y Dots */}
+        {/* Fila de NavegaciÃ³n y Dots */}
         <div className="testi-new-nav-row">
-          <button className="testi-new-arrow-btn" onClick={prev}>‹</button>
+          <button className="testi-new-arrow-btn" onClick={prev}>â€¹</button>
           <div className="testi-new-dots">
             {testimonialsToDisplay.map((_, i) => (
               <button 
@@ -340,7 +340,7 @@ function TestimonialsCarousel({ lang, navigate }) {
               />
             ))}
           </div>
-          <button className="testi-new-arrow-btn" onClick={next}>›</button>
+          <button className="testi-new-arrow-btn" onClick={next}>â€º</button>
         </div>
 
         <p className="testi-new-counter">{idx + 1} / {testimonialsToDisplay.length}</p>
@@ -360,7 +360,7 @@ const socialBtnStyle = (bg) => ({
 const SocialLinks = () => (
   <div style={{ padding: '0 16px', marginBottom: '24px' }}>
     <p style={{ fontSize: '13px', fontWeight: '700', color: '#666', marginBottom: '12px', textAlign: 'center', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-      Síguenos en nuestras redes
+      SÃ­guenos en nuestras redes
     </p>
     <div style={{ display: 'flex', justifyContent: 'center', gap: '16px' }}>
       <a href="https://www.facebook.com/" target="_blank" rel="noreferrer" style={socialBtnStyle('#1877F2')}>
@@ -389,7 +389,7 @@ export default function HomePage({ lang, navigate, userRole }) {
   const [showDropdown, setShowDropdown] = useState(false)
   const [showSolicitudExpress, setShowSolicitudExpress] = useState(false)
 
-  // ── ESTADOS TEMU / AMAZON FEATURES ──
+  // â”€â”€ ESTADOS TEMU / AMAZON FEATURES â”€â”€
   const [allProsReal, setAllProsReal] = useState([])
   const [featuredReal, setFeaturedReal] = useState([])
   const [showLuckyWheel, setShowLuckyWheel] = useState(false)
@@ -431,7 +431,7 @@ export default function HomePage({ lang, navigate, userRole }) {
             {
               id: 'rebook_sample_1',
               proId: 'pro_alexa',
-              proName: 'Alexa Martínez',
+              proName: 'Alexa MartÃ­nez',
               proSpecialty: 'Limpieza de Oficina',
               proPhotoURL: 'https://randomuser.me/api/portraits/women/32.jpg'
             },
@@ -439,7 +439,7 @@ export default function HomePage({ lang, navigate, userRole }) {
               id: 'rebook_sample_2',
               proId: 'pro_mariano',
               proName: 'Mariano Fco. (Papa Piso)',
-              proSpecialty: 'Pisos & Marmolería',
+              proSpecialty: 'Pisos & MarmolerÃ­a',
               proPhotoURL: 'https://randomuser.me/api/portraits/men/32.jpg'
             },
             {
@@ -492,33 +492,33 @@ export default function HomePage({ lang, navigate, userRole }) {
         await addDoc(collection(db, 'notificaciones'), {
           userId: userData.uid,
           type: 'reward',
-          title: '📸 ¡1 HISTORIA GRATIS OTORGADA!',
-          text: '¡Felicidades! Se ha acreditado +1 Historia Gratis de 24h a tu saldo en Pedidos Listo.',
+          title: 'ðŸ“¸ Â¡1 HISTORIA GRATIS OTORGADA!',
+          text: 'Â¡Felicidades! Se ha acreditado +1 Historia Gratis de 24h a tu saldo en Pedidos Listo.',
           read: false,
-          icon: '📸',
+          icon: 'ðŸ“¸',
           createdAt: serverTimestamp()
         });
 
         alert(lang === 'es' 
-          ? "🎉 ¡FELICIDADES! Se ha acreditado +1 HISTORIA GRATIS a tu saldo de publicaciones." 
-          : "🎉 CONGRATULATIONS! +1 FREE STORY has been granted to your account.");
+          ? "ðŸŽ‰ Â¡FELICIDADES! Se ha acreditado +1 HISTORIA GRATIS a tu saldo de publicaciones." 
+          : "ðŸŽ‰ CONGRATULATIONS! +1 FREE STORY has been granted to your account.");
       } else if (earnedContract) {
         updatePayload.contracts = currentContracts + 1;
         
-        // Crear notificación oficial en Firestore
+        // Crear notificaciÃ³n oficial en Firestore
         await addDoc(collection(db, 'notificaciones'), {
           userId: userData.uid,
           type: 'reward',
-          title: '👑 ¡1 CONTRATO GRATIS OTORGADO!',
-          text: '¡Felicidades! Se ha acreditado 1 contrato gratis a tu saldo por completar tu progreso en la Ruleta Pedidos Listo.',
+          title: 'ðŸ‘‘ Â¡1 CONTRATO GRATIS OTORGADO!',
+          text: 'Â¡Felicidades! Se ha acreditado 1 contrato gratis a tu saldo por completar tu progreso en la Ruleta Pedidos Listo.',
           read: false,
-          icon: '🎰',
+          icon: 'ðŸŽ°',
           createdAt: serverTimestamp()
         });
 
         alert(lang === 'es' 
-          ? "🎉 ¡FELICIDADES! Se ha otorgado y acreditado +1 CONTRATO GRATIS automáticamente a tu cuenta de Pedidos Listo." 
-          : "🎉 CONGRATULATIONS! +1 FREE CONTRACT has been automatically granted to your Pedidos Listo account.");
+          ? "ðŸŽ‰ Â¡FELICIDADES! Se ha otorgado y acreditado +1 CONTRATO GRATIS automÃ¡ticamente a tu cuenta de Pedidos Listo." 
+          : "ðŸŽ‰ CONGRATULATIONS! +1 FREE CONTRACT has been automatically granted to your Pedidos Listo account.");
       }
       await updateDoc(userRef, updatePayload);
     } catch (err) {
@@ -542,15 +542,15 @@ export default function HomePage({ lang, navigate, userRole }) {
 
   // Dynamic Live Hiring Toast Generator using Real Registered Pros from Firestore + Dominican Pool
   const clientNamesPool = [
-    'Carmen S.', 'José M.', 'Rosa P.', 'Carlos R.', 'María L.', 'Rafael T.', 'Elena V.', 'Manuel G.', 
+    'Carmen S.', 'JosÃ© M.', 'Rosa P.', 'Carlos R.', 'MarÃ­a L.', 'Rafael T.', 'Elena V.', 'Manuel G.', 
     'Ana B.', 'Pedro H.', 'Laura M.', 'Francisco K.', 'Patricia D.', 'Gabriel F.', 'Yolanda R.', 
-    'Luz M.', 'Ramón V.', 'Teresa S.', 'Miguel A.', 'Isabel C.', 'Juan B.', 'Esperanza M.', 'Domingo R.'
+    'Luz M.', 'RamÃ³n V.', 'Teresa S.', 'Miguel A.', 'Isabel C.', 'Juan B.', 'Esperanza M.', 'Domingo R.'
   ];
-  const citiesPool = ['Santiago', 'Santo Domingo, D.N.', 'La Vega', 'San Cristóbal', 'Puerto Plata', 'San Pedro', 'La Romana', 'Moca', 'Bonao', 'Baní', 'Higüey'];
+  const citiesPool = ['Santiago', 'Santo Domingo, D.N.', 'La Vega', 'San CristÃ³bal', 'Puerto Plata', 'San Pedro', 'La Romana', 'Moca', 'Bonao', 'BanÃ­', 'HigÃ¼ey'];
 
   const getCleanCity = (raw, seedStr = '') => {
     if (raw && typeof raw === 'string' && raw.trim() && 
-        !raw.toLowerCase().includes('república') && 
+        !raw.toLowerCase().includes('repÃºblica') && 
         !raw.toLowerCase().includes('dominicana') && 
         raw.trim().toUpperCase() !== 'RD' &&
         raw.trim().toUpperCase() !== 'DOMINICAN REPUBLIC') {
@@ -563,12 +563,12 @@ export default function HomePage({ lang, navigate, userRole }) {
     return citiesPool[Math.abs(hash) % citiesPool.length];
   };
 
-  const [currentLiveToastObj, setCurrentLiveToastObj] = useState({ icon: '🔔', text: '' });
+  const [currentLiveToastObj, setCurrentLiveToastObj] = useState({ icon: 'ðŸ””', text: '' });
   const [showLiveToast, setShowLiveToast] = useState(false);
   const hideTimerRef = useRef(null);
   const lastEventIdRef = useRef(null);
 
-  // Escuchador en TIEMPO REAL para notificaciones verdaderas: Historias (Likes/Reacciones) y Trabajo Finalizado (Reseñas/Estrellas)
+  // Escuchador en TIEMPO REAL para notificaciones verdaderas: Historias (Likes/Reacciones) y Trabajo Finalizado (ReseÃ±as/Estrellas)
   useEffect(() => {
     let ordersEvents = [];
     let likesEvents = [];
@@ -601,7 +601,7 @@ export default function HomePage({ lang, navigate, userRole }) {
       }
     };
 
-    // Rotación automática continua cada 12 segundos si hay eventos en la lista
+    // RotaciÃ³n automÃ¡tica continua cada 12 segundos si hay eventos en la lista
     cycleInterval = setInterval(() => {
       if (eventListRef.length > 0) {
         eventIndex = (eventIndex + 1) % eventListRef.length;
@@ -609,7 +609,7 @@ export default function HomePage({ lang, navigate, userRole }) {
       }
     }, 12000);
 
-    // 1. Escuchar Contratos Completados, Reseñas y Calificación de Estrellas en Trabajo Finalizado
+    // 1. Escuchar Contratos Completados, ReseÃ±as y CalificaciÃ³n de Estrellas en Trabajo Finalizado
     const qOrders = query(collection(db, 'orders'), limit(30));
     const unsubOrders = onSnapshot(qOrders, (snapshot) => {
       if (!snapshot.empty) {
@@ -632,17 +632,17 @@ export default function HomePage({ lang, navigate, userRole }) {
             const isReview = d.rated || (d.ratingScore && Number(d.ratingScore) > 0);
             const scoreVal = d.ratingScore ? Number(d.ratingScore) : 5;
 
-            let icon = '💬';
+            let icon = 'ðŸ’¬';
             let text = '';
             if (isReview && d.ratingComment?.trim()) {
-              icon = '💬';
-              text = `${client} en ${city} dejó una reseña ⭐ ${scoreVal} a ${pro} (${spec})`;
+              icon = 'ðŸ’¬';
+              text = `${client} en ${city} dejÃ³ una reseÃ±a â­ ${scoreVal} a ${pro} (${spec})`;
             } else if (isReview) {
-              icon = '⭐';
+              icon = 'â­';
               text = `${client} en ${city} dio ${scoreVal} estrellas a ${pro} (${spec}) en Trabajo Finalizado`;
             } else {
-              icon = '✅';
-              text = `${client} en ${city} finalizó un trabajo con ${pro} (${spec})`;
+              icon = 'âœ…';
+              text = `${client} en ${city} finalizÃ³ un trabajo con ${pro} (${spec})`;
             }
 
             const rawTime = d.updatedAt || d.completedAt || d.ratedAt || d.createdAt;
@@ -670,18 +670,18 @@ export default function HomePage({ lang, navigate, userRole }) {
             const rawCity = d.city || d.provincia || d.location || d.ciudad;
             const city = getCleanCity(rawCity, d.id || client);
             const type = d.type || 'profile_like';
-            const reactionName = d.reactionName || d.reactionIcon || 'Reacción';
+            const reactionName = d.reactionName || d.reactionIcon || 'ReacciÃ³n';
 
-            let icon = '❤️';
+            let icon = 'â¤ï¸';
             let text = '';
             if (type === 'story_like') {
-              icon = '📸';
+              icon = 'ðŸ“¸';
               text = `${client} en ${city} dio me gusta a la Historia de ${pro} (${spec})`;
             } else if (type === 'story_reaction') {
-              icon = '💬';
-              text = `${client} en ${city} reaccionó "${reactionName}" a la Historia de ${pro} (${spec})`;
+              icon = 'ðŸ’¬';
+              text = `${client} en ${city} reaccionÃ³ "${reactionName}" a la Historia de ${pro} (${spec})`;
             } else {
-              icon = '❤️';
+              icon = 'â¤ï¸';
               text = `${client} en ${city} dio me gusta al perfil de ${pro} (${spec})`;
             }
 
@@ -766,7 +766,7 @@ export default function HomePage({ lang, navigate, userRole }) {
   const totalUnreadMessages = unreadChats + unreadMsgNotifs
 
   const searchPlaceholders = lang === 'es' 
-    ? ['¿Buscas a un plomero?', '¿Necesitas un electricista?', 'O quizás un mecánico...', 'Encuentra soluciones aquí'] 
+    ? ['Â¿Buscas a un plomero?', 'Â¿Necesitas un electricista?', 'O quizÃ¡s un mecÃ¡nico...', 'Encuentra soluciones aquÃ­'] 
     : ['Looking for a plumber?', 'Need an electrician?', 'Maybe a mechanic...', 'Find solutions here'];
   const [phIdx, setPhIdx] = useState(0);
   const [prevPhIdx, setPrevPhIdx] = useState(null);
@@ -791,7 +791,7 @@ export default function HomePage({ lang, navigate, userRole }) {
       const location = await detectGpsLocation()
       navigate('search', { provinceToSelect: location.provinceId })
     } catch (err) {
-      alert(`⚠️ ${err.message || 'No se pudo obtener la ubicación por GPS.'}`)
+      alert(`âš ï¸ ${err.message || 'No se pudo obtener la ubicaciÃ³n por GPS.'}`)
     } finally {
       setIsLocatingGps(false)
     }
@@ -830,7 +830,7 @@ export default function HomePage({ lang, navigate, userRole }) {
         querySnapshot.forEach((doc) => {
           const data = doc.data()
 
-          // ─ Filtro estricto: Solo mostrar si completó el perfil y tiene plan activo o contratos
+          // â”€ Filtro estricto: Solo mostrar si completÃ³ el perfil y tiene plan activo o contratos
           const isComplete = Boolean(data.profileComplete || data.verificacion?.estado === 'aprobada')
           const hasPlan = Boolean(data.planStatus === 'active')
           const hasContracts = Boolean(data.contracts && data.contracts > 0)
@@ -850,7 +850,7 @@ export default function HomePage({ lang, navigate, userRole }) {
           ].filter(Boolean);
           const cleanLoc = candidates.filter(str => {
             const s = String(str).trim().toLowerCase();
-            return s !== 'rd' && s !== 'rep. dominicana' && s !== 'república dominicana' && s !== 'rep dominicana';
+            return s !== 'rd' && s !== 'rep. dominicana' && s !== 'repÃºblica dominicana' && s !== 'rep dominicana';
           });
           const finalLoc = cleanLoc.length > 0 ? cleanLoc.slice(0, 2).join(', ') : 'Santo Domingo, D.N.';
 
@@ -885,11 +885,11 @@ export default function HomePage({ lang, navigate, userRole }) {
         const topFeatured = finalFeatured.slice(0, 12);
         topFeatured.forEach((p, idx) => {
           if (!p.badge) {
-            if (idx === 0) p.badge = "🔥 TOP 1";
-            else if (idx === 1 || idx === 2) p.badge = "⚡ MÁS VENDIDO";
-            else if (idx % 3 === 0) p.badge = "🎟️ EN PROMOCIÓN";
-            else if (idx % 4 === 0) p.badge = "⏳ MUY BUSCADO";
-            else p.badge = "⭐ POPULAR";
+            if (idx === 0) p.badge = "ðŸ”¥ TOP 1";
+            else if (idx === 1 || idx === 2) p.badge = "âš¡ MÃS VENDIDO";
+            else if (idx % 3 === 0) p.badge = "ðŸŽŸï¸ EN PROMOCIÃ“N";
+            else if (idx % 4 === 0) p.badge = "â³ MUY BUSCADO";
+            else p.badge = "â­ POPULAR";
           }
         });
 
@@ -917,7 +917,7 @@ export default function HomePage({ lang, navigate, userRole }) {
   const specs = ['todos', ...new Set(allProsToUse.filter(p=>p.specEs).map(p => p.specEs))]
   const filteredPros = proFilter === 'todos' ? allProsToUse : allProsToUse.filter(p => p.specEs === proFilter)
 
-  // Cálculos para la expiración del plan
+  // CÃ¡lculos para la expiraciÃ³n del plan
   let isExpired = userData?.planStatus === 'expired';
   let showWarning = false;
   let daysRemaining = null;
@@ -932,12 +932,12 @@ export default function HomePage({ lang, navigate, userRole }) {
       isExpired = true;
       daysRemaining = 0;
     } else if (daysRemaining === 1 && userData?.planStatus === 'active') {
-      // Avisar al profesional exactamente el día antes (ej. día 29 de 30)
+      // Avisar al profesional exactamente el dÃ­a antes (ej. dÃ­a 29 de 30)
       showWarning = true;
     }
   }
 
-  // Cálculos para disponibilidad y el toggle
+  // CÃ¡lculos para disponibilidad y el toggle
   const isAvailable = profileComplete && !isExpired && (userData?.available !== false);
   const isLowContracts = (userData?.contracts || 0) === 1;
 
@@ -982,7 +982,7 @@ export default function HomePage({ lang, navigate, userRole }) {
     }
     if (isExpired) {
       alert(lang === 'es' 
-        ? "Tu cuenta está inactiva. Por favor actualízala en nuestra web para poder ponerte en línea." 
+        ? "Tu cuenta estÃ¡ inactiva. Por favor actualÃ­zala en nuestra web para poder ponerte en lÃ­nea." 
         : "Your account is inactive. Please update it on our website to go online.");
       openWebPlanPage();
       return;
@@ -1006,13 +1006,13 @@ export default function HomePage({ lang, navigate, userRole }) {
   return (
     <div className="home-page">
 
-      {/* ── NEW HERO HEADER (GLASSMORPHISM) ── */}
+      {/* â”€â”€ NEW HERO HEADER (GLASSMORPHISM) â”€â”€ */}
       <div className="hp-header-glass">
         
-        {/* Saludo y Títulos */}
+        {/* Saludo y TÃ­tulos */}
         {!isPro ? (
           <div className="hp-greeting" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            {/* Pill Ubicación Estilo Amazon Mobile */}
+            {/* Pill UbicaciÃ³n Estilo Amazon Mobile */}
             <div 
               style={{
                 display: 'inline-flex',
@@ -1029,31 +1029,31 @@ export default function HomePage({ lang, navigate, userRole }) {
                 cursor: 'pointer',
                 width: 'fit-content'
               }}
-              onClick={() => alert(lang === 'es' ? 'Ubicación actual: Santiago, D.N. (República Dominicana)' : 'Current location: Santiago, D.N. (Dominican Republic)')}
+              onClick={() => alert(lang === 'es' ? 'UbicaciÃ³n actual: Santiago, D.N. (RepÃºblica Dominicana)' : 'Current location: Santiago, D.N. (Dominican Republic)')}
             >
-              <span>📍</span>
+              <span>ðŸ“</span>
               <span>Santiago, D.N.</span>
-              <span style={{ fontSize: '10px', opacity: 0.8 }}>▼</span>
+              <span style={{ fontSize: '10px', opacity: 0.8 }}>â–¼</span>
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
-                <h1>👋 {lang === 'es' ? `Hola, ${userData?.name?.split(' ')[0] || 'Cliente'}` : `Hi, ${userData?.name?.split(' ')[0] || 'Client'}`}</h1>
-                <p>{lang === 'es' ? '¿Qué necesitas solucionar hoy?' : 'What do you need to fix today?'}</p>
+                <h1>ðŸ‘‹ {lang === 'es' ? `Hola, ${userData?.name?.split(' ')[0] || 'Cliente'}` : `Hi, ${userData?.name?.split(' ')[0] || 'Client'}`}</h1>
+                <p>{lang === 'es' ? 'Â¿QuÃ© necesitas solucionar hoy?' : 'What do you need to fix today?'}</p>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                 <div 
                   onClick={() => navigate('notificaciones')}
                   style={{ position:'relative', width:'40px', height:'40px', borderRadius:'50%', background:'rgba(255,255,255,0.1)', display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', border:'1px solid rgba(255,255,255,0.2)' }}
                 >
-                  <span style={{ fontSize:'20px' }}>🔔</span>
+                  <span style={{ fontSize:'20px' }}>ðŸ””</span>
                   {unreadNotifs > 0 && (
                     <span style={{ position:'absolute', top:'-2px', right:'-2px', background:'#EF4444', color:'white', fontSize:'11px', fontWeight:'900', borderRadius:'10px', padding:'2px 6px', border:'2px solid #1A1A2E' }}>
                       {unreadNotifs > 9 ? '9+' : unreadNotifs}
                     </span>
                   )}
                 </div>
-                {/* Botón de hamburguesa ☰ para clientes */}
+                {/* BotÃ³n de hamburguesa â˜° para clientes */}
                 <div 
                   onClick={() => setShowHamburguesa(true)}
                   style={{ 
@@ -1073,7 +1073,7 @@ export default function HomePage({ lang, navigate, userRole }) {
                   onMouseUp={e => e.currentTarget.style.transform = 'scale(1)'}
                   onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
                 >
-                  <span style={{ fontSize: '22px', color: 'white', fontWeight: 'bold' }}>☰</span>
+                  <span style={{ fontSize: '22px', color: 'white', fontWeight: 'bold' }}>â˜°</span>
                 </div>
               </div>
             </div>
@@ -1081,7 +1081,7 @@ export default function HomePage({ lang, navigate, userRole }) {
         ) : (
           <div className="hp-greeting" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div style={{ textAlign: 'left', minWidth: 0, flex: 1 }}>
-              <h1 style={{ margin: 0, fontSize: '20px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>👋 {lang === 'es' ? 'Panel Profesional' : 'Pro Dashboard'}</h1>
+              <h1 style={{ margin: 0, fontSize: '20px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>ðŸ‘‹ {lang === 'es' ? 'Panel Profesional' : 'Pro Dashboard'}</h1>
               <p style={{ margin: '4px 0 0 0', fontSize: '14px', color: '#ccc' }}>{lang === 'es' ? `Hola, ${userData?.name?.split(' ')[0] || 'Socio'}` : `Hi, ${userData?.name?.split(' ')[0] || 'Partner'}`}</p>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }}>
@@ -1089,7 +1089,7 @@ export default function HomePage({ lang, navigate, userRole }) {
                 onClick={() => navigate('notificaciones')}
                 style={{ position:'relative', width:'40px', height:'40px', borderRadius:'50%', background:'rgba(255,255,255,0.1)', display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', border:'1px solid rgba(255,255,255,0.2)' }}
               >
-                <span style={{ fontSize:'20px' }}>🔔</span>
+                <span style={{ fontSize:'20px' }}>ðŸ””</span>
                 {unreadNotifs > 0 && (
                   <span style={{ position:'absolute', top:'-2px', right:'-2px', background:'#EF4444', color:'white', fontSize:'11px', fontWeight:'900', borderRadius:'10px', padding:'2px 6px', border:'2px solid #1A1A2E' }}>
                     {unreadNotifs > 9 ? '9+' : unreadNotifs}
@@ -1127,13 +1127,13 @@ export default function HomePage({ lang, navigate, userRole }) {
                 onMouseUp={e => e.currentTarget.style.transform = 'scale(1)'}
                 onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
               >
-                ☰
+                â˜°
               </button>
             </div>
           </div>
         )}
 
-        {/* ── TARJETA HERO DE PEDIDOS LISTO CON VIDEO EN VIVO Y HISTORIAS SUPERPUESTAS ── */}
+        {/* â”€â”€ TARJETA HERO DE PEDIDOS LISTO CON VIDEO EN VIVO Y HISTORIAS SUPERPUESTAS â”€â”€ */}
         <div 
           className="hp-hero-dark-card" 
           style={{ 
@@ -1164,7 +1164,7 @@ export default function HomePage({ lang, navigate, userRole }) {
             }} 
           />
 
-          {/* Overlay Gradient Oscuro para Máxima Legibilidad */}
+          {/* Overlay Gradient Oscuro para MÃ¡xima Legibilidad */}
           <div 
             style={{
               position: 'absolute',
@@ -1191,7 +1191,7 @@ export default function HomePage({ lang, navigate, userRole }) {
         </div>
       </div>
 
-      {/* ── BOTÓN / PANEL SOCIO "¡HOLA, SOCIO!" (UBICADO DEBAJO DEL PANEL DE HISTORIAS DE ARRIBA) ── */}
+      {/* â”€â”€ BOTÃ“N / PANEL SOCIO "Â¡HOLA, SOCIO!" (UBICADO DEBAJO DEL PANEL DE HISTORIAS DE ARRIBA) â”€â”€ */}
       {isPro && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0px', margin: '10px 16px 14px' }}>
           <div 
@@ -1209,7 +1209,7 @@ export default function HomePage({ lang, navigate, userRole }) {
 
              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                 {/* Foto de Perfil del Usuario colocada donde estaba la manita 👋 */}
+                 {/* Foto de Perfil del Usuario colocada donde estaba la manita ðŸ‘‹ */}
                  <div 
                    onClick={() => {
                      if (isPro || userRole === 'pro' || userData?.type === 'pro') {
@@ -1235,7 +1235,7 @@ export default function HomePage({ lang, navigate, userRole }) {
                      }} 
                    />
 
-                   {/* Ícono de chat flotante en la esquina de la foto de perfil */}
+                   {/* Ãcono de chat flotante en la esquina de la foto de perfil */}
                    <div 
                      onClick={(e) => {
                        e.stopPropagation();
@@ -1260,7 +1260,7 @@ export default function HomePage({ lang, navigate, userRole }) {
                      title={lang === 'es' ? 'Ir a mensajes' : 'Go to chat'}
                    >
                      <span style={{ fontSize: '10px', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                       💬
+                       ðŸ’¬
                      </span>
                      {totalUnreadMessages > 0 && (
                        <span 
@@ -1283,15 +1283,15 @@ export default function HomePage({ lang, navigate, userRole }) {
                    </div>
                  </div>
 
-                 <h2 style={{ fontSize: '18px', fontWeight: '900', margin: 0, color: '#1A1A2E' }}>¡Hola, Socio!</h2>
+                 <h2 style={{ fontSize: '18px', fontWeight: '900', margin: 0, color: '#1A1A2E' }}>Â¡Hola, Socio!</h2>
                  <span style={{ fontSize: '10px', fontWeight: '800', background: 'rgba(242, 96, 0, 0.12)', color: '#F26000', padding: '3px 8px', borderRadius: '12px', border: '1px solid rgba(242, 96, 0, 0.25)' }}>
-                   ⭐ PANEL PRO
+                   â­ PANEL PRO
                  </span>
                </div>
 
                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                  <span style={{ fontSize: '11px', fontWeight: '700', color: isAvailable ? '#16A34A' : '#64748B' }}>
-                   {isAvailable ? '🟢 En línea' : '⚫ Desconectado'}
+                   {isAvailable ? 'ðŸŸ¢ En lÃ­nea' : 'âš« Desconectado'}
                  </span>
                  <div 
                    onClick={toggleAvailability}
@@ -1322,10 +1322,10 @@ export default function HomePage({ lang, navigate, userRole }) {
                  style={{ padding: '12px 14px', background: '#FEF2F2', borderRadius: '14px', border: '1.5px solid #FECACA', marginTop: '8px', cursor: 'pointer' }}
                >
                  <p style={{ margin: '0 0 4px', fontSize: '12.5px', color: '#991B1B', fontWeight: 'bold' }}>
-                   ⚠️ Tu perfil está incompleto (presiona aquí para verificar).
+                   âš ï¸ Tu perfil estÃ¡ incompleto (presiona aquÃ­ para verificar).
                  </p>
                  <p style={{ margin: 0, fontSize: '11.5px', color: '#B91C1C', lineHeight: 1.4 }}>
-                   No puedes recibir pedidos. Cuando termines de completar tu perfil y verificación, actívate.
+                   No puedes recibir pedidos. Cuando termines de completar tu perfil y verificaciÃ³n, actÃ­vate.
                  </p>
                </div>
              ) : (
@@ -1353,14 +1353,14 @@ export default function HomePage({ lang, navigate, userRole }) {
                     fontWeight: '700'
                   }}>
                     {isExpired
-                      ? '🔴 Perfil inactivo. Actualízalo en nuestra web.'
+                      ? 'ðŸ”´ Perfil inactivo. ActualÃ­zalo en nuestra web.'
                       : (isAvailable 
                           ? (isLowContracts && showLowContractWarning
                               ? (isNative 
-                                  ? '🔴 Solo te queda un contrato. Para adquirir o mejorar tu plan, ingresa a nuestra plataforma web.'
-                                  : '🔴 Solo te queda un contrato. Adquiere tu plan en nuestra web para recibir clientes.')
-                              : '🟢 Estás visible para clientes cercanos. ¡Listo para recibir solicitudes!') 
-                          : '⚫ Estás en modo ausente. Actívate cuando desees recibir solicitudes.')}
+                                  ? 'ðŸ”´ Solo te queda un contrato. Para adquirir o mejorar tu plan, ingresa a nuestra plataforma web.'
+                                  : 'ðŸ”´ Solo te queda un contrato. Adquiere tu plan en nuestra web para recibir clientes.')
+                              : 'ðŸŸ¢ EstÃ¡s visible para clientes cercanos. Â¡Listo para recibir solicitudes!') 
+                          : 'âš« EstÃ¡s en modo ausente. ActÃ­vate cuando desees recibir solicitudes.')}
                   </p>
                 </div>
               )}
@@ -1368,7 +1368,7 @@ export default function HomePage({ lang, navigate, userRole }) {
         </div>
       )}
 
-      {/* ── SECCIÓN DESPLEGABLE DE EMERGENCIAS (ACTIVADA DESDE EL CÍRCULO SIRENA BOMBERO EN LA BARRA SUPERIOR) ── */}
+      {/* â”€â”€ SECCIÃ“N DESPLEGABLE DE EMERGENCIAS (ACTIVADA DESDE EL CÃRCULO SIRENA BOMBERO EN LA BARRA SUPERIOR) â”€â”€ */}
       {isProblemsExpanded && (
         <div 
           className="emergency-floating-banner"
@@ -1390,10 +1390,10 @@ export default function HomePage({ lang, navigate, userRole }) {
             style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'transparent' }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1, minWidth: 0 }}>
-              <span className="emergency-siren-anim" style={{ fontSize: '26px' }}>🚨</span>
+              <span className="emergency-siren-anim" style={{ fontSize: '26px' }}>ðŸš¨</span>
               <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
                 <h2 style={{ fontSize: '16.5px', fontWeight: '900', color: '#FFFFFF', margin: 0, lineHeight: 1.2, textShadow: '0 2px 4px rgba(0,0,0,0.4)' }}>
-                  {lang === 'es' ? '¿Qué problema tienes hoy?' : 'What problem do you have today?'}
+                  {lang === 'es' ? 'Â¿QuÃ© problema tienes hoy?' : 'What problem do you have today?'}
                 </h2>
                 <p style={{ margin: '3px 0 0', fontSize: '11.5px', color: '#FFD700', fontWeight: '700' }}>
                   {lang === 'es' ? 'Toca tu emergencia para conectar al instante' : 'Tap your emergency to connect instantly'}
@@ -1421,7 +1421,7 @@ export default function HomePage({ lang, navigate, userRole }) {
                 fontSize: '13px'
               }}
             >
-              ✕
+              âœ•
             </button>
           </div>
 
@@ -1464,9 +1464,9 @@ export default function HomePage({ lang, navigate, userRole }) {
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '10px', paddingTop: '8px', borderTop: '1px dashed rgba(242, 96, 0, 0.15)' }}>
                     <span style={{ fontSize: '11.5px', fontWeight: '800', color: '#F26000', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                      ⚡ Contactar socio
+                      âš¡ Contactar socio
                     </span>
-                    <span style={{ fontSize: '14px', color: '#F26000', fontWeight: 'bold' }}>›</span>
+                    <span style={{ fontSize: '14px', color: '#F26000', fontWeight: 'bold' }}>â€º</span>
                   </div>
                 </div>
               ))}
@@ -1475,43 +1475,43 @@ export default function HomePage({ lang, navigate, userRole }) {
         </div>
       )}
 
-      {/* ── SECCIÓN PROFESIONALES DESTACADOS (NUESTRO VIP) ── */}
+      {/* â”€â”€ SECCIÃ“N PROFESIONALES DESTACADOS (NUESTRO VIP) â”€â”€ */}
       <VIPSection 
         realVipPros={featuredProsToUse} 
         lang={lang} 
         navigate={navigate} 
-        sectionTitle={lang === 'es' ? '🌟 Profesionales Destacados' : '🌟 Featured Professionals'}
+        sectionTitle={lang === 'es' ? 'ðŸŒŸ Profesionales Destacados' : 'ðŸŒŸ Featured Professionals'}
         sectionSub={null}
         getProStoryData={getProStoryData}
         onOpenStory={handleOpenStoryViewer}
       />
 
-      {/* ── CINTA / ANUNCIO LARGO Y FINO INVITANDO A LA TIENDA WEB (DEBAJO DE PROFESIONALES DESTACADOS) ── */}
+      {/* â”€â”€ CINTA / ANUNCIO LARGO Y FINO INVITANDO A LA TIENDA WEB (DEBAJO DE PROFESIONALES DESTACADOS) â”€â”€ */}
       <div 
         className="store-ribbon-banner"
         onClick={() => window.open('https://listopatron.com.do/?page=shop', '_blank')}
-        title={lang === 'es' ? 'Visitar la Tienda Web de Listo Patrón' : 'Visit Listo Patrón Web Store'}
+        title={lang === 'es' ? 'Visitar la Tienda Web de Listo PatrÃ³n' : 'Visit Listo PatrÃ³n Web Store'}
         style={{ marginTop: '10px', marginBottom: '14px' }}
       >
         <div className="store-ribbon-content">
-          <span className="store-ribbon-icon">🛍️</span>
+          <span className="store-ribbon-icon">ðŸ›ï¸</span>
           <div className="store-ribbon-text-group">
             <p className="store-ribbon-title">
-              {lang === 'es' ? <>Equípate en nuestra tienda <strong>Listo Patrón</strong></> : <>Equip yourself at <strong>Listo Patrón</strong> Store</>}
+              {lang === 'es' ? <>EquÃ­pate en nuestra tienda <strong>Listo PatrÃ³n</strong></> : <>Equip yourself at <strong>Listo PatrÃ³n</strong> Store</>}
             </p>
             <p className="store-ribbon-sub">
-              {lang === 'es' ? 'Herramientas, equipos e insumos de seguridad con envío rápido a todo el país' : 'Tools, safety gear & supplies with fast nationwide shipping'}
+              {lang === 'es' ? 'Herramientas, equipos e insumos de seguridad con envÃ­o rÃ¡pido a todo el paÃ­s' : 'Tools, safety gear & supplies with fast nationwide shipping'}
             </p>
           </div>
         </div>
         <button className="store-ribbon-btn">
-          🛒 {lang === 'es' ? 'Visitar Tienda ›' : 'Visit Store ›'}
+          ðŸ›’ {lang === 'es' ? 'Visitar Tienda â€º' : 'Visit Store â€º'}
         </button>
       </div>
 
           <section ref={allProsRef} className={`all-pros-section${allProsVisible ? ' reveal' : ''}`}>
             <div className="hp-sec-header" style={{ marginBottom: 12 }}>
-              <h2 className="hp-sec-title">👥 {lang === 'es' ? 'Todos los Profesionales' : 'All Professionals'}</h2>
+              <h2 className="hp-sec-title">ðŸ‘¥ {lang === 'es' ? 'Todos los Profesionales' : 'All Professionals'}</h2>
               <span className="pros-count">{filteredPros.length} {lang === 'es' ? 'disponibles' : 'available'}</span>
             </div>
             <div className="pros-filter-scroll">
@@ -1558,14 +1558,14 @@ export default function HomePage({ lang, navigate, userRole }) {
                           </div>
                         )}
                         <span className={`pro-avail-dot${pro.avail ? ' online' : ''}`} />
-                        {i % 4 === 0 && <span className="cat-flash-badge" style={{top: '-8px', left: '-8px', animation: 'ecom-pop 1s infinite alternate'}}>⚡ {lang === 'es' ? 'RÁPIDO' : 'FAST'}</span>}
+                        {i % 4 === 0 && <span className="cat-flash-badge" style={{top: '-8px', left: '-8px', animation: 'ecom-pop 1s infinite alternate'}}>âš¡ {lang === 'es' ? 'RÃPIDO' : 'FAST'}</span>}
                       </div>
                       <div className="pro-list-info">
                         <p className="pro-list-name">{pro.nameEs}</p>
                         <p className="pro-list-spec">{pro.specEs}</p>
                         <StarRating rating={pro.rating} />
                         <p className="pro-list-price" style={{ color: '#008F39', fontSize: '13px', fontWeight: 'bold', marginTop: '4px' }}>
-                          🤝 {lang === 'es' ? 'A convenir' : 'To agree'}
+                          ðŸ¤ {lang === 'es' ? 'A convenir' : 'To agree'}
                         </p>
                       </div>
                       <button className="pro-list-book">{lang === 'es' ? 'Contratar' : 'Hire'}</button>
@@ -1574,7 +1574,7 @@ export default function HomePage({ lang, navigate, userRole }) {
                 })
               ) : (
                 <div style={{ padding: '40px 20px', color: 'var(--gray)', fontSize: '15px', textAlign: 'center', gridColumn: '1 / -1' }}>
-                  {lang === 'es' ? '🔍 No se encontraron profesionales en esta categoría.' : '🔍 No professionals found in this category.'}
+                  {lang === 'es' ? 'ðŸ” No se encontraron profesionales en esta categorÃ­a.' : 'ðŸ” No professionals found in this category.'}
                 </div>
               )}
             </div>
@@ -1582,7 +1582,7 @@ export default function HomePage({ lang, navigate, userRole }) {
 
           <section ref={catListRef} className={`cat-list-section${catListVisible ? ' reveal' : ''}`}>
             <div className="hp-sec-header">
-              <h2 className="hp-sec-title">🗂️ {lang === 'es' ? 'Explorar servicios' : 'Explore services'}</h2>
+              <h2 className="hp-sec-title">ðŸ—‚ï¸ {lang === 'es' ? 'Explorar servicios' : 'Explore services'}</h2>
             </div>
             <div className="cat-list">
               {CATEGORIES.map((c, i) => (
@@ -1591,14 +1591,14 @@ export default function HomePage({ lang, navigate, userRole }) {
                     {c.image ? <img src={c.image} alt={c.labelEs} style={{ width: '24px', height: '24px', objectFit: 'contain' }} /> : c.icon}
                   </span>
                   <span className="cat-list-label">{lang === 'es' ? c.labelEs : c.labelEn}</span>
-                  <span className="cat-list-arrow">›</span>
+                  <span className="cat-list-arrow">â€º</span>
                 </button>
               ))}
             </div>
           </section>
           <section className="all-professions-section reveal">
             <div className="hp-sec-header" style={{ marginBottom: '16px', padding: '0 16px' }}>
-              <h2 className="hp-sec-title">🛠️ {lang === 'es' ? 'Todas las Profesiones' : 'All Professions'}</h2>
+              <h2 className="hp-sec-title">ðŸ› ï¸ {lang === 'es' ? 'Todas las Profesiones' : 'All Professions'}</h2>
             </div>
             <div className="all-professions-grid">
               {ALL_SUBCATEGORIES.map((sub, i) => (
@@ -1608,7 +1608,7 @@ export default function HomePage({ lang, navigate, userRole }) {
                   onClick={() => navigate('search', { catToSelect: sub.parentId, subCatToSelect: sub.id })}
                 >
                   <span className="profession-icon">
-                    {sub.image ? <img src={sub.image} alt={sub.labelEs} style={{ width: '24px', height: '24px', objectFit: 'contain' }} /> : sub.icon || '👷'}
+                    {sub.image ? <img src={sub.image} alt={sub.labelEs} style={{ width: '24px', height: '24px', objectFit: 'contain' }} /> : sub.icon || 'ðŸ‘·'}
                   </span>
                   <span className="profession-name">{lang === 'es' ? sub.labelEs : sub.labelEn}</span>
                 </div>
@@ -1620,7 +1620,7 @@ export default function HomePage({ lang, navigate, userRole }) {
 
       {showTour && <TutorialTour lang={lang} onFinish={closeTour} />}
 
-      {/* ── MENÚ — solo para profesionales ── */}
+      {/* â”€â”€ MENÃš â€” solo para profesionales â”€â”€ */}
       {showHamburguesa && !isPro && (
         <BtnHamburguesaUsuario 
           onClose={() => setShowHamburguesa(false)} 
@@ -1641,17 +1641,17 @@ export default function HomePage({ lang, navigate, userRole }) {
           setActiveView={setActiveView}
         />
       )}
-      {/* ── ELEMENTOS FLOTANTES ESTILO TEMU / AMAZON ── */}
+      {/* â”€â”€ ELEMENTOS FLOTANTES ESTILO TEMU / AMAZON â”€â”€ */}
 
 
-      {/* Floating Lucky Wheel FAB — Se muestra ÚNICAMENTE para profesionales cuando tienen giros ganados por 4 o 5 estrellas */}
+      {/* Floating Lucky Wheel FAB â€” Se muestra ÃšNICAMENTE para profesionales cuando tienen giros ganados por 4 o 5 estrellas */}
       {(isPro && (userData?.spinsAvailable || 0) > 0) && (
         <button 
           className="lucky-wheel-fab" 
           onClick={() => setShowLuckyWheel(true)}
         >
-          <span style={{ fontSize: '18px' }}>🎰</span>
-          <span>{lang === 'es' ? 'Tómbola' : 'Lucky Wheel'} ({(userData?.spinsAvailable || 0)} {lang === 'es' ? 'giros' : 'spins'})</span>
+          <span style={{ fontSize: '18px' }}>ðŸŽ°</span>
+          <span>{lang === 'es' ? 'TÃ³mbola' : 'Lucky Wheel'} ({(userData?.spinsAvailable || 0)} {lang === 'es' ? 'giros' : 'spins'})</span>
         </button>
       )}
 
@@ -1664,17 +1664,17 @@ export default function HomePage({ lang, navigate, userRole }) {
         completedContracts={userData?.completedContracts || userData?.contracts || 0}
         onClaimReward={handleClaimReward} 
       />
-      {/* Modal de Selección de Plan Profesional */}
+      {/* Modal de SelecciÃ³n de Plan Profesional */}
       <PlanSelectionModal 
         isOpen={showPlanModal} 
         onClose={() => setShowPlanModal(false)} 
         onSelectPlan={(plan) => {
-          alert(`Has seleccionado el ${plan.name} (${plan.price}). Por favor comunícate con la administración de Pedidos Listo o realiza tu transferencia para activar tus contratos.`);
+          alert(`Has seleccionado el ${plan.name} (${plan.price}). Por favor comunÃ­cate con la administraciÃ³n de Pedidos Listo o realiza tu transferencia para activar tus contratos.`);
           setShowPlanModal(false);
         }} 
       />
 
-      {/* Modal de Cotización Flash Express 3 Pasos */}
+      {/* Modal de CotizaciÃ³n Flash Express 3 Pasos */}
       {showSolicitudExpress && (
         <SolicitudExpressModal 
           lang={lang} 
@@ -1697,7 +1697,7 @@ export default function HomePage({ lang, navigate, userRole }) {
         navigate={navigate}
       />
 
-      {/* Modal de Ofertas Relámpago (se activa ÚNICAMENTE al hacer clic en el botón de la cinta) */}
+      {/* Modal de Ofertas RelÃ¡mpago (se activa ÃšNICAMENTE al hacer clic en el botÃ³n de la cinta) */}
       <LightningOfferBannerModal 
         isOpen={showFlashOfferModal} 
         onClose={() => setShowFlashOfferModal(false)} 

@@ -1,9 +1,9 @@
-import { useState, useEffect, useRef } from 'react'
+﻿import { useState, useEffect, useRef } from 'react'
 import { collection, query, where, getDocs, doc, getDoc, addDoc, serverTimestamp } from 'firebase/firestore'
 import { db } from '../firebase'
 import { CATEGORIES, FILTERS, ALL_SUBCATEGORIES, PROVINCES_LIST } from '../categories'
 import { detectGpsLocation } from '../utils/gpsLocation'
-import LocalesCarrusel from '../locales/LocalesCarrusel'  // ✅ importado
+import LocalesCarrusel from '../locales/LocalesCarrusel'  // âœ… importado
 import VIPSection, { isProVip, getProTier } from '../components/VIPSection'
 import HistoriasCarrusel from '../components/HistoriasCarrusel'
 import HistoriasViewerModal from '../components/HistoriasViewerModal'
@@ -22,7 +22,7 @@ import L from 'leaflet'
 import recomendarIcon from '../assets/icons/recomendar.png'
 import opinionesIcon from '../assets/icons/opiniones.png'
 import compartirIcon from '../assets/icons/compartir.png'
-import logoListo from '../assets/logo_listo.png'
+import logoListo from '../assets/logo-mamey.png'
 import './SearchPage.css'
 
 const customProIcon = new L.Icon({
@@ -34,12 +34,12 @@ const customProIcon = new L.Icon({
 const txt = {
   es: {
     title:       'Buscar servicios',
-    search:      '¿Qué necesitas?',
+    search:      'Â¿QuÃ© necesitas?',
     available:   'Disponible',
     busy:        'Ocupado',
     book:        'Contratar',
     profile:     'Ver perfil',
-    reviews:     'reseñas',
+    reviews:     'reseÃ±as',
     exp:         'experiencia',
     filterAvail: 'Solo disponibles',
     results:     'profesionales encontrados',
@@ -71,9 +71,9 @@ const avatarColors = ['#F26000','#C24D00','#FF8533','#7A3000','#FFB380']
 const proMessages = {
   es: [
     'Solo los profesionales con 4 o 5 estrellas aparecen en el carrusel de destacados. Cumple cada contrato con excelencia y mejora tu visibilidad.',
-    'Cumple cada contrato con excelencia. Las buenas reseñas generan confianza y te traen más clientes.',
-    'Tu esfuerzo se convierte en oportunidades. Un cliente satisfecho deja mejores reseñas y más contratos.',
-    'Más calidad = más contratos. Destácate, recibe 5 estrellas y aumenta tus ingresos.',
+    'Cumple cada contrato con excelencia. Las buenas reseÃ±as generan confianza y te traen mÃ¡s clientes.',
+    'Tu esfuerzo se convierte en oportunidades. Un cliente satisfecho deja mejores reseÃ±as y mÃ¡s contratos.',
+    'MÃ¡s calidad = mÃ¡s contratos. DestÃ¡cate, recibe 5 estrellas y aumenta tus ingresos.',
   ],
   en: [
     'Only professionals with 4 or 5 stars appear in the featured carousel. Complete every job with excellence.',
@@ -85,9 +85,9 @@ const proMessages = {
 
 const clientMessages = {
   es: [
-    '¡Tu opinión manda! Califica con estrellas a los profesionales para ayudar a otros a elegir siempre lo mejor.',
-    '¿Buscas al mejor? Revisa las reseñas y calificaciones antes de contratar. ¡Tu satisfacción es lo primero!',
-    'Contratar un profesional nunca fue tan fácil. ¡Encuentra el que necesitas y agenda en segundos!',
+    'Â¡Tu opiniÃ³n manda! Califica con estrellas a los profesionales para ayudar a otros a elegir siempre lo mejor.',
+    'Â¿Buscas al mejor? Revisa las reseÃ±as y calificaciones antes de contratar. Â¡Tu satisfacciÃ³n es lo primero!',
+    'Contratar un profesional nunca fue tan fÃ¡cil. Â¡Encuentra el que necesitas y agenda en segundos!',
   ],
   en: [
     'Your voice matters! Rate professionals with stars to help everyone choose the best.',
@@ -96,7 +96,7 @@ const clientMessages = {
   ],
 }
 
-// ── Banner de Creación VIP ──────────────────────────────────────
+// â”€â”€ Banner de CreaciÃ³n VIP â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function VipShopEntryBanner({ navigate, userRole, userData }) {
   const [isOpen, setIsOpen] = useState(false)
   
@@ -107,7 +107,7 @@ function VipShopEntryBanner({ navigate, userRole, userData }) {
     <div className="vip-entry-banner" style={{ margin: '0 16px 16px', background: 'linear-gradient(135deg, #1a1a2e, #16213e)', borderRadius: 14, overflow: 'hidden', color: '#fff', boxShadow: '0 8px 20px rgba(0,0,0,0.15)' }}>
       <div onClick={() => setIsOpen(!isOpen)} style={{ padding: '14px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <span style={{ fontSize: 28, filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))' }}>🏬</span>
+          <span style={{ fontSize: 28, filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))' }}>ðŸ¬</span>
           <div>
             <h3 style={{ margin: 0, fontSize: 16, fontWeight: 900, color: '#FFD700', textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}>
               {isVipPro ? 'Configura tu Local VIP' : 'Explora los Locales VIP'}
@@ -117,19 +117,19 @@ function VipShopEntryBanner({ navigate, userRole, userData }) {
             </p>
           </div>
         </div>
-        <span style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: '0.3s', fontSize: 14, color: '#FFD700' }}>▼</span>
+        <span style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: '0.3s', fontSize: 14, color: '#FFD700' }}>â–¼</span>
       </div>
       
       {isOpen && (
         <div style={{ padding: '0 16px 16px', animation: 'vip-slide-in 0.3s' }}>
           <div style={{ background: 'rgba(255,255,255,0.08)', borderRadius: 10, padding: 12, marginBottom: 12 }}>
             <ul style={{ margin: '0 0 10px', paddingLeft: 20, fontSize: 13, lineHeight: 1.6, color: '#ddd' }}>
-              <li>Menú de servicios detallado</li>
+              <li>MenÃº de servicios detallado</li>
               <li>Fotos reales de trabajos realizados</li>
-              <li>Atrae mucha más clientela segura</li>
+              <li>Atrae mucha mÃ¡s clientela segura</li>
             </ul>
             {isVipPro ? (
-              <p style={{ margin: 0, fontSize: 13, fontWeight: 800, color: '#FFD700', textAlign: 'center', background: 'rgba(255,215,0,0.1)', padding: '6px', borderRadius: '6px' }}>Tu Suscripción VIP está Activa</p>
+              <p style={{ margin: 0, fontSize: 13, fontWeight: 800, color: '#FFD700', textAlign: 'center', background: 'rgba(255,215,0,0.1)', padding: '6px', borderRadius: '6px' }}>Tu SuscripciÃ³n VIP estÃ¡ Activa</p>
             ) : (
               <p style={{ margin: 0, fontSize: 12, color: '#ccc', textAlign: 'center', fontStyle: 'italic' }}>
                 Exclusivo para profesionales con Plan VIP
@@ -156,7 +156,7 @@ function VipShopEntryBanner({ navigate, userRole, userData }) {
               }
             }}
           >
-            {isVipPro ? '🚀 Configurar mi Local VIP Ahora' : '🛍️ Entrar al Directorio de Locales VIP'}
+            {isVipPro ? 'ðŸš€ Configurar mi Local VIP Ahora' : 'ðŸ›ï¸ Entrar al Directorio de Locales VIP'}
           </button>
         </div>
       )}
@@ -164,7 +164,7 @@ function VipShopEntryBanner({ navigate, userRole, userData }) {
   )
 }
 
-// ── Banner animado ──────────────────────────────────────────────
+// â”€â”€ Banner animado â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function PromoBanner({ lang, userRole }) {
   const messages = userRole === 'pro' ? proMessages[lang] : clientMessages[lang]
   const [current, setCurrent] = useState(0)
@@ -232,17 +232,17 @@ function PromoBanner({ lang, userRole }) {
         }
       `}</style>
       <div className="listo-promo-banner">
-        <span className="listo-promo-spark" style={{ top:'8px',  left:'35%', animationDelay:'0.3s' }}>★</span>
-        <span className="listo-promo-spark" style={{ top:'55%', left:'60%', animationDelay:'0.9s' }}>★</span>
-        <span className="listo-promo-spark" style={{ top:'15%', left:'80%', animationDelay:'0.5s' }}>★</span>
-        <span className="listo-promo-spark" style={{ top:'70%', left:'25%', animationDelay:'1.2s' }}>★</span>
-        <span className="listo-promo-spark" style={{ top:'65%', left:'75%', animationDelay:'0.1s' }}>★</span>
-        <span className="listo-promo-star">⭐</span>
+        <span className="listo-promo-spark" style={{ top:'8px',  left:'35%', animationDelay:'0.3s' }}>â˜…</span>
+        <span className="listo-promo-spark" style={{ top:'55%', left:'60%', animationDelay:'0.9s' }}>â˜…</span>
+        <span className="listo-promo-spark" style={{ top:'15%', left:'80%', animationDelay:'0.5s' }}>â˜…</span>
+        <span className="listo-promo-spark" style={{ top:'70%', left:'25%', animationDelay:'1.2s' }}>â˜…</span>
+        <span className="listo-promo-spark" style={{ top:'65%', left:'75%', animationDelay:'0.1s' }}>â˜…</span>
+        <span className="listo-promo-star">â­</span>
         <div className="listo-promo-body">
           <div key={animKey} className="listo-promo-msg">
             <div className="listo-mini-stars">
               {[0,1,2,3,4].map(i => (
-                <span key={i} className="listo-mini-star" style={{ animationDelay:`${i*0.2}s` }}>⭐</span>
+                <span key={i} className="listo-mini-star" style={{ animationDelay:`${i*0.2}s` }}>â­</span>
               ))}
             </div>
             <p className="listo-promo-text">{messages[current]}</p>
@@ -253,7 +253,7 @@ function PromoBanner({ lang, userRole }) {
   )
 }
 
-// ── Profesional del Mes ─────────────────────────────────────────
+// â”€â”€ Profesional del Mes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function ProDelMes({ lang, navigate, userRole }) {
   const [proDelMes,      setProDelMes]      = useState(null)
   const [totalEstrellas, setTotalEstrellas] = useState(0)
@@ -290,7 +290,7 @@ function ProDelMes({ lang, navigate, userRole }) {
           const d = docSnap.data()
           const createdTs = d.createdAt?.seconds || 0
           
-          // Filtrar estrictamente solo las reseñas dejadas el mes anterior
+          // Filtrar estrictamente solo las reseÃ±as dejadas el mes anterior
           if (createdTs < inicioTs || createdTs > finTs) return
 
           const proId = d.proId || d.professionalId
@@ -323,7 +323,7 @@ function ProDelMes({ lang, navigate, userRole }) {
         const lista = Object.values(conteo)
 
         if (lista.length === 0) {
-          // Si NADIE en toda la plataforma recibió reseñas el mes pasado,
+          // Si NADIE en toda la plataforma recibiÃ³ reseÃ±as el mes pasado,
           // no mostramos el cuadro de Profesional del Mes (es un lujo real).
           setProDelMes(null)
           return
@@ -466,12 +466,12 @@ function ProDelMes({ lang, navigate, userRole }) {
 
       <div className="pdm-wrapper">
         <div className="pdm-header">
-          <span className="pdm-crown">👑</span>
+          <span className="pdm-crown">ðŸ‘‘</span>
           <div className="pdm-header-text">
             <p className="pdm-label">{lang === 'es' ? 'Profesional del Mes' : 'Professional of the Month'}</p>
             <p className="pdm-mes">{mes}</p>
           </div>
-          <span className="pdm-trophy">🏆</span>
+          <span className="pdm-trophy">ðŸ†</span>
         </div>
 
         <div className="pdm-body">
@@ -484,7 +484,7 @@ function ProDelMes({ lang, navigate, userRole }) {
                 ? <img src={proDelMes.foto} alt={proDelMes.nombre} className="pdm-photo" />
                 : <div className="pdm-avatar" style={{ background: avatarBg }}>{proDelMes.avatar}</div>
               }
-              <span className="pdm-badge">⭐</span>
+              <span className="pdm-badge">â­</span>
             </div>
             <p className="pdm-nombre">{proDelMes.nombre}</p>
             <p className="pdm-spec">
@@ -494,30 +494,30 @@ function ProDelMes({ lang, navigate, userRole }) {
                 const mainCat = CATEGORIES.find(c => c.id === specStr || c.labelEs?.toLowerCase() === specStr);
                 const imgUrl = subCat?.image || mainCat?.image;
                 if (imgUrl) return <img src={imgUrl} alt="" style={{ width: '16px', height: '16px', objectFit: 'contain', verticalAlign: 'middle', marginRight: '4px' }} />;
-                return subCat?.icon || mainCat?.icon || '🔧 ';
+                return subCat?.icon || mainCat?.icon || 'ðŸ”§ ';
               })()}
               {proDelMes.especialidad}
             </p>
             <div className="pdm-stars-row">
-              <span className="pdm-stars">★★★★★</span>
-              <span className="pdm-star-count">{totalEstrellas}⭐</span>
+              <span className="pdm-stars">â˜…â˜…â˜…â˜…â˜…</span>
+              <span className="pdm-star-count">{totalEstrellas}â­</span>
             </div>
             <p className="pdm-contratos">
-              ✅ {proDelMes.contratos} {lang === 'es' ? 'contratos' : 'contracts'}
+              âœ… {proDelMes.contratos} {lang === 'es' ? 'contratos' : 'contracts'}
             </p>
             <button className="pdm-btn" onClick={() => navigate('booking', proDelMes)}>
-              {lang === 'es' ? '🤝 Contratar' : '🤝 Hire'}
+              {lang === 'es' ? 'ðŸ¤ Contratar' : 'ðŸ¤ Hire'}
             </button>
           </div>
 
           <div className="pdm-right">
             <p className="pdm-resenas-title">
-              {lang === 'es' ? '💬 Lo que dicen' : '💬 Reviews'}
+              {lang === 'es' ? 'ðŸ’¬ Lo que dicen' : 'ðŸ’¬ Reviews'}
             </p>
 
             {resenas.length === 0 ? (
               <div className="pdm-resena-empty">
-                {lang === 'es' ? 'Sin reseñas aún este mes' : 'No reviews yet this month'}
+                {lang === 'es' ? 'Sin reseÃ±as aÃºn este mes' : 'No reviews yet this month'}
               </div>
             ) : (
               <>
@@ -532,7 +532,7 @@ function ProDelMes({ lang, navigate, userRole }) {
                     <div className="pdm-resena-content">
                       <p className="pdm-client-name">{r.clientName}</p>
                       <div className="pdm-resena-stars">
-                        {'★'.repeat(Math.max(0, Math.min(5, Math.floor(r.score || 0))))}{'☆'.repeat(Math.max(0, Math.min(5, 5 - Math.floor(r.score || 0))))}
+                        {'â˜…'.repeat(Math.max(0, Math.min(5, Math.floor(r.score || 0))))}{'â˜†'.repeat(Math.max(0, Math.min(5, 5 - Math.floor(r.score || 0))))}
                       </div>
                       <p className="pdm-resena-text">"{r.comment}"</p>
                     </div>
@@ -575,13 +575,13 @@ export default function SearchPage({ lang = 'es', navigate, initialCategory = 'a
       const location = await detectGpsLocation()
       setActiveProvince(location.provinceId)
       setToastMessage(lang === 'es' 
-        ? `📍 GPS Detectado: ${location.provinceLabel}. Mostrando profesionales cercanos.` 
-        : `📍 GPS Detected: ${location.provinceLabel}. Showing nearby professionals.`
+        ? `ðŸ“ GPS Detectado: ${location.provinceLabel}. Mostrando profesionales cercanos.` 
+        : `ðŸ“ GPS Detected: ${location.provinceLabel}. Showing nearby professionals.`
       )
       setShowToast(true)
       setTimeout(() => setShowToast(false), 4000)
     } catch (err) {
-      alert(`⚠️ ${err.message || 'No se pudo obtener la ubicación por GPS.'}`)
+      alert(`âš ï¸ ${err.message || 'No se pudo obtener la ubicaciÃ³n por GPS.'}`)
     } finally {
       setIsLocatingGps(false)
     }
@@ -631,7 +631,7 @@ export default function SearchPage({ lang = 'es', navigate, initialCategory = 'a
   const handleShare = async (pro, e) => {
     e.stopPropagation()
     const shareText = lang === 'es'
-      ? `¡Te recomiendo a ${pro.name} (${pro.category}) en Listo!`
+      ? `Â¡Te recomiendo a ${pro.name} (${pro.category}) en Listo!`
       : `I recommend ${pro.name} (${pro.category}) on Listo!`
     const shareUrl = `${window.location.origin}/proProfile/${pro.id}`
     
@@ -646,11 +646,11 @@ export default function SearchPage({ lang = 'es', navigate, initialCategory = 'a
         console.log('Share failed or cancelled:', err)
       }
     } else {
-      const fullText = `${shareText} Contrátalo aquí: ${shareUrl}`
+      const fullText = `${shareText} ContrÃ¡talo aquÃ­: ${shareUrl}`
       if (navigator.clipboard) {
         navigator.clipboard.writeText(fullText)
           .then(() => {
-            setToastMessage(lang === 'es' ? '¡Enlace de perfil copiado!' : 'Profile link copied!')
+            setToastMessage(lang === 'es' ? 'Â¡Enlace de perfil copiado!' : 'Profile link copied!')
             setShowToast(true)
             setTimeout(() => setShowToast(false), 3000)
           })
@@ -664,7 +664,7 @@ export default function SearchPage({ lang = 'es', navigate, initialCategory = 'a
         textArea.select()
         try {
           document.execCommand('copy')
-          setToastMessage(lang === 'es' ? '¡Enlace de perfil copiado!' : 'Profile link copied!')
+          setToastMessage(lang === 'es' ? 'Â¡Enlace de perfil copiado!' : 'Profile link copied!')
           setShowToast(true)
           setTimeout(() => setShowToast(false), 3000)
         } catch (err) {
@@ -717,7 +717,7 @@ export default function SearchPage({ lang = 'es', navigate, initialCategory = 'a
   const T = txt[lang]
 
   const searchPlaceholders = lang === 'es' 
-    ? ['¿Buscas a un plomero?', '¿Necesitas un electricista?', 'O quizás un mecánico...', 'Encuentra soluciones aquí'] 
+    ? ['Â¿Buscas a un plomero?', 'Â¿Necesitas un electricista?', 'O quizÃ¡s un mecÃ¡nico...', 'Encuentra soluciones aquÃ­'] 
     : ['Looking for a plumber?', 'Need an electrician?', 'Maybe a mechanic...', 'Find solutions here'];
   const [phIdx, setPhIdx] = useState(0);
   const [prevPhIdx, setPrevPhIdx] = useState(null);
@@ -756,7 +756,7 @@ export default function SearchPage({ lang = 'es', navigate, initialCategory = 'a
         querySnapshot.forEach((docSnap) => {
           const data = docSnap.data()
 
-          // ─ Filtro estricto: Solo mostrar si completó el perfil y tiene plan activo o contratos
+          // â”€ Filtro estricto: Solo mostrar si completÃ³ el perfil y tiene plan activo o contratos
           const isComplete = isProComplete(data)
           const hasPlan = Boolean(data.planStatus === 'active')
           const hasContracts = Boolean(data.contracts && data.contracts > 0)
@@ -771,8 +771,8 @@ export default function SearchPage({ lang = 'es', navigate, initialCategory = 'a
             category:   data.category   || data.especialidad || data.verificacion?.especialidad || '',
             rating:     realRating,
             reviews:    reviewsCount,
-            location:   data.verificacion?.municipio || data.verificacion?.provincia || data.city || data.location || 'República Dominicana',
-            experience: data.experience || '1 año',
+            location:   data.verificacion?.municipio || data.verificacion?.provincia || data.city || data.location || 'RepÃºblica Dominicana',
+            experience: data.experience || '1 aÃ±o',
             avatar:     (data.name || 'P').substring(0, 2).toUpperCase(),
             available:  data.available !== false,
             photoURL:   data.photoURL   || null,
@@ -871,7 +871,7 @@ export default function SearchPage({ lang = 'es', navigate, initialCategory = 'a
       <div className="search-header">
         <h1 className="search-title">{T.title}</h1>
         <div className="search-bar" style={{ position: 'relative' }}>
-          <span className="search-icon">🔍</span>
+          <span className="search-icon">ðŸ”</span>
           {search.length === 0 && (
             <div className="search-placeholder-container">
               {prevPhIdx !== null && prevPhIdx !== phIdx && (
@@ -885,12 +885,12 @@ export default function SearchPage({ lang = 'es', navigate, initialCategory = 'a
             </div>
           )}
           <input type="text" value={search} onChange={e => setSearch(e.target.value)} style={{ zIndex: 2 }} />
-          {search && <button className="search-clear" onClick={() => setSearch('')} style={{ zIndex: 3 }}>✕</button>}
+          {search && <button className="search-clear" onClick={() => setSearch('')} style={{ zIndex: 3 }}>âœ•</button>}
         </div>
       </div>
 
 
-      {/* ── CARRUSEL DE HISTORIAS DE TRABAJOS REALIZADOS (STORIES 24H) ── */}
+      {/* â”€â”€ CARRUSEL DE HISTORIAS DE TRABAJOS REALIZADOS (STORIES 24H) â”€â”€ */}
       <HistoriasCarrusel 
         userData={userData} 
         isPro={userRole === 'pro'} 
@@ -901,12 +901,12 @@ export default function SearchPage({ lang = 'es', navigate, initialCategory = 'a
         navigate={navigate}
       />
 
-      {/* ── CARRUSEL ÉPICO VIP DE PROFESIONALES DESTACADOS (ENCIMA DEL CUADRO MAMEY) ── */}
+      {/* â”€â”€ CARRUSEL Ã‰PICO VIP DE PROFESIONALES DESTACADOS (ENCIMA DEL CUADRO MAMEY) â”€â”€ */}
       <VIPSection 
         realVipPros={vipProsList} 
         lang={lang} 
         navigate={navigate} 
-        sectionTitle={lang === 'es' ? '👑 NUESTROS VIP' : '👑 OUR VIPs'}
+        sectionTitle={lang === 'es' ? 'ðŸ‘‘ NUESTROS VIP' : 'ðŸ‘‘ OUR VIPs'}
         sectionSub={lang === 'es' ? 'Profesionales preparados para cumplir todas tus necesidades' : 'Professionals ready to fulfill all your needs'}
         showSeeAll={false}
         strictVipOnly={true}
@@ -917,43 +917,43 @@ export default function SearchPage({ lang = 'es', navigate, initialCategory = 'a
       <PromoBanner lang={lang} userRole={userRole} />
       <ProDelMes lang={lang} navigate={navigate} userRole={userRole} />
 
-      {/* ── ALERTA INTELIGENTE DE PLAN Y CONTRATOS PARA PROFESIONALES ── */}
+      {/* â”€â”€ ALERTA INTELIGENTE DE PLAN Y CONTRATOS PARA PROFESIONALES â”€â”€ */}
       <ProPlanAlertWidget userData={userData} onOpenPlanModal={() => setShowPlanModal(true)} />
 
       <div className="pill-filters" style={{ display: 'flex', gap: '8px', overflowX: 'auto', alignItems: 'center' }}>
         <button className={`pill-btn ${quickFilter === 'all' ? 'active' : ''}`} onClick={() => setQuickFilter('all')}>
-          🌐 {lang === 'es' ? 'Todos' : 'All'}
+          ðŸŒ {lang === 'es' ? 'Todos' : 'All'}
         </button>
         <button className={`pill-btn ${quickFilter === 'stars45' ? 'active' : ''}`} onClick={() => setQuickFilter('stars45')}>
-          🌟 {lang === 'es' ? '4.5+ Estrellas' : '4.5+ Stars'}
+          ðŸŒŸ {lang === 'es' ? '4.5+ Estrellas' : '4.5+ Stars'}
         </button>
         <button className={`pill-btn ${quickFilter === 'mostHired' ? 'active' : ''}`} onClick={() => setQuickFilter('mostHired')}>
-          🔥 {lang === 'es' ? 'Más contratados' : 'Most hired'}
+          ðŸ”¥ {lang === 'es' ? 'MÃ¡s contratados' : 'Most hired'}
         </button>
         <button className={`pill-btn ${quickFilter === 'nearest' ? 'active' : ''}`} onClick={() => setQuickFilter('nearest')}>
-          📍 {lang === 'es' ? 'Más cercanos' : 'Nearest'}
+          ðŸ“ {lang === 'es' ? 'MÃ¡s cercanos' : 'Nearest'}
         </button>
         <button className={`pill-btn ${quickFilter === 'available' ? 'active' : ''}`} onClick={() => setQuickFilter('available')}>
-          ⚡ {lang === 'es' ? 'Disponibles' : 'Available'}
+          âš¡ {lang === 'es' ? 'Disponibles' : 'Available'}
         </button>
         <button className={`pill-btn ${quickFilter === 'premium' ? 'active' : ''}`} onClick={() => setQuickFilter('premium')}>
-          💎 {lang === 'es' ? 'Premium' : 'Premium'}
+          ðŸ’Ž {lang === 'es' ? 'Premium' : 'Premium'}
         </button>
         <button className="pill-btn" onClick={() => setShowEstimadorModal(true)} style={{ background: '#ECFDF5', color: '#059669', borderColor: '#A7F3D0', fontWeight: '800' }}>
-          📊 {lang === 'es' ? 'Precios RD$' : 'RD$ Prices'}
+          ðŸ“Š {lang === 'es' ? 'Precios RD$' : 'RD$ Prices'}
         </button>
         <button className="pill-btn" onClick={() => setShowCalcModal(true)} style={{ background: '#F0FDF4', color: '#059669', borderColor: '#BBF7D0', fontWeight: '900' }}>
-          🧰 {lang === 'es' ? 'Calculadora RD$' : 'Calculator RD$'}
+          ðŸ§° {lang === 'es' ? 'Calculadora RD$' : 'Calculator RD$'}
         </button>
         <button className="pill-btn" onClick={() => setShowSolicitudExpress(true)} style={{ background: 'linear-gradient(135deg, #FFF7ED, #FFEDD5)', color: '#C2410C', borderColor: '#FDBA74', fontWeight: '900' }}>
-          ⚡ {lang === 'es' ? 'Cotización Flash' : 'Flash Quote'}
+          âš¡ {lang === 'es' ? 'CotizaciÃ³n Flash' : 'Flash Quote'}
         </button>
         <button className="pill-btn" onClick={() => setViewMode(v => v === 'list' ? 'map' : 'list')} style={{ background: viewMode==='map' ? '#F26000' : '#1E293B', color: '#fff', border: 'none', fontWeight: '800' }}>
-          {viewMode === 'list' ? '🗺️ Mapa GPS' : '📋 Lista'}
+          {viewMode === 'list' ? 'ðŸ—ºï¸ Mapa GPS' : 'ðŸ“‹ Lista'}
         </button>
       </div>
 
-      {/* ── FILTRO POR PROVINCIA Y SECTOR (UBICACIÓN EXACTA CON GPS 1-CLIC) ── */}
+      {/* â”€â”€ FILTRO POR PROVINCIA Y SECTOR (UBICACIÃ“N EXACTA CON GPS 1-CLIC) â”€â”€ */}
       <div className="province-filters-scroll" style={{ display: 'flex', gap: '8px', overflowX: 'auto', padding: '0 16px 14px', scrollbarWidth: 'none', alignItems: 'center' }}>
         <button
           onClick={handleDetectGps}
@@ -975,14 +975,14 @@ export default function SearchPage({ lang = 'es', navigate, initialCategory = 'a
             gap: '6px',
             transition: 'all 0.2s ease'
           }}
-          title={lang === 'es' ? 'Detectar mi provincia y zona automáticamente por GPS' : 'Detect GPS location'}
+          title={lang === 'es' ? 'Detectar mi provincia y zona automÃ¡ticamente por GPS' : 'Detect GPS location'}
         >
           <span style={{ fontSize: '14px', animation: isLocatingGps ? 'spin 1s linear infinite' : 'none' }}>
-            {isLocatingGps ? '🔄' : '🎯'}
+            {isLocatingGps ? 'ðŸ”„' : 'ðŸŽ¯'}
           </span>
           {isLocatingGps 
             ? (lang === 'es' ? 'Detectando GPS...' : 'Detecting GPS...') 
-            : (lang === 'es' ? 'Mi Ubicación GPS' : 'My GPS Location')}
+            : (lang === 'es' ? 'Mi UbicaciÃ³n GPS' : 'My GPS Location')}
         </button>
 
         {PROVINCES_LIST.map(prov => (
@@ -1013,7 +1013,7 @@ export default function SearchPage({ lang = 'es', navigate, initialCategory = 'a
       <div className="categories-wrapper">
         <div className="categories-scroll">
           <button className={`cat-pill ${activeCategory === 'all' ? 'active' : ''}`} onClick={() => handleCategoryClick('all')}>
-            <span className="cat-icon">✦</span> {T.allCats}
+            <span className="cat-icon">âœ¦</span> {T.allCats}
           </button>
           {CATEGORIES.map(cat => (
             <button key={cat.id} className={`cat-pill ${activeCategory === cat.id ? 'active' : ''}`} onClick={() => handleCategoryClick(cat.id)}>
@@ -1027,7 +1027,7 @@ export default function SearchPage({ lang = 'es', navigate, initialCategory = 'a
         {currentCat && currentCat.subcategories && currentCat.subcategories.length > 0 && (
           <div className="subcategories-scroll">
             <button className={`sub-pill ${activeSubcategory === 'all' ? 'active' : ''}`} onClick={() => handleSubcategoryClick('all')}>
-              ✓ Todas en {lang === 'es' ? currentCat.labelEs : currentCat.labelEn}
+              âœ“ Todas en {lang === 'es' ? currentCat.labelEs : currentCat.labelEn}
             </button>
             {currentCat.subcategories.map(sub => (
               <button key={sub.id} className={`sub-pill ${activeSubcategory === sub.id ? 'active' : ''}`} onClick={() => handleSubcategoryClick(sub.id)}>
@@ -1055,12 +1055,12 @@ export default function SearchPage({ lang = 'es', navigate, initialCategory = 'a
                     <div style={{ textAlign: 'center', padding: '6px' }}>
                       <h4 style={{ margin: '0 0 4px', fontSize: '14px', fontWeight: '800', color: '#1A1A2E' }}>{pro.name}</h4>
                       <p style={{ margin: '0 0 6px', fontSize: '12px', color: '#F26000', fontWeight: '700' }}>{pro.category}</p>
-                      <p style={{ margin: '0 0 8px', fontSize: '11px', color: '#64748B' }}>📍 {pro.location}</p>
+                      <p style={{ margin: '0 0 8px', fontSize: '11px', color: '#64748B' }}>ðŸ“ {pro.location}</p>
                       <button 
                         onClick={() => navigate('proProfile', pro)}
                         style={{ background: '#F26000', color: '#fff', border: 'none', padding: '6px 12px', borderRadius: '12px', fontSize: '11px', fontWeight: '800', cursor: 'pointer' }}
                       >
-                        Ver Perfil →
+                        Ver Perfil â†’
                       </button>
                     </div>
                   </Popup>
@@ -1097,7 +1097,7 @@ export default function SearchPage({ lang = 'es', navigate, initialCategory = 'a
           const isPlatinum = proTier === 'platinum';
           const isGold = proTier === 'gold';
 
-          // ── FOTOS GRANDES RESERVADAS EXCLUSIVAMENTE PARA PROFESIONALES VIP ──
+          // â”€â”€ FOTOS GRANDES RESERVADAS EXCLUSIVAMENTE PARA PROFESIONALES VIP â”€â”€
           if (isVip) {
             const sData = getProStoryData(pro)
             const hasStory = Boolean(sData && sData.stories && sData.stories.length > 0)
@@ -1109,8 +1109,8 @@ export default function SearchPage({ lang = 'es', navigate, initialCategory = 'a
                     <img src={logoListo} alt="Pedidos Listo" className="listo-brand-watermark-img" />
                   </div>
                   <div className="premium-badges-top">
-                    <span className="premium-amz-badge" style={{background: 'linear-gradient(135deg, #FF6B00, #FF3D00)'}}>✨ Exclusivo VIP</span>
-                    <span className="premium-amz-badge badge-urgent" style={{background: '#E11D48'}}>⚡ Responde al instante</span>
+                    <span className="premium-amz-badge" style={{background: 'linear-gradient(135deg, #FF6B00, #FF3D00)'}}>âœ¨ Exclusivo VIP</span>
+                    <span className="premium-amz-badge badge-urgent" style={{background: '#E11D48'}}>âš¡ Responde al instante</span>
                   </div>
                   
                   <img 
@@ -1162,7 +1162,7 @@ export default function SearchPage({ lang = 'es', navigate, initialCategory = 'a
 
                   {pro.rating && pro.rating > 0 && pro.reviews > 0 && (
                     <div style={{ position: 'absolute', bottom: '16px', right: '16px', background: 'rgba(26, 26, 46, 0.85)', backdropFilter: 'blur(4px)', borderRadius: '8px', padding: '4px 8px', display: 'flex', alignItems: 'center', gap: '4px', border: '1.5px solid #FFD700', boxShadow: '0 4px 10px rgba(0,0,0,0.15)', zIndex: 10 }}>
-                      <span style={{ fontSize: '11px', color: '#FFD700', fontWeight: 'bold' }}>⭐</span>
+                      <span style={{ fontSize: '11px', color: '#FFD700', fontWeight: 'bold' }}>â­</span>
                       <span style={{ fontSize: '11px', color: 'white', fontWeight: '900' }}>{Number(pro.rating).toFixed(1)}</span>
                     </div>
                   )}
@@ -1189,13 +1189,13 @@ export default function SearchPage({ lang = 'es', navigate, initialCategory = 'a
                   <div>
                     <h3 className="premium-name">{pro.name}</h3>
                     <p className="premium-cat">
-                      {(subCat?.image || mainCat?.image) ? <img src={subCat?.image || mainCat?.image} style={{ width: '16px', height: '16px', objectFit: 'contain', verticalAlign: 'middle', marginRight: '4px' }} alt="" /> : (subCat?.icon || mainCat?.icon || '🔧')} 
+                      {(subCat?.image || mainCat?.image) ? <img src={subCat?.image || mainCat?.image} style={{ width: '16px', height: '16px', objectFit: 'contain', verticalAlign: 'middle', marginRight: '4px' }} alt="" /> : (subCat?.icon || mainCat?.icon || 'ðŸ”§')} 
                       {lang === 'es' ? (subCat?.labelEs || mainCat?.labelEs || pro.category) : (subCat?.labelEn || mainCat?.labelEn || pro.category)}
-                      <span style={{marginLeft: '6px', fontSize: '10px', textTransform: 'uppercase', background: 'linear-gradient(135deg, #FF6B00, #FF3D00)', color: '#fff', padding: '2px 8px', borderRadius: '6px', fontWeight: '900', boxShadow: '0 2px 8px rgba(255,107,0,0.4)', textShadow: '0 1px 2px rgba(0,0,0,0.3)'}}>✨ VIP</span>
+                      <span style={{marginLeft: '6px', fontSize: '10px', textTransform: 'uppercase', background: 'linear-gradient(135deg, #FF6B00, #FF3D00)', color: '#fff', padding: '2px 8px', borderRadius: '6px', fontWeight: '900', boxShadow: '0 2px 8px rgba(255,107,0,0.4)', textShadow: '0 1px 2px rgba(0,0,0,0.3)'}}>âœ¨ VIP</span>
                     </p>
                   </div>
                   <div style={{ textAlign: 'right' }}>
-                    <p className="pro-location" style={{ margin: 0, fontSize: '13px' }}>📍 {pro.location}</p>
+                    <p className="pro-location" style={{ margin: 0, fontSize: '13px' }}>ðŸ“ {pro.location}</p>
                     <p style={{ margin: '6px 0 0', color: '#B12704', fontWeight: '900', fontSize: '15px' }}>{lang === 'es' ? 'Precios a convenir' : 'Fixed prices'}</p>
                   </div>
                 </div>
@@ -1203,60 +1203,60 @@ export default function SearchPage({ lang = 'es', navigate, initialCategory = 'a
                 <div className="premium-rating-row">
                   {(() => {
                     const validStars = Math.max(0, Math.min(5, Math.round(pro.rating || 0)));
-                    return <span className="premium-stars">{'★'.repeat(validStars)}{'☆'.repeat(5 - validStars)}</span>;
+                    return <span className="premium-stars">{'â˜…'.repeat(validStars)}{'â˜†'.repeat(5 - validStars)}</span>;
                   })()}
                   <span className="premium-rating-text">{Number(pro.rating || 0).toFixed(1)} ({pro.reviews || 0} {lang==='es'?'valoraciones':'ratings'})</span>
                 </div>
 
                 <div className="premium-stats">
-                  <p>🔥 {pro.contracts || 0} <span>{lang==='es'?'contratados el mes pasado':'hired last month'}</span></p>
+                  <p>ðŸ”¥ {pro.contracts || 0} <span>{lang==='es'?'contratados el mes pasado':'hired last month'}</span></p>
                 </div>
 
                 {pro.reviews > 0 && (
                   <div className="premium-review-box">
-                    <span className="premium-quote-icon">💬</span>
+                    <span className="premium-quote-icon">ðŸ’¬</span>
                     <p className="premium-review-text">
-                      <strong>¡Excelente trabajo!</strong> "El mejor {lang==='es' ? (subCat?.labelEs || mainCat?.labelEs || pro.category) : 'profesional'} que he contratado."
+                      <strong>Â¡Excelente trabajo!</strong> "El mejor {lang==='es' ? (subCat?.labelEs || mainCat?.labelEs || pro.category) : 'profesional'} que he contratado."
                     </p>
                   </div>
                 )}
 
                 <div className="premium-actions">
                   <button className="premium-btn-profile" onClick={(e) => { e.stopPropagation(); navigate('proProfile', pro); }}>
-                    👤 {T.profile}
+                    ðŸ‘¤ {T.profile}
                   </button>
                   <button className="premium-btn-book" onClick={(e) => { e.stopPropagation(); navigate('booking', pro); }} style={{ background: 'linear-gradient(135deg, #FF6B00, #FF3D00)', boxShadow: '0 4px 15px rgba(255, 107, 0, 0.4)' }}>
-                    ✨ {lang === 'es' ? 'Contratar' : 'Hire'}
+                    âœ¨ {lang === 'es' ? 'Contratar' : 'Hire'}
                   </button>
                 </div>
               </div>
             )
           }
 
-          // ── PROFESIONALES NO VIP (PLATINUM, GOLD, ESTÁNDAR) ──
+          // â”€â”€ PROFESIONALES NO VIP (PLATINUM, GOLD, ESTÃNDAR) â”€â”€
           const sDataStd = getProStoryData(pro)
           const hasStoryStd = Boolean(sDataStd && sDataStd.stories && sDataStd.stories.length > 0)
 
           let cardTierClass = 'standard-card';
           let badgeMarkup = null;
           let btnBookClass = 'btn-book standard-plan';
-          let btnBookIcon = '🔹';
+          let btnBookIcon = 'ðŸ”¹';
 
           if (isPlatinum) {
             cardTierClass = 'platinum-card';
-            badgeMarkup = <span className="pro-tier-badge badge-platinum">💎 PLATINUM</span>;
+            badgeMarkup = <span className="pro-tier-badge badge-platinum">ðŸ’Ž PLATINUM</span>;
             btnBookClass = 'btn-book platinum-plan';
-            btnBookIcon = '💎';
+            btnBookIcon = 'ðŸ’Ž';
           } else if (isGold) {
             cardTierClass = 'gold-card';
-            badgeMarkup = <span className="pro-tier-badge badge-gold">⭐ GOLD</span>;
+            badgeMarkup = <span className="pro-tier-badge badge-gold">â­ GOLD</span>;
             btnBookClass = 'btn-book gold-plan';
-            btnBookIcon = '⭐';
+            btnBookIcon = 'â­';
           } else {
             cardTierClass = 'standard-card';
-            badgeMarkup = <span className="pro-tier-badge badge-standard">🔹 ESTÁNDAR</span>;
+            badgeMarkup = <span className="pro-tier-badge badge-standard">ðŸ”¹ ESTÃNDAR</span>;
             btnBookClass = 'btn-book standard-plan';
-            btnBookIcon = '🔹';
+            btnBookIcon = 'ðŸ”¹';
           }
 
           return (
@@ -1314,12 +1314,12 @@ export default function SearchPage({ lang = 'es', navigate, initialCategory = 'a
 
                 {pro.rating && pro.rating > 0 && pro.reviews > 0 && (
                   <div style={{ position: 'absolute', top: '6px', right: '6px', background: 'rgba(26, 26, 46, 0.85)', backdropFilter: 'blur(4px)', borderRadius: '8px', padding: '3px 6px', display: 'flex', alignItems: 'center', gap: '4px', border: '1.5px solid #FFD700', boxShadow: '0 4px 10px rgba(0,0,0,0.15)', zIndex: 10 }}>
-                    <span style={{ fontSize: '10px', color: '#FFD700', fontWeight: 'bold' }}>⭐</span>
+                    <span style={{ fontSize: '10px', color: '#FFD700', fontWeight: 'bold' }}>â­</span>
                     <span style={{ fontSize: '10px', color: 'white', fontWeight: '900' }}>{Number(pro.rating).toFixed(1)}</span>
                   </div>
                 )}
 
-                {/* CONTENEDOR INFERIOR: PLAN ENCIMA DEL BOTÓN DISPONIBLE */}
+                {/* CONTENEDOR INFERIOR: PLAN ENCIMA DEL BOTÃ“N DISPONIBLE */}
                 <div className="card-photo-overlay-bottom">
                   {badgeMarkup}
                   <span className={`status-badge ${pro.available ? 'avail' : 'busy'}`}>
@@ -1344,21 +1344,21 @@ export default function SearchPage({ lang = 'es', navigate, initialCategory = 'a
               <div className="card-body">
                 <h3 className="pro-name">{pro.name}</h3>
                 <p className="pro-cat">
-                  {(subCat?.image || mainCat?.image) ? <img src={subCat?.image || mainCat?.image} style={{ width: '16px', height: '16px', objectFit: 'contain', verticalAlign: 'middle', marginRight: '4px' }} alt="" /> : (subCat?.icon || mainCat?.icon || '🔧')}{' '}
+                  {(subCat?.image || mainCat?.image) ? <img src={subCat?.image || mainCat?.image} style={{ width: '16px', height: '16px', objectFit: 'contain', verticalAlign: 'middle', marginRight: '4px' }} alt="" /> : (subCat?.icon || mainCat?.icon || 'ðŸ”§')}{' '}
                   {lang === 'es' ? (subCat?.labelEs || mainCat?.labelEs || pro.category) : (subCat?.labelEn || mainCat?.labelEn || pro.category)}
                 </p>
-                <p className="pro-location">📍 {pro.location}</p>
+                <p className="pro-location">ðŸ“ {pro.location}</p>
                 <div className="pro-meta">
-                  <span className="pro-rating">★ {Number(pro.rating || 0).toFixed(1)} <em>({pro.reviews || 0} {T.reviews})</em></span>
-                  <span className="pro-exp">⏱ {pro.experience || 'Nuevo'}</span>
+                  <span className="pro-rating">â˜… {Number(pro.rating || 0).toFixed(1)} <em>({pro.reviews || 0} {T.reviews})</em></span>
+                  <span className="pro-exp">â± {pro.experience || 'Nuevo'}</span>
                 </div>
               </div>
               <div className="card-footer">
                 <span className="pro-exp-badge" style={{ color:'#666', fontSize:'13px', fontWeight:'600', padding:'4px 8px', background:'#eee', borderRadius:'6px' }}>
-                  🤝 Precio a convenir
+                  ðŸ¤ Precio a convenir
                 </span>
                 <div className="card-actions">
-                  <button className="btn-profile" onClick={() => navigate('proProfile', pro)}>👤 {T.profile}</button>
+                  <button className="btn-profile" onClick={() => navigate('proProfile', pro)}>ðŸ‘¤ {T.profile}</button>
                   <button className={btnBookClass} onClick={() => navigate('booking', pro)}>
                     <span style={{ marginRight: '4px' }}>{btnBookIcon}</span>
                     {T.book}
@@ -1372,18 +1372,18 @@ export default function SearchPage({ lang = 'es', navigate, initialCategory = 'a
       )}
 
       {!loading && filtered.length === 0 && (
-        <div className="empty-state"><span>🔍</span><p>{T.empty}</p></div>
+        <div className="empty-state"><span>ðŸ”</span><p>{T.empty}</p></div>
       )}
 
       {showToast && (
         <div className="toast-notification">
-          <span>📋</span> {toastMessage}
+          <span>ðŸ“‹</span> {toastMessage}
         </div>
       )}
 
       <div style={{ height: 80 }} />
 
-      {/* Modal de Renovación de Plan para Profesional */}
+      {/* Modal de RenovaciÃ³n de Plan para Profesional */}
       <PlanSelectionModal 
         isOpen={showPlanModal} 
         onClose={() => setShowPlanModal(false)} 
@@ -1398,7 +1398,7 @@ export default function SearchPage({ lang = 'es', navigate, initialCategory = 'a
         onSelectCategory={(cat) => setSearch(cat)}
       />
 
-      {/* Modal de Solicitud Cotización Flash 3 Pasos */}
+      {/* Modal de Solicitud CotizaciÃ³n Flash 3 Pasos */}
       {showSolicitudExpress && (
         <SolicitudExpressModal 
           lang={lang} 

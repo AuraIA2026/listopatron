@@ -1,4 +1,4 @@
-import React from 'react'
+﻿import React from 'react'
 import './VIPSection.css'
 import StoryAvatar from './StoryAvatar'
 import { getProPlanTheme } from '../planTheme'
@@ -9,14 +9,14 @@ import electrica1 from '../assets/pros/Electricista1.jpg'
 import plomero    from '../assets/pros/Plomero.jpg'
 import cerrajero1 from '../assets/pros/Cerrajero1.jpg'
 import jardinero  from '../assets/pros/Jardinero.jpg'
-import logoListo  from '../assets/logo_listo.png'
+import logoListo  from '../assets/pedidos-listo-mamey.png'
 
 const demoVipPros = [
   {
     id: 'vip_1',
-    nameEs: 'Juan Pérez',
-    nameEn: 'Juan Pérez',
-    specEs: 'Plomero Máster',
+    nameEs: 'Juan PÃ©rez',
+    nameEn: 'Juan PÃ©rez',
+    specEs: 'Plomero MÃ¡ster',
     specEn: 'Master Plumber',
     rating: 5.0,
     reviews: 142,
@@ -24,16 +24,16 @@ const demoVipPros = [
     jobs: 180,
     currentPlan: 'Verificado',
     planName: 'Verificado',
-    badgeTitle: '🔹 SOCIO VERIFICADO',
+    badgeTitle: 'ðŸ”¹ SOCIO VERIFICADO',
     avail: true,
     img: plomero,
-    experience: '8 años de exp.',
-    guarantee: 'Garantía Listo'
+    experience: '8 aÃ±os de exp.',
+    guarantee: 'GarantÃ­a Listo'
   },
   {
     id: 'vip_2',
-    nameEs: 'María González',
-    nameEn: 'María González',
+    nameEs: 'MarÃ­a GonzÃ¡lez',
+    nameEn: 'MarÃ­a GonzÃ¡lez',
     specEs: 'Electricista Certificada',
     specEn: 'Certified Electrician',
     rating: 5.0,
@@ -42,16 +42,16 @@ const demoVipPros = [
     jobs: 125,
     currentPlan: 'Platinum',
     planName: 'Platinum',
-    badgeTitle: '💎 SOCIO PLATINUM',
+    badgeTitle: 'ðŸ’Ž SOCIO PLATINUM',
     avail: true,
     img: electrica1,
-    experience: '6 años de exp.',
-    guarantee: 'Certificación 24/7'
+    experience: '6 aÃ±os de exp.',
+    guarantee: 'CertificaciÃ³n 24/7'
   },
   {
     id: 'vip_3',
-    nameEs: 'Roberto Núñez',
-    nameEn: 'Roberto Núñez',
+    nameEs: 'Roberto NÃºÃ±ez',
+    nameEn: 'Roberto NÃºÃ±ez',
     specEs: 'Cerrajero de Emergencia',
     specEn: 'Emergency Locksmith',
     rating: 5.0,
@@ -60,10 +60,10 @@ const demoVipPros = [
     jobs: 260,
     currentPlan: 'Gold',
     planName: 'Gold',
-    badgeTitle: '⭐ SOCIO GOLD',
+    badgeTitle: 'â­ SOCIO GOLD',
     avail: true,
     img: cerrajero1,
-    experience: '10 años de exp.',
+    experience: '10 aÃ±os de exp.',
     guarantee: 'Respuesta < 20 min'
   },
   {
@@ -78,17 +78,17 @@ const demoVipPros = [
     jobs: 90,
     currentPlan: 'Verificado',
     planName: 'Verificado',
-    badgeTitle: '🔹 SOCIO VERIFICADO',
+    badgeTitle: 'ðŸ”¹ SOCIO VERIFICADO',
     avail: true,
     img: jardinero,
-    experience: '5 años de exp.',
-    guarantee: 'Diseño Profesional'
+    experience: '5 aÃ±os de exp.',
+    guarantee: 'DiseÃ±o Profesional'
   },
   {
     id: 'vip_5',
-    nameEs: 'Luisa Martínez',
-    nameEn: 'Luisa Martínez',
-    specEs: 'Mecánica Automotriz',
+    nameEs: 'Luisa MartÃ­nez',
+    nameEn: 'Luisa MartÃ­nez',
+    specEs: 'MecÃ¡nica Automotriz',
     specEn: 'Auto Mechanic',
     rating: 4.9,
     reviews: 164,
@@ -96,17 +96,17 @@ const demoVipPros = [
     jobs: 210,
     currentPlan: 'Platinum',
     planName: 'Platinum',
-    badgeTitle: '💎 SOCIO PLATINUM',
+    badgeTitle: 'ðŸ’Ž SOCIO PLATINUM',
     avail: true,
-    experience: '9 años de exp.',
-    guarantee: 'Garantía Listo'
+    experience: '9 aÃ±os de exp.',
+    guarantee: 'GarantÃ­a Listo'
   }
 ]
 
 const innerPhotos = [
-  { video: '/assets/delivery_rider_video.mp4', titleEs: 'Pedidos Listo — Entrega de Paquetes & Envíos', titleEn: 'Pedidos Listo — Package & Express Delivery', badge: '📦 ENTREGA EN MANO 24/7' },
-  { video: '/assets/delivery_worker_scooter.mp4', titleEs: 'Pedidos Listo — Delivery en Moto a Toda Velocidad', titleEn: 'Pedidos Listo — High Speed Scooter Delivery', badge: '🛵 DELIVERIES EN MOTO 24/7' },
-  { titleEs: 'Pedidos Listo — Mandados, Compras & Servicios', titleEn: 'Pedidos Listo — Errands, Shopping & Services', badge: '⚡ TODO EN UN SOLO LUGAR' }
+  { video: '/assets/delivery_rider_video.mp4', titleEs: 'Pedidos Listo â€” Entrega de Paquetes & EnvÃ­os', titleEn: 'Pedidos Listo â€” Package & Express Delivery', badge: 'ðŸ“¦ ENTREGA EN MANO 24/7' },
+  { video: '/assets/delivery_worker_scooter.mp4', titleEs: 'Pedidos Listo â€” Delivery en Moto a Toda Velocidad', titleEn: 'Pedidos Listo â€” High Speed Scooter Delivery', badge: 'ðŸ›µ DELIVERIES EN MOTO 24/7' },
+  { titleEs: 'Pedidos Listo â€” Mandados, Compras & Servicios', titleEn: 'Pedidos Listo â€” Errands, Shopping & Services', badge: 'âš¡ TODO EN UN SOLO LUGAR' }
 ]
 
 export const getProTier = (pro) => {
@@ -134,10 +134,10 @@ export const getProTier = (pro) => {
   if (rawPlan.includes('gold') || rawPlan.includes('oro')) {
     return 'gold';
   }
-  if (rawPlan.includes('standard') || rawPlan.includes('estandar') || rawPlan.includes('estándar')) {
+  if (rawPlan.includes('standard') || rawPlan.includes('estandar') || rawPlan.includes('estÃ¡ndar')) {
     return 'standard';
   }
-  if (rawPlan.includes('basico') || rawPlan.includes('básico') || rawPlan.includes('basic')) {
+  if (rawPlan.includes('basico') || rawPlan.includes('bÃ¡sico') || rawPlan.includes('basic')) {
     return 'basico';
   }
 
@@ -167,33 +167,33 @@ export const getProPlanBadge = (pro, lang = 'es') => {
   let badgeClass = 'plan-badge-basico';
 
   if (rawPlan.includes('vip') || rawPlan.includes('ilimitado') || rawPlan.includes('elite')) {
-    text = lang === 'es' ? '⭐ SOCIO VIP' : '⭐ VIP PARTNER';
+    text = lang === 'es' ? 'â­ SOCIO VIP' : 'â­ VIP PARTNER';
     badgeClass = 'plan-badge-vip';
   } else if (rawPlan.includes('platinum') || rawPlan.includes('platino')) {
-    text = lang === 'es' ? '💎 SOCIO PLATINUM' : '💎 PLATINUM PARTNER';
+    text = lang === 'es' ? 'ðŸ’Ž SOCIO PLATINUM' : 'ðŸ’Ž PLATINUM PARTNER';
     badgeClass = 'plan-badge-platinum';
   } else if (rawPlan.includes('gold') || rawPlan.includes('oro')) {
-    text = lang === 'es' ? '⭐ SOCIO GOLD' : '⭐ GOLD PARTNER';
+    text = lang === 'es' ? 'â­ SOCIO GOLD' : 'â­ GOLD PARTNER';
     badgeClass = 'plan-badge-gold';
-  } else if (rawPlan.includes('standard') || rawPlan.includes('estandar') || rawPlan.includes('estándar')) {
-    text = lang === 'es' ? '🔹 SOCIO VERIFICADO' : '🔹 VERIFIED PARTNER';
+  } else if (rawPlan.includes('standard') || rawPlan.includes('estandar') || rawPlan.includes('estÃ¡ndar')) {
+    text = lang === 'es' ? 'ðŸ”¹ SOCIO VERIFICADO' : 'ðŸ”¹ VERIFIED PARTNER';
     badgeClass = 'plan-badge-standard';
-  } else if (rawPlan.includes('basico') || rawPlan.includes('básico') || rawPlan.includes('basic')) {
-    text = lang === 'es' ? '⚪ SOCIO REGISTRADO' : '⚪ REGISTERED PARTNER';
+  } else if (rawPlan.includes('basico') || rawPlan.includes('bÃ¡sico') || rawPlan.includes('basic')) {
+    text = lang === 'es' ? 'âšª SOCIO REGISTRADO' : 'âšª REGISTERED PARTNER';
     badgeClass = 'plan-badge-basico';
   } else if (rawPlan.length > 0) {
-    text = `🔹 SOCIO ${rawPlan.toUpperCase()}`;
+    text = `ðŸ”¹ SOCIO ${rawPlan.toUpperCase()}`;
     badgeClass = 'plan-badge-standard';
   } else {
     const contracts = Number(pro.contracts || 0);
     if (contracts >= 20) {
-      text = lang === 'es' ? '💎 SOCIO PLATINUM' : '💎 PLATINUM PARTNER';
+      text = lang === 'es' ? 'ðŸ’Ž SOCIO PLATINUM' : 'ðŸ’Ž PLATINUM PARTNER';
       badgeClass = 'plan-badge-platinum';
     } else if (contracts > 0) {
-      text = lang === 'es' ? '🔹 SOCIO VERIFICADO' : '🔹 VERIFIED PARTNER';
+      text = lang === 'es' ? 'ðŸ”¹ SOCIO VERIFICADO' : 'ðŸ”¹ VERIFIED PARTNER';
       badgeClass = 'plan-badge-standard';
     } else {
-      text = lang === 'es' ? '⚪ PLAN BÁSICO' : '⚪ BASIC PLAN';
+      text = lang === 'es' ? 'âšª PLAN BÃSICO' : 'âšª BASIC PLAN';
       badgeClass = 'plan-badge-basico';
     }
   }
@@ -277,7 +277,7 @@ function VIPProCard({ pro, lang, navigate, getProStoryData, onOpenStory }) {
           })()}
         </div>
 
-        {/* SI TIENE HISTORIA EN VIVO 24H: MOSTRAR EL CÍRCULO CON ANILLO DE LA HISTORIA SOBRE LA FOTO */}
+        {/* SI TIENE HISTORIA EN VIVO 24H: MOSTRAR EL CÃRCULO CON ANILLO DE LA HISTORIA SOBRE LA FOTO */}
         {hasStory && (() => {
           const planTheme = getProPlanTheme(pro.currentPlan || pro.planName || pro.plan || pro.planId, pro.rating);
           return (
@@ -319,7 +319,7 @@ function VIPProCard({ pro, lang, navigate, getProStoryData, onOpenStory }) {
           );
         })()}
 
-        {/* DISPONIBLE Y BOTÓN "VER PERFIL" SOBRE LA FOTO */}
+        {/* DISPONIBLE Y BOTÃ“N "VER PERFIL" SOBRE LA FOTO */}
         <div style={{ position: 'absolute', top: '46px', right: '12px', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '5px', zIndex: 4 }}>
           <span className="vip-tag-online">
             <span className="vip-online-pulse" />
@@ -334,17 +334,17 @@ function VIPProCard({ pro, lang, navigate, getProStoryData, onOpenStory }) {
             }}
             title={lang === 'es' ? 'Ver perfil completo' : 'View full profile'}
           >
-            👁️ {lang === 'es' ? 'Ver perfil' : 'View profile'}
+            ðŸ‘ï¸ {lang === 'es' ? 'Ver perfil' : 'View profile'}
           </button>
         </div>
 
-        {/* DETALLES ÉPICOS AL PIE DE LA FOTO */}
+        {/* DETALLES Ã‰PICOS AL PIE DE LA FOTO */}
         <div className="vip-photo-bottom-info">
           <div className="vip-name-spec-wrap">
             <p className={`vip-pro-name ${isInView ? 'epic-name-anim' : ''}`}>
               {pro.nameEs || pro.name}
               {isFiveStar && (
-                <span className={`vip-epic-crown-icon ${isInView ? 'crown-active' : ''}`} title="Profesional 5 Estrellas">👑</span>
+                <span className={`vip-epic-crown-icon ${isInView ? 'crown-active' : ''}`} title="Profesional 5 Estrellas">ðŸ‘‘</span>
               )}
             </p>
             <p className={`vip-pro-spec ${isInView ? 'epic-spec-anim' : ''}`}>
@@ -361,14 +361,14 @@ function VIPProCard({ pro, lang, navigate, getProStoryData, onOpenStory }) {
                     className="vip-star-pop" 
                     style={{ animationDelay: `${starIdx * 0.10}s` }}
                   >
-                    ★
+                    â˜…
                   </span>
                 ))}
               </div>
               <span className="vip-rating-score">{effectiveRating.toFixed(1)}</span>
             </div>
             <span className="vip-reviews-count">
-              ({numReviews > 0 ? numReviews : 120} {lang === 'es' ? 'reseñas' : 'reviews'})
+              ({numReviews > 0 ? numReviews : 120} {lang === 'es' ? 'reseÃ±as' : 'reviews'})
             </span>
           </div>
         </div>
@@ -377,7 +377,7 @@ function VIPProCard({ pro, lang, navigate, getProStoryData, onOpenStory }) {
       {/* CUERPO Y ACCIONES DE LA TARJETA */}
       <div className="vip-card-body">
         <div className="vip-highlights-row">
-          <span className="vip-pill">📍 {(() => {
+          <span className="vip-pill">ðŸ“ {(() => {
             const candidates = [
               pro.sector,
               pro.municipio || pro.ciudad || pro.city,
@@ -391,14 +391,14 @@ function VIPProCard({ pro, lang, navigate, getProStoryData, onOpenStory }) {
             ].filter(Boolean);
             const clean = candidates.filter(str => {
               const s = String(str).trim().toLowerCase();
-              return s !== 'rd' && s !== 'rep. dominicana' && s !== 'república dominicana' && s !== 'rep dominicana';
+              return s !== 'rd' && s !== 'rep. dominicana' && s !== 'repÃºblica dominicana' && s !== 'rep dominicana';
             });
             return clean.length > 0 ? clean.slice(0, 2).join(', ') : 'Santo Domingo, D.N.';
           })()}</span>
           {pro.experience && !['nuevo', 'verificado'].includes(String(pro.experience).trim().toLowerCase()) && (
-            <span className="vip-pill">🛠️ {pro.experience}</span>
+            <span className="vip-pill">ðŸ› ï¸ {pro.experience}</span>
           )}
-          {pro.guarantee && <span className="vip-pill" style={{ background: '#EFF6FF', color: '#1D4ED8', borderColor: '#BFDBFE' }}>🛡️ {pro.guarantee}</span>}
+          {pro.guarantee && <span className="vip-pill" style={{ background: '#EFF6FF', color: '#1D4ED8', borderColor: '#BFDBFE' }}>ðŸ›¡ï¸ {pro.guarantee}</span>}
         </div>
 
         <div className="vip-actions-row">
@@ -409,7 +409,7 @@ function VIPProCard({ pro, lang, navigate, getProStoryData, onOpenStory }) {
               navigate('proProfile', pro)
             }}
           >
-            👤 {lang === 'es' ? 'Ver Perfil' : 'Profile'}
+            ðŸ‘¤ {lang === 'es' ? 'Ver Perfil' : 'Profile'}
           </button>
           <button 
             className="vip-btn-book"
@@ -418,7 +418,7 @@ function VIPProCard({ pro, lang, navigate, getProStoryData, onOpenStory }) {
               navigate('booking', { professional: pro })
             }}
           >
-            ⚡ {lang === 'es' ? 'Contratar' : 'Hire'}
+            âš¡ {lang === 'es' ? 'Contratar' : 'Hire'}
           </button>
         </div>
       </div>
@@ -460,7 +460,7 @@ export default function VIPSection({
       if (isHeroPlaying) {
         setActiveInnerSlide((prev) => (prev + 1) % innerPhotos.length)
       }
-    }, 6000) // Duración de al menos 6 segundos antes de cambiar el slide
+    }, 6000) // DuraciÃ³n de al menos 6 segundos antes de cambiar el slide
 
     return () => {
       clearInterval(timer)
@@ -474,7 +474,7 @@ export default function VIPSection({
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
           <div className="vip-sec-title-wrap">
             <h2 className="vip-sec-title">
-              {sectionTitle || (lang === 'es' ? '🌟 Profesionales Destacados' : '🌟 Featured Professionals')}
+              {sectionTitle || (lang === 'es' ? 'ðŸŒŸ Profesionales Destacados' : 'ðŸŒŸ Featured Professionals')}
             </h2>
           </div>
           {showSeeAll && (
@@ -483,7 +483,7 @@ export default function VIPSection({
               onClick={() => navigate('search')}
               style={{ cursor: 'pointer' }}
             >
-              {lang === 'es' ? 'Ver todos' : 'See all'} ›
+              {lang === 'es' ? 'Ver todos' : 'See all'} â€º
             </button>
           )}
         </div>
@@ -502,7 +502,7 @@ export default function VIPSection({
         onMouseEnter={() => { isInteracting.current = true }}
         onMouseLeave={() => { isInteracting.current = false }}
       >
-        {/* TARJETA 1: TARJETA PROMO EXCLUSIVA DE PEDIDOS LISTO (COLOR MAMEY CON VIDEOS Y BOTÓN DIRECTO) */}
+        {/* TARJETA 1: TARJETA PROMO EXCLUSIVA DE PEDIDOS LISTO (COLOR MAMEY CON VIDEOS Y BOTÃ“N DIRECTO) */}
         <div 
           className="vip-card-hero amz-blue-hero-card"
           onClick={() => {
@@ -541,7 +541,7 @@ export default function VIPSection({
               alignItems: 'center',
               gap: '4px'
             }}>
-              📦 PEDIDOS LISTO
+              ðŸ“¦ PEDIDOS LISTO
             </span>
             <img 
               src={logoListo} 
@@ -569,7 +569,7 @@ export default function VIPSection({
             backdropFilter: 'blur(4px)'
           }}>
             <span style={{ fontSize: '10px', fontWeight: '800', color: '#FFFFFF' }}>
-              ⚡ ENVIOS & DELIVERIES
+              âš¡ ENVIOS & DELIVERIES
             </span>
             <span style={{ fontSize: '10px', fontWeight: '900', color: '#1A1A2E', background: '#FFD700', padding: '2px 6px', borderRadius: '6px' }}>
               ENTREGA HOY
@@ -605,7 +605,7 @@ export default function VIPSection({
               ))}
             </div>
 
-            {/* Dots de navegación del carrusel interno */}
+            {/* Dots de navegaciÃ³n del carrusel interno */}
             <div className="amz-inner-dots">
               {innerPhotos.map((_, idx) => (
                 <span 
@@ -626,7 +626,7 @@ export default function VIPSection({
               Pedidos Listo
             </h3>
             <p style={{ fontSize: '11px', color: '#FFF8F2', fontWeight: '700', margin: '4px 0 0', lineHeight: '1.3' }}>
-              ⭐ 5.0 • {lang === 'es' ? 'Entregas express y servicios al instante' : 'Express deliveries & instant services'}
+              â­ 5.0 â€¢ {lang === 'es' ? 'Entregas express y servicios al instante' : 'Express deliveries & instant services'}
             </p>
           </div>
 
@@ -653,7 +653,7 @@ export default function VIPSection({
               onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.96)'}
               onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}
             >
-              ⚡ {lang === 'es' ? 'Ir a Pedidos Listo ›' : 'Go to Pedidos Listo ›'}
+              âš¡ {lang === 'es' ? 'Ir a Pedidos Listo â€º' : 'Go to Pedidos Listo â€º'}
             </button>
           </div>
         </div>

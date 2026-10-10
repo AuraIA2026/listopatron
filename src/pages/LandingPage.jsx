@@ -599,9 +599,9 @@ export default function LandingPage({ navigate, lang }) {
   {/*  PRELOADER ESTILO APP  */}
   <div className="splash-screen" id="preloader" role="status" aria-label="Cargando">
     <div className="splash-logo-wrap">
-      <img src="./assets/logo_listo_blanco.png" alt="Listo" className="splash-logo" />
+      <img src="/assets/logo-blanco.png" alt="Pedidos Listo" className="splash-logo" />
     </div>
-    <div className="splash-tagline">Listo Patrón</div>
+    <div className="splash-tagline">Pedidos Listo 🇩🇴</div>
     <div className="splash-loader">
       <div className="splash-bar"></div>
     </div>
@@ -639,7 +639,7 @@ export default function LandingPage({ navigate, lang }) {
 {/*  NAV  */}
 <nav id="nav">
   <div style={{ display: 'flex', alignItems: 'center' }}>
-    <img className="nav-logo" src="./assets/logo_listo.png" alt="Listo Patrón" style={{"height": "40px", "objectFit": "contain"}} />
+    <img className="nav-logo" src="/assets/pedidos-listo-mamey.png" alt="Pedidos Listo" style={{"height": "40px", "objectFit": "contain"}} />
     
     <div className="nav-header-buttons" style={{ display: 'flex', alignItems: 'center', gap: '10px', marginLeft: '10px', flexWrap: 'nowrap' }}>
       {/* BOTÓN TIENDA OFICIAL */}
