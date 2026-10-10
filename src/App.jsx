@@ -18,7 +18,7 @@ export default function App() {
       {currentPage === 'home' ? (
         <LandingPage navigate={(page) => setCurrentPage(page)} />
       ) : (
-        <ShopPage navigate={(page) => setCurrentPage(page)} />
+        <ShopPage onNavigate={(page) => setCurrentPage(page)} navigate={(page) => setCurrentPage(page)} />
       )}
     </>
   )
