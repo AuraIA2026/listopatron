@@ -565,7 +565,13 @@ function DeliveryPartnerModal({ onClose, navigate }) {
 export default function LandingPage({ navigate, lang }) {
   useLandingLogic();
   const [showPlanModal, setShowPlanModal] = useState(false);
+  const [selectedPlanInitial, setSelectedPlanInitial] = useState(null);
   const [showDeliveryModal, setShowDeliveryModal] = useState(false);
+
+  const openPlanModalWithPlan = (planId) => {
+    setSelectedPlanInitial(planId);
+    setShowPlanModal(true);
+  };
 
   useEffect(() => {
     const checkUrlForPlan = () => {
@@ -1695,21 +1701,20 @@ export default function LandingPage({ navigate, lang }) {
     <h2 className="section-title">Elige tu <span>plan</span></h2>
     <p className="section-sub" style={{"margin": "0 auto 24px"}}>Descarga la app, postúlate como profesional y elige el plan que más te convenga.</p>
 
-    {/*  Banner descarga app  */}
+    {/*  Banner compra plan web  */}
     <div style={{"display": "inline-flex", "alignItems": "center", "gap": "14px", "background": "var(--orange-pale)", "border": "2px solid var(--orange-pale2)", "borderRadius": "18px", "padding": "16px 28px", "marginBottom": "10px", "flexWrap": "wrap", "justifyContent": "center"}}>
-      <span style={{"fontSize": "28px"}}>📲</span>
+      <span style={{"fontSize": "28px"}}>💳</span>
       <div style={{"textAlign": "left"}}>
-        <div style={{"fontWeight": "800", "fontSize": "15px", "color": "#222"}}>Los planes se contratan desde la app</div>
-        <div style={{"fontSize": "13px", "color": "var(--gray)", "marginTop": "2px"}}>Descarga Listo Patrón, crea tu perfil de profesional y elige tu plan en segundos.</div>
+        <div style={{"fontWeight": "800", "fontSize": "15px", "color": "#222"}}>Adquiere tu plan profesional directamente aquí</div>
+        <div style={{"fontSize": "13px", "color": "var(--gray)", "marginTop": "2px"}}>Haz clic en cualquiera de los planes para pagar con Pasarela AZUL o Transferencia Bancaria al instante.</div>
       </div>
-
     </div>
     <div className="planes-wrap" style={{"gridTemplateColumns": "repeat(auto-fit,minmax(220px,1fr))", "maxWidth": "1100px"}}>
     {/*  styles extracted  */}
     <div className="planes-wrap" style={{"gridTemplateColumns": "repeat(auto-fit,minmax(220px,1fr))", "maxWidth": "960px", "margin": "0 auto", "gap": "12px", "display": "grid"}}>
 
       {/*  PLAN 1: BÁSICO / ESTÁNDAR  */}
-      <a onClick={() => navigate('login')} style={{cursor: "pointer"}} className="plan-3d-wrap plan-3d-standard">
+      <a onClick={() => openPlanModalWithPlan('standard')} style={{cursor: "pointer"}} className="plan-3d-wrap plan-3d-standard">
         <div className="plan-3d-blur" style={{"position": "absolute", "bottom": "-7px", "left": "7px", "right": "-2px", "height": "100%", "borderRadius": "18px", "opacity": "0.28", "filter": "blur(5px)", "zIndex": "0"}}></div>
         <div className="plan-3d-inner">
           <div className="plan-3d-shine-top"></div>
@@ -1724,7 +1729,7 @@ export default function LandingPage({ navigate, lang }) {
       </a>
 
       {/*  PLAN 2: GOLD  */}
-      <a onClick={() => navigate('login')} style={{cursor: "pointer"}} className="plan-3d-wrap plan-3d-gold">
+      <a onClick={() => openPlanModalWithPlan('gold')} style={{cursor: "pointer"}} className="plan-3d-wrap plan-3d-gold">
         <div className="plan-3d-blur" style={{"position": "absolute", "bottom": "-7px", "left": "7px", "right": "-2px", "height": "100%", "borderRadius": "18px", "opacity": "0.28", "filter": "blur(5px)", "zIndex": "0"}}></div>
         <div className="plan-3d-inner">
           <div className="plan-3d-shine-top"></div>
@@ -1739,7 +1744,7 @@ export default function LandingPage({ navigate, lang }) {
       </a>
 
       {/*  PLAN 3: PLATINUM  */}
-      <a onClick={() => navigate('login')} style={{cursor: "pointer"}} className="plan-3d-wrap plan-3d-platinum">
+      <a onClick={() => openPlanModalWithPlan('platinum')} style={{cursor: "pointer"}} className="plan-3d-wrap plan-3d-platinum">
         <div className="plan-3d-blur" style={{"position": "absolute", "bottom": "-7px", "left": "7px", "right": "-2px", "height": "100%", "borderRadius": "18px", "opacity": "0.28", "filter": "blur(5px)", "zIndex": "0"}}></div>
         <div className="plan-3d-inner">
           <div className="plan-3d-shine-top"></div>
@@ -1754,7 +1759,7 @@ export default function LandingPage({ navigate, lang }) {
       </a>
 
       {/*  PLAN 4: VIP  */}
-      <a onClick={() => navigate('login')} style={{cursor: "pointer"}} className="plan-3d-wrap plan-3d-vip">
+      <a onClick={() => openPlanModalWithPlan('vip')} style={{cursor: "pointer"}} className="plan-3d-wrap plan-3d-vip">
         <div className="plan-3d-blur" style={{"position": "absolute", "bottom": "-7px", "left": "7px", "right": "-2px", "height": "100%", "borderRadius": "18px", "opacity": "0.28", "filter": "blur(5px)", "zIndex": "0"}}></div>
         <div className="plan-3d-inner">
           <div className="plan-3d-shine-top"></div>
@@ -1835,8 +1840,8 @@ export default function LandingPage({ navigate, lang }) {
       </table>
       <p style={{"textAlign": "center", "marginTop": "24px", "fontSize": "13px", "color": "#aaa"}}>* Los contratos no vencen hasta ser usados (excepto VIP que es mensual)</p>
       <div style={{"display": "flex", "alignItems": "center", "justifyContent": "center", "gap": "10px", "marginTop": "20px", "background": "#fff3ec", "borderRadius": "12px", "padding": "14px 24px", "maxWidth": "600px", "marginLeft": "auto", "marginRight": "auto", "border": "1.5px solid var(--orange-pale2)"}}>
-        <span style={{"fontSize": "20px"}}>ℹ️</span>
-        <p style={{"fontSize": "13px", "color": "#555", "margin": "0"}}>Para comprar un plan, descarga la app <strong style={{"color": "var(--orange)"}}>Listo Patrón</strong>, regístrate como profesional y selecciona el plan desde tu perfil.</p>
+        <span style={{"fontSize": "20px"}}>💳</span>
+        <p style={{"fontSize": "13px", "color": "#555", "margin": "0"}}>Para comprar o renovar tu plan, haz clic en cualquiera de los planes de arriba para pagar directamente con <strong style={{"color": "var(--orange)"}}>Pasarela AZUL o Transferencia Bancaria</strong>.</p>
       </div>
     </div>
 
@@ -2274,11 +2279,13 @@ export default function LandingPage({ navigate, lang }) {
 
   <PlanSelectionModal 
     isOpen={showPlanModal} 
-    onClose={() => setShowPlanModal(false)} 
-    onSelectPlan={(plan) => {
-      alert(`Has seleccionado el ${plan.name} (${plan.price}). Para completar tu pago y activación de cuenta, por favor inicia sesión o regístrate en Listo Patrón.`);
+    initialPlanId={selectedPlanInitial}
+    onClose={() => {
       setShowPlanModal(false);
-      navigate('login');
+      setSelectedPlanInitial(null);
+    }} 
+    onSelectPlan={(plan) => {
+      console.log('Plan activado:', plan);
     }} 
   />
 
