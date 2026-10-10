@@ -258,19 +258,31 @@ h1, h2, h3, th, .section-title, .pro-title, .plan-name, .plan-price, .stat-num, 
   margin-left: 14px;
 }
 .shop-back-btn {
-  background: transparent !important;
-  border: 1px solid rgba(242, 96, 0, 0.3) !important;
-  color: var(--orange) !important;
-  padding: 10px 20px !important;
+  background: rgba(255, 107, 0, 0.04) !important;
+  border: 1.5px solid #FF6B00 !important;
+  color: #FF6B00 !important;
+  padding: 8px 18px !important;
   border-radius: 50px !important;
   font-size: 14px !important;
-  font-weight: 700 !important;
+  font-weight: 800 !important;
   cursor: pointer !important;
   transition: all 0.2s ease !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  white-space: nowrap !important;
+  box-shadow: 0 2px 8px rgba(255, 107, 0, 0.15) !important;
+  z-index: 100 !important;
 }
 .shop-back-btn:hover {
-  background: var(--orange-pale) !important;
+  background: #FFF3EC !important;
+  border-color: #FF6B00 !important;
+  color: #FF6B00 !important;
   transform: translateX(-3px) !important;
+  box-shadow: 0 4px 12px rgba(255, 107, 0, 0.25) !important;
+}
+.shop-back-btn:active {
+  transform: scale(0.96) !important;
 }
 .cart-nav-btn {
   background: #1a1a1a !important;
