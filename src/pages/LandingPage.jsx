@@ -629,6 +629,111 @@ export default function LandingPage({ navigate, lang }) {
     setShowPlanModal(true);
   };
 
+  const heroPlans = [
+    {
+      id: 'standard',
+      badge: '🔹 BÁSICO',
+      title: 'Plan Estándar',
+      price: 'RD$500',
+      period: '/mes',
+      theme: 'green',
+      bgGradient: 'linear-gradient(135deg, #0b4d34 0%, #156947 100%)',
+      accentColor: '#10b981',
+      benefits: [
+        '3 contratos al mes incluidos en la aplicación.',
+        'Ideal para profesionales que realizan servicios ocasionales.',
+        'Visibilidad básica en los listados de búsqueda.',
+        'Calificaciones y comentarios de clientes habilitados.'
+      ],
+      ctaText: 'Obtener Plan Estándar →'
+    },
+    {
+      id: 'gold',
+      badge: '⭐ POPULAR',
+      title: 'Plan Gold',
+      price: 'RD$1,000',
+      period: '/mes',
+      theme: 'gold',
+      bgGradient: 'linear-gradient(135deg, #8a6500 0%, #a67c00 100%)',
+      accentColor: '#f59e0b',
+      benefits: [
+        '8 contratos al mes incluidos (¡Más del doble que el plan estándar!).',
+        'Destacado popular en los listados de búsqueda.',
+        'Posicionamiento mejorado en los resultados de búsqueda.',
+        'Acceso prioritario a nuevas solicitudes en tu área de cobertura.'
+      ],
+      ctaText: 'Obtener Plan Gold →'
+    },
+    {
+      id: 'platinum',
+      badge: '🛡️ ACTIVO',
+      title: 'Plan Platinum',
+      price: 'RD$1,500',
+      period: '/mes',
+      theme: 'platinum',
+      bgGradient: 'linear-gradient(135deg, #2b394a 0%, #3e4f63 100%)',
+      accentColor: '#38bdf8',
+      benefits: [
+        '12 contratos al mes incluidos (¡Ideal para profesionales muy activos!).',
+        'Insignia de "Profesional Recomendado" visible en tu perfil.',
+        'Posicionamiento de búsqueda prioritario sobre Estándar y Gold.',
+        'Notificaciones de solicitudes en tiempo real con 5 minutos de ventaja.'
+      ],
+      ctaText: 'Obtener Plan Platinum →'
+    },
+    {
+      id: 'vip',
+      badge: '💎 ÉLITE',
+      title: 'Plan VIP',
+      price: 'RD$2,500',
+      period: '/mes',
+      theme: 'vip',
+      bgGradient: 'linear-gradient(135deg, #e65100 0%, #bf360c 100%)',
+      accentColor: '#ff6b00',
+      benefits: [
+        'Contratos ILIMITADOS (Aplica a todos los trabajos que quieras sin restricciones).',
+        'Insignia de "Élite VIP" en tu perfil y máxima exposición en la app.',
+        'Primeros resultados de búsqueda garantizados siempre.',
+        'Alertas instantáneas y prioritarias de todas las solicitudes publicadas.'
+      ],
+      ctaText: 'Obtener Plan VIP →'
+    }
+  ];
+
+  const [currentPlanSlide, setCurrentPlanSlide] = useState(0);
+  const [touchStartX, setTouchStartX] = useState(null);
+
+  const nextPlanSlide = () => {
+    setCurrentPlanSlide((prev) => (prev + 1) % heroPlans.length);
+  };
+
+  const prevPlanSlide = () => {
+    setCurrentPlanSlide((prev) => (prev - 1 + heroPlans.length) % heroPlans.length);
+  };
+
+  const handleTouchStart = (e) => {
+    setTouchStartX(e.touches[0].clientX);
+  };
+
+  const handleTouchEnd = (e) => {
+    if (touchStartX === null) return;
+    const touchEndX = e.changedTouches[0].clientX;
+    const diff = touchStartX - touchEndX;
+    if (diff > 50) {
+      nextPlanSlide();
+    } else if (diff < -50) {
+      prevPlanSlide();
+    }
+    setTouchStartX(null);
+  };
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentPlanSlide((prev) => (prev + 1) % heroPlans.length);
+    }, 6000);
+    return () => clearInterval(timer);
+  }, [heroPlans.length]);
+
   useEffect(() => {
     const checkUrlForPlan = () => {
       const search = window.location.search || '';
@@ -859,6 +964,112 @@ export default function LandingPage({ navigate, lang }) {
       <button className="store-ribbon-btn" onClick={(e) => { e.stopPropagation(); navigate ? navigate('shop') : window.location.href = '/?page=shop'; }}>
         🛒 Visitar Tienda ›
       </button>
+    </div>
+  </div>
+</div>
+
+{/*  CARRUSEL OFICIAL DE PLANES PROFESIONALES (BÁSICO, GOLD, PLATINUM, VIP)  */}
+<div id="planes-carrusel-section" style={{ width: '100%', background: '#F26000', padding: '0 15px 32px', display: 'flex', justifyContent: 'center' }}>
+  <div className="plans-hero-container">
+    {/* Flecha Anterior */}
+    <button 
+      onClick={prevPlanSlide} 
+      className="plans-hero-arrow prev" 
+      aria-label="Plan anterior"
+    >
+      ‹
+    </button>
+
+    {/* Flecha Siguiente */}
+    <button 
+      onClick={nextPlanSlide} 
+      className="plans-hero-arrow next" 
+      aria-label="Siguiente plan"
+    >
+      ›
+    </button>
+
+    {/* Track del Slider */}
+    <div 
+      className="plans-hero-track-wrapper"
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+    >
+      {heroPlans.map((plan, index) => {
+        if (index !== currentPlanSlide) return null;
+        return (
+          <div 
+            key={plan.id}
+            className="plans-hero-slide"
+            style={{ background: plan.bgGradient }}
+          >
+            {/* Columna Izquierda: Información del Plan */}
+            <div className="plans-hero-info">
+              <div className="plans-hero-badge">
+                {plan.badge}
+              </div>
+              <h2 className="plans-hero-title">
+                {plan.title}
+              </h2>
+              <div className="plans-hero-price-row">
+                <span className="plans-hero-price">{plan.price}</span>
+                <span className="plans-hero-period">{plan.period}</span>
+              </div>
+            </div>
+
+            {/* Columna Derecha: Tarjeta Frosted Glass con Beneficios */}
+            <div className="plans-hero-card">
+              {/* Logo Listo en la esquina superior derecha */}
+              <img
+                src="./assets/logo_esquina.png"
+                alt="Listo"
+                className="plans-hero-corner-logo"
+              />
+
+              {/* Lista de beneficios con checkmarks verdes */}
+              <div className="plans-hero-benefits">
+                {plan.benefits.map((b, i) => (
+                  <div key={i} className="plans-hero-benefit-item">
+                    <span className="plans-hero-check">✓</span>
+                    <span className="plans-hero-benefit-text">{b}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Parte inferior con Botón y Badges de descarga */}
+              <div className="plans-hero-card-bottom">
+                <button
+                  onClick={() => openPlanModalWithPlan(plan.id)}
+                  className="plans-hero-cta-btn"
+                >
+                  {plan.ctaText}
+                </button>
+
+                <div className="plans-hero-store-badges">
+                  <a href="https://play.google.com/store/apps" target="_blank" rel="noopener noreferrer">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" alt="Google Play" />
+                  </a>
+                  <a href="https://www.apple.com/app-store/" target="_blank" rel="noopener noreferrer">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Download_on_the_App_Store_Badge.svg" alt="App Store" />
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+
+    {/* Indicador de Puntos (Dots) */}
+    <div className="plans-hero-dots-container">
+      {heroPlans.map((_, idx) => (
+        <button
+          key={idx}
+          onClick={() => setCurrentPlanSlide(idx)}
+          className={`plans-hero-dot ${idx === currentPlanSlide ? 'active' : ''}`}
+          aria-label={`Ir al plan ${idx + 1}`}
+        />
+      ))}
     </div>
   </div>
 </div>
