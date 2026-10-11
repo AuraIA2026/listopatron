@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from 'react'
-import { collection, query, where, getDocs, doc, getDoc, addDoc, serverTimestamp } from 'firebase/firestore'
+import { collection, query, where, getDocs, doc, getDoc, addDoc, serverTimestamp, onSnapshot } from 'firebase/firestore'
 import { db } from '../firebase'
 import { CATEGORIES, FILTERS, ALL_SUBCATEGORIES, PROVINCES_LIST } from '../categories'
 import { detectGpsLocation } from '../utils/gpsLocation'
-import LocalesCarrusel from '../locales/LocalesCarrusel'  // âœ… importado
+import LocalesCarrusel from '../locales/LocalesCarrusel'  // ✅ importado
 import VIPSection, { isProVip, getProTier } from '../components/VIPSection'
 import HistoriasCarrusel from '../components/HistoriasCarrusel'
 import HistoriasViewerModal from '../components/HistoriasViewerModal'
@@ -21,8 +21,8 @@ import 'leaflet/dist/leaflet.css'
 import L from 'leaflet'
 import recomendarIcon from '../assets/icons/recomendar.png'
 import opinionesIcon from '../assets/icons/opiniones.png'
+import compartirIcon from '../assets/icons/compartir.png'
 import logoListo from '../assets/logo-mamey.png'
-import logoEsquina from '../assets/logo_esquina.png'
 import './SearchPage.css'
 
 const customProIcon = new L.Icon({
@@ -34,12 +34,12 @@ const customProIcon = new L.Icon({
 const txt = {
   es: {
     title:       'Buscar servicios',
-    search:      'Â¿QuÃ© necesitas?',
+    search:      '¿Qué necesitas?',
     available:   'Disponible',
     busy:        'Ocupado',
     book:        'Contratar',
     profile:     'Ver perfil',
-    reviews:     'reseÃ±as',
+    reviews:     'reseñas',
     exp:         'experiencia',
     filterAvail: 'Solo disponibles',
     results:     'profesionales encontrados',
@@ -71,9 +71,9 @@ const avatarColors = ['#F26000','#C24D00','#FF8533','#7A3000','#FFB380']
 const proMessages = {
   es: [
     'Solo los profesionales con 4 o 5 estrellas aparecen en el carrusel de destacados. Cumple cada contrato con excelencia y mejora tu visibilidad.',
-    'Cumple cada contrato con excelencia. Las buenas reseÃ±as generan confianza y te traen mÃ¡s clientes.',
-    'Tu esfuerzo se convierte en oportunidades. Un cliente satisfecho deja mejores reseÃ±as y mÃ¡s contratos.',
-    'MÃ¡s calidad = mÃ¡s contratos. DestÃ¡cate, recibe 5 estrellas y aumenta tus ingresos.',
+    'Cumple cada contrato con excelencia. Las buenas reseñas generan confianza y te traen más clientes.',
+    'Tu esfuerzo se convierte en oportunidades. Un cliente satisfecho deja mejores reseñas y más contratos.',
+    'Más calidad = más contratos. Destácate, recibe 5 estrellas y aumenta tus ingresos.',
   ],
   en: [
     'Only professionals with 4 or 5 stars appear in the featured carousel. Complete every job with excellence.',
@@ -85,9 +85,9 @@ const proMessages = {
 
 const clientMessages = {
   es: [
-    'Â¡Tu opiniÃ³n manda! Califica con estrellas a los profesionales para ayudar a otros a elegir siempre lo mejor.',
-    'Â¿Buscas al mejor? Revisa las reseÃ±as y calificaciones antes de contratar. Â¡Tu satisfacciÃ³n es lo primero!',
-    'Contratar un profesional nunca fue tan fÃ¡cil. Â¡Encuentra el que necesitas y agenda en segundos!',
+    '¡Tu opinión manda! Califica con estrellas a los profesionales para ayudar a otros a elegir siempre lo mejor.',
+    '¿Buscas al mejor? Revisa las reseñas y calificaciones antes de contratar. ¡Tu satisfacción es lo primero!',
+    'Contratar un profesional nunca fue tan fácil. ¡Encuentra el que necesitas y agenda en segundos!',
   ],
   en: [
     'Your voice matters! Rate professionals with stars to help everyone choose the best.',
@@ -96,7 +96,7 @@ const clientMessages = {
   ],
 }
 
-// â”€â”€ Banner de CreaciÃ³n VIP â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Banner de Creación VIP ──────────────────────────────────────
 function VipShopEntryBanner({ navigate, userRole, userData }) {
   const [isOpen, setIsOpen] = useState(false)
   
@@ -107,7 +107,7 @@ function VipShopEntryBanner({ navigate, userRole, userData }) {
     <div className="vip-entry-banner" style={{ margin: '0 16px 16px', background: 'linear-gradient(135deg, #1a1a2e, #16213e)', borderRadius: 14, overflow: 'hidden', color: '#fff', boxShadow: '0 8px 20px rgba(0,0,0,0.15)' }}>
       <div onClick={() => setIsOpen(!isOpen)} style={{ padding: '14px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <span style={{ fontSize: 28, filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))' }}>ðŸ¬</span>
+          <span style={{ fontSize: 28, filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))' }}>🏬</span>
           <div>
             <h3 style={{ margin: 0, fontSize: 16, fontWeight: 900, color: '#FFD700', textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}>
               {isVipPro ? 'Configura tu Local VIP' : 'Explora los Locales VIP'}
@@ -117,19 +117,19 @@ function VipShopEntryBanner({ navigate, userRole, userData }) {
             </p>
           </div>
         </div>
-        <span style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: '0.3s', fontSize: 14, color: '#FFD700' }}>â–¼</span>
+        <span style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: '0.3s', fontSize: 14, color: '#FFD700' }}>▼</span>
       </div>
       
       {isOpen && (
         <div style={{ padding: '0 16px 16px', animation: 'vip-slide-in 0.3s' }}>
           <div style={{ background: 'rgba(255,255,255,0.08)', borderRadius: 10, padding: 12, marginBottom: 12 }}>
             <ul style={{ margin: '0 0 10px', paddingLeft: 20, fontSize: 13, lineHeight: 1.6, color: '#ddd' }}>
-              <li>MenÃº de servicios detallado</li>
+              <li>Menú de servicios detallado</li>
               <li>Fotos reales de trabajos realizados</li>
-              <li>Atrae mucha mÃ¡s clientela segura</li>
+              <li>Atrae mucha más clientela segura</li>
             </ul>
             {isVipPro ? (
-              <p style={{ margin: 0, fontSize: 13, fontWeight: 800, color: '#FFD700', textAlign: 'center', background: 'rgba(255,215,0,0.1)', padding: '6px', borderRadius: '6px' }}>Tu SuscripciÃ³n VIP estÃ¡ Activa</p>
+              <p style={{ margin: 0, fontSize: 13, fontWeight: 800, color: '#FFD700', textAlign: 'center', background: 'rgba(255,215,0,0.1)', padding: '6px', borderRadius: '6px' }}>Tu Suscripción VIP está Activa</p>
             ) : (
               <p style={{ margin: 0, fontSize: 12, color: '#ccc', textAlign: 'center', fontStyle: 'italic' }}>
                 Exclusivo para profesionales con Plan VIP
@@ -156,7 +156,7 @@ function VipShopEntryBanner({ navigate, userRole, userData }) {
               }
             }}
           >
-            {isVipPro ? 'ðŸš€ Configurar mi Local VIP Ahora' : 'ðŸ›ï¸ Entrar al Directorio de Locales VIP'}
+            {isVipPro ? '🚀 Configurar mi Local VIP Ahora' : '🛍️ Entrar al Directorio de Locales VIP'}
           </button>
         </div>
       )}
@@ -164,7 +164,7 @@ function VipShopEntryBanner({ navigate, userRole, userData }) {
   )
 }
 
-// â”€â”€ Banner animado â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Banner animado ──────────────────────────────────────────────
 function PromoBanner({ lang, userRole }) {
   const messages = userRole === 'pro' ? proMessages[lang] : clientMessages[lang]
   const [current, setCurrent] = useState(0)
@@ -232,17 +232,17 @@ function PromoBanner({ lang, userRole }) {
         }
       `}</style>
       <div className="listo-promo-banner">
-        <span className="listo-promo-spark" style={{ top:'8px',  left:'35%', animationDelay:'0.3s' }}>â˜…</span>
-        <span className="listo-promo-spark" style={{ top:'55%', left:'60%', animationDelay:'0.9s' }}>â˜…</span>
-        <span className="listo-promo-spark" style={{ top:'15%', left:'80%', animationDelay:'0.5s' }}>â˜…</span>
-        <span className="listo-promo-spark" style={{ top:'70%', left:'25%', animationDelay:'1.2s' }}>â˜…</span>
-        <span className="listo-promo-spark" style={{ top:'65%', left:'75%', animationDelay:'0.1s' }}>â˜…</span>
-        <span className="listo-promo-star">â­</span>
+        <span className="listo-promo-spark" style={{ top:'8px',  left:'35%', animationDelay:'0.3s' }}>★</span>
+        <span className="listo-promo-spark" style={{ top:'55%', left:'60%', animationDelay:'0.9s' }}>★</span>
+        <span className="listo-promo-spark" style={{ top:'15%', left:'80%', animationDelay:'0.5s' }}>★</span>
+        <span className="listo-promo-spark" style={{ top:'70%', left:'25%', animationDelay:'1.2s' }}>★</span>
+        <span className="listo-promo-spark" style={{ top:'65%', left:'75%', animationDelay:'0.1s' }}>★</span>
+        <span className="listo-promo-star">⭐</span>
         <div className="listo-promo-body">
           <div key={animKey} className="listo-promo-msg">
             <div className="listo-mini-stars">
               {[0,1,2,3,4].map(i => (
-                <span key={i} className="listo-mini-star" style={{ animationDelay:`${i*0.2}s` }}>â­</span>
+                <span key={i} className="listo-mini-star" style={{ animationDelay:`${i*0.2}s` }}>⭐</span>
               ))}
             </div>
             <p className="listo-promo-text">{messages[current]}</p>
@@ -253,7 +253,7 @@ function PromoBanner({ lang, userRole }) {
   )
 }
 
-// â”€â”€ Profesional del Mes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Profesional del Mes ─────────────────────────────────────────
 function ProDelMes({ lang, navigate, userRole }) {
   const [proDelMes,      setProDelMes]      = useState(null)
   const [totalEstrellas, setTotalEstrellas] = useState(0)
@@ -290,7 +290,7 @@ function ProDelMes({ lang, navigate, userRole }) {
           const d = docSnap.data()
           const createdTs = d.createdAt?.seconds || 0
           
-          // Filtrar estrictamente solo las reseÃ±as dejadas el mes anterior
+          // Filtrar estrictamente solo las reseñas dejadas el mes anterior
           if (createdTs < inicioTs || createdTs > finTs) return
 
           const proId = d.proId || d.professionalId
@@ -323,7 +323,7 @@ function ProDelMes({ lang, navigate, userRole }) {
         const lista = Object.values(conteo)
 
         if (lista.length === 0) {
-          // Si NADIE en toda la plataforma recibiÃ³ reseÃ±as el mes pasado,
+          // Si NADIE en toda la plataforma recibió reseñas el mes pasado,
           // no mostramos el cuadro de Profesional del Mes (es un lujo real).
           setProDelMes(null)
           return
@@ -466,12 +466,12 @@ function ProDelMes({ lang, navigate, userRole }) {
 
       <div className="pdm-wrapper">
         <div className="pdm-header">
-          <span className="pdm-crown">ðŸ‘‘</span>
+          <span className="pdm-crown">👑</span>
           <div className="pdm-header-text">
             <p className="pdm-label">{lang === 'es' ? 'Profesional del Mes' : 'Professional of the Month'}</p>
             <p className="pdm-mes">{mes}</p>
           </div>
-          <span className="pdm-trophy">ðŸ†</span>
+          <span className="pdm-trophy">🏆</span>
         </div>
 
         <div className="pdm-body">
@@ -479,15 +479,12 @@ function ProDelMes({ lang, navigate, userRole }) {
           <div className="pdm-divider" />
 
           <div className="pdm-left">
-            <div className="pdm-photo-wrap" style={{ position: 'relative' }}>
-              <div className="listo-brand-watermark" style={{ top: '-4px', right: '-4px' }}>
-                <img src={logoEsquina || logoListo} alt="Pedidos Listo" className="listo-brand-watermark-img" />
-              </div>
+            <div className="pdm-photo-wrap">
               {proDelMes.foto
                 ? <img src={proDelMes.foto} alt={proDelMes.nombre} className="pdm-photo" />
                 : <div className="pdm-avatar" style={{ background: avatarBg }}>{proDelMes.avatar}</div>
               }
-              <span className="pdm-badge">â­</span>
+              <span className="pdm-badge">⭐</span>
             </div>
             <p className="pdm-nombre">{proDelMes.nombre}</p>
             <p className="pdm-spec">
@@ -497,30 +494,30 @@ function ProDelMes({ lang, navigate, userRole }) {
                 const mainCat = CATEGORIES.find(c => c.id === specStr || c.labelEs?.toLowerCase() === specStr);
                 const imgUrl = subCat?.image || mainCat?.image;
                 if (imgUrl) return <img src={imgUrl} alt="" style={{ width: '16px', height: '16px', objectFit: 'contain', verticalAlign: 'middle', marginRight: '4px' }} />;
-                return subCat?.icon || mainCat?.icon || 'ðŸ”§ ';
+                return subCat?.icon || mainCat?.icon || '🔧 ';
               })()}
               {proDelMes.especialidad}
             </p>
             <div className="pdm-stars-row">
-              <span className="pdm-stars">â˜…â˜…â˜…â˜…â˜…</span>
-              <span className="pdm-star-count">{totalEstrellas}â­</span>
+              <span className="pdm-stars">★★★★★</span>
+              <span className="pdm-star-count">{totalEstrellas}⭐</span>
             </div>
             <p className="pdm-contratos">
-              âœ… {proDelMes.contratos} {lang === 'es' ? 'contratos' : 'contracts'}
+              ✅ {proDelMes.contratos} {lang === 'es' ? 'contratos' : 'contracts'}
             </p>
             <button className="pdm-btn" onClick={() => navigate('booking', proDelMes)}>
-              {lang === 'es' ? 'ðŸ¤ Contratar' : 'ðŸ¤ Hire'}
+              {lang === 'es' ? '🤝 Contratar' : '🤝 Hire'}
             </button>
           </div>
 
           <div className="pdm-right">
             <p className="pdm-resenas-title">
-              {lang === 'es' ? 'ðŸ’¬ Lo que dicen' : 'ðŸ’¬ Reviews'}
+              {lang === 'es' ? '💬 Lo que dicen' : '💬 Reviews'}
             </p>
 
             {resenas.length === 0 ? (
               <div className="pdm-resena-empty">
-                {lang === 'es' ? 'Sin reseÃ±as aÃºn este mes' : 'No reviews yet this month'}
+                {lang === 'es' ? 'Sin reseñas aún este mes' : 'No reviews yet this month'}
               </div>
             ) : (
               <>
@@ -535,7 +532,7 @@ function ProDelMes({ lang, navigate, userRole }) {
                     <div className="pdm-resena-content">
                       <p className="pdm-client-name">{r.clientName}</p>
                       <div className="pdm-resena-stars">
-                        {'â˜…'.repeat(Math.max(0, Math.min(5, Math.floor(r.score || 0))))}{'â˜†'.repeat(Math.max(0, Math.min(5, 5 - Math.floor(r.score || 0))))}
+                        {'★'.repeat(Math.max(0, Math.min(5, Math.floor(r.score || 0))))}{'☆'.repeat(Math.max(0, Math.min(5, 5 - Math.floor(r.score || 0))))}
                       </div>
                       <p className="pdm-resena-text">"{r.comment}"</p>
                     </div>
@@ -578,13 +575,13 @@ export default function SearchPage({ lang = 'es', navigate, initialCategory = 'a
       const location = await detectGpsLocation()
       setActiveProvince(location.provinceId)
       setToastMessage(lang === 'es' 
-        ? `ðŸ“ GPS Detectado: ${location.provinceLabel}. Mostrando profesionales cercanos.` 
-        : `ðŸ“ GPS Detected: ${location.provinceLabel}. Showing nearby professionals.`
+        ? `📍 GPS Detectado: ${location.provinceLabel}. Mostrando profesionales cercanos.` 
+        : `📍 GPS Detected: ${location.provinceLabel}. Showing nearby professionals.`
       )
       setShowToast(true)
       setTimeout(() => setShowToast(false), 4000)
     } catch (err) {
-      alert(`âš ï¸ ${err.message || 'No se pudo obtener la ubicaciÃ³n por GPS.'}`)
+      alert(`⚠️ ${err.message || 'No se pudo obtener la ubicación por GPS.'}`)
     } finally {
       setIsLocatingGps(false)
     }
@@ -618,6 +615,40 @@ export default function SearchPage({ lang = 'es', navigate, initialCategory = 'a
   const [sortBy,            setSortBy]            = useState('all')
   const [professionals,     setProfessionals]     = useState([])
   const [loading,           setLoading]           = useState(true)
+  const [foodProducts,      setFoodProducts]      = useState([])
+  const [foodStores,        setFoodStores]        = useState([])
+
+  useEffect(() => {
+    let unsubProd = () => {}
+    let unsubLoc = () => {}
+    try {
+      unsubProd = onSnapshot(collection(db, 'productos'), (snap) => {
+        const list = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+        setFoodProducts(list)
+      }, (err) => console.warn('SearchPage productos listener:', err))
+    } catch(e){}
+
+    try {
+      unsubLoc = onSnapshot(collection(db, 'locales'), (snap) => {
+        const list = snap.docs.map(d => {
+          const data = d.data()
+          return {
+            id: d.id,
+            ...data,
+            name: data.nombre || data.businessName || data.name || 'Comercio',
+            image: data.image || data.portadaURL || data.logoURL || data.logo || 'assets/burger_3d.png',
+            city: data.ciudad || data.city || 'Santiago'
+          }
+        }).filter(s => s.activo !== false)
+        setFoodStores(list)
+      }, (err) => console.warn('SearchPage locales listener:', err))
+    } catch(e){}
+
+    return () => {
+      unsubProd()
+      unsubLoc()
+    }
+  }, [])
 
   const [likedPros, setLikedPros] = useState(() => {
     try {
@@ -634,7 +665,7 @@ export default function SearchPage({ lang = 'es', navigate, initialCategory = 'a
   const handleShare = async (pro, e) => {
     e.stopPropagation()
     const shareText = lang === 'es'
-      ? `Â¡Te recomiendo a ${pro.name} (${pro.category}) en Listo!`
+      ? `¡Te recomiendo a ${pro.name} (${pro.category}) en Listo!`
       : `I recommend ${pro.name} (${pro.category}) on Listo!`
     const shareUrl = `${window.location.origin}/proProfile/${pro.id}`
     
@@ -649,11 +680,11 @@ export default function SearchPage({ lang = 'es', navigate, initialCategory = 'a
         console.log('Share failed or cancelled:', err)
       }
     } else {
-      const fullText = `${shareText} ContrÃ¡talo aquÃ­: ${shareUrl}`
+      const fullText = `${shareText} Contrátalo aquí: ${shareUrl}`
       if (navigator.clipboard) {
         navigator.clipboard.writeText(fullText)
           .then(() => {
-            setToastMessage(lang === 'es' ? 'Â¡Enlace de perfil copiado!' : 'Profile link copied!')
+            setToastMessage(lang === 'es' ? '¡Enlace de perfil copiado!' : 'Profile link copied!')
             setShowToast(true)
             setTimeout(() => setShowToast(false), 3000)
           })
@@ -667,7 +698,7 @@ export default function SearchPage({ lang = 'es', navigate, initialCategory = 'a
         textArea.select()
         try {
           document.execCommand('copy')
-          setToastMessage(lang === 'es' ? 'Â¡Enlace de perfil copiado!' : 'Profile link copied!')
+          setToastMessage(lang === 'es' ? '¡Enlace de perfil copiado!' : 'Profile link copied!')
           setShowToast(true)
           setTimeout(() => setShowToast(false), 3000)
         } catch (err) {
@@ -720,7 +751,7 @@ export default function SearchPage({ lang = 'es', navigate, initialCategory = 'a
   const T = txt[lang]
 
   const searchPlaceholders = lang === 'es' 
-    ? ['Â¿Buscas a un plomero?', 'Â¿Necesitas un electricista?', 'O quizÃ¡s un mecÃ¡nico...', 'Encuentra soluciones aquÃ­'] 
+    ? ['¿Buscas a un plomero?', '¿Necesitas un electricista?', 'O quizás un mecánico...', 'Encuentra soluciones aquí'] 
     : ['Looking for a plumber?', 'Need an electrician?', 'Maybe a mechanic...', 'Find solutions here'];
   const [phIdx, setPhIdx] = useState(0);
   const [prevPhIdx, setPrevPhIdx] = useState(null);
@@ -759,7 +790,7 @@ export default function SearchPage({ lang = 'es', navigate, initialCategory = 'a
         querySnapshot.forEach((docSnap) => {
           const data = docSnap.data()
 
-          // â”€ Filtro estricto: Solo mostrar si completÃ³ el perfil y tiene plan activo o contratos
+          // ─ Filtro estricto: Solo mostrar si completó el perfil y tiene plan activo o contratos
           const isComplete = isProComplete(data)
           const hasPlan = Boolean(data.planStatus === 'active')
           const hasContracts = Boolean(data.contracts && data.contracts > 0)
@@ -774,8 +805,8 @@ export default function SearchPage({ lang = 'es', navigate, initialCategory = 'a
             category:   data.category   || data.especialidad || data.verificacion?.especialidad || '',
             rating:     realRating,
             reviews:    reviewsCount,
-            location:   data.verificacion?.municipio || data.verificacion?.provincia || data.city || data.location || 'RepÃºblica Dominicana',
-            experience: data.experience || '1 aÃ±o',
+            location:   data.verificacion?.municipio || data.verificacion?.provincia || data.city || data.location || 'República Dominicana',
+            experience: data.experience || '1 año',
             avatar:     (data.name || 'P').substring(0, 2).toUpperCase(),
             available:  data.available !== false,
             photoURL:   data.photoURL   || null,
@@ -868,13 +899,45 @@ export default function SearchPage({ lang = 'es', navigate, initialCategory = 'a
       img: p.photoURL || p.img
     }))
 
+  const normStr = (str) => {
+    if (!str) return ''
+    return str
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]/g, "")
+      .trim()
+  }
+
+  const cleanSearch = normStr(search)
+
+  const matchedFoodProducts = cleanSearch ? foodProducts.filter(p => {
+    const n = normStr(p.name || p.nombre)
+    const d = normStr(p.description || p.descripcion)
+    const c = normStr(p.category || p.categoria)
+    const s = normStr(p.storeName || p.tienda)
+    return n.includes(cleanSearch) || d.includes(cleanSearch) || c.includes(cleanSearch) || s.includes(cleanSearch) ||
+      (cleanSearch.includes('chicharon') && (n.includes('chicharron') || d.includes('chicharron'))) ||
+      (cleanSearch.includes('chicharron') && (n.includes('chicharon') || d.includes('chicharon'))) ||
+      (cleanSearch.includes('yaroa') && n.includes('yaroa')) ||
+      (cleanSearch.includes('pollo') && n.includes('pollo')) ||
+      (cleanSearch.includes('pizza') && n.includes('pizza'))
+  }) : []
+
+  const matchedFoodStores = cleanSearch ? foodStores.filter(st => {
+    const n = normStr(st.name || st.nombre)
+    const c = normStr(st.categoria || st.category)
+    const city = normStr(st.city || st.ciudad)
+    return n.includes(cleanSearch) || c.includes(cleanSearch) || city.includes(cleanSearch)
+  }) : []
+
   return (
     <div className="services-page">
 
       <div className="search-header">
         <h1 className="search-title">{T.title}</h1>
         <div className="search-bar" style={{ position: 'relative' }}>
-          <span className="search-icon">ðŸ”</span>
+          <span className="search-icon">🔍</span>
           {search.length === 0 && (
             <div className="search-placeholder-container">
               {prevPhIdx !== null && prevPhIdx !== phIdx && (
@@ -888,12 +951,85 @@ export default function SearchPage({ lang = 'es', navigate, initialCategory = 'a
             </div>
           )}
           <input type="text" value={search} onChange={e => setSearch(e.target.value)} style={{ zIndex: 2 }} />
-          {search && <button className="search-clear" onClick={() => setSearch('')} style={{ zIndex: 3 }}>âœ•</button>}
+          {search && <button className="search-clear" onClick={() => setSearch('')} style={{ zIndex: 3 }}>✕</button>}
         </div>
       </div>
 
+      {/* ── SECCIÓN DE RESULTADOS DE PLATILLOS & RESTAURANTES EN PEDIDOS LISTO ── */}
+      {search.trim().length > 0 && (matchedFoodProducts.length > 0 || matchedFoodStores.length > 0) && (
+        <div style={{ margin: '12px 16px 16px', background: 'linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 100%)', borderRadius: '20px', padding: '16px', border: '2px solid #FF6B00', boxShadow: '0 8px 24px rgba(255,107,0,0.14)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span style={{ fontSize: 24 }}>🍔</span>
+              <div>
+                <h3 style={{ margin: 0, fontSize: 16, fontWeight: 900, color: '#C2410C' }}>
+                  Pedidos Listo • Comida & Restaurantes
+                </h3>
+                <p style={{ margin: 0, fontSize: 11, color: '#9A3412', fontWeight: 700 }}>
+                  Encontramos opciones para "{search}"
+                </p>
+              </div>
+            </div>
+            <button 
+              onClick={() => navigate('mandame')}
+              style={{ background: '#FF6B00', color: '#FFF', border: 'none', padding: '7px 14px', borderRadius: 12, fontWeight: 900, fontSize: 11.5, cursor: 'pointer', boxShadow: '0 4px 10px rgba(255,107,0,0.25)' }}
+            >
+              Pedir Ahora →
+            </button>
+          </div>
 
-      {/* â”€â”€ CARRUSEL DE HISTORIAS DE TRABAJOS REALIZADOS (STORIES 24H) â”€â”€ */}
+          {matchedFoodProducts.length > 0 && (
+            <div style={{ marginBottom: matchedFoodStores.length > 0 ? 12 : 0 }}>
+              <div style={{ fontSize: 11, fontWeight: 900, color: '#EA580C', textTransform: 'uppercase', marginBottom: 8 }}>
+                🍲 Platillos ({matchedFoodProducts.length}):
+              </div>
+              <div style={{ display: 'flex', gap: 10, overflowX: 'auto', scrollbarWidth: 'none', paddingBottom: 4 }}>
+                {matchedFoodProducts.map(fp => (
+                  <div 
+                    key={fp.id} 
+                    onClick={() => navigate('mandame')}
+                    style={{ minWidth: 140, maxWidth: 140, background: '#FFFFFF', borderRadius: 14, padding: 8, border: '1.5px solid #FED7AA', cursor: 'pointer', flexShrink: 0, boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}
+                  >
+                    <img src={fp.image || fp.images?.[0] || 'assets/burger_3d.png'} alt={fp.name || fp.nombre} style={{ width: '100%', height: 75, objectFit: 'cover', borderRadius: 10, marginBottom: 6 }} />
+                    <div style={{ fontWeight: 800, fontSize: 12, color: '#0F172A', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{fp.name || fp.nombre}</div>
+                    <div style={{ fontWeight: 900, color: '#EA580C', fontSize: 13, marginTop: 2 }}>RD$ {fp.price || fp.precio}</div>
+                    {(fp.storeName || fp.tienda) && <div style={{ fontSize: 10, color: '#64748B', marginTop: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>🏪 {fp.storeName || fp.tienda}</div>}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {matchedFoodStores.length > 0 && (
+            <div>
+              <div style={{ fontSize: 11, fontWeight: 900, color: '#EA580C', textTransform: 'uppercase', marginBottom: 8 }}>
+                🏪 Restaurantes & Comercios ({matchedFoodStores.length}):
+              </div>
+              <div style={{ display: 'flex', gap: 10, overflowX: 'auto', scrollbarWidth: 'none', paddingBottom: 4 }}>
+                {matchedFoodStores.map(fs => (
+                  <div 
+                    key={fs.id} 
+                    onClick={() => {
+                      try { localStorage.setItem('pedidos_listo_active_store_id', fs.id); } catch(e){}
+                      navigate('mandame');
+                    }}
+                    style={{ minWidth: 160, maxWidth: 160, background: '#FFFFFF', borderRadius: 14, padding: 8, border: '1.5px solid #FED7AA', cursor: 'pointer', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 8, boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}
+                  >
+                    <img src={fs.image || fs.portadaURL || fs.logoURL || 'assets/burger_3d.png'} alt={fs.name} style={{ width: 42, height: 42, borderRadius: 10, objectFit: 'cover' }} />
+                    <div style={{ overflow: 'hidden' }}>
+                      <div style={{ fontWeight: 900, fontSize: 12, color: '#0F172A', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{fs.name}</div>
+                      <div style={{ fontSize: 10, color: '#64748B' }}>📍 {fs.city || 'Santiago'}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+
+      {/* ── CARRUSEL DE HISTORIAS DE TRABAJOS REALIZADOS (STORIES 24H) ── */}
       <HistoriasCarrusel 
         userData={userData} 
         isPro={userRole === 'pro'} 
@@ -904,12 +1040,12 @@ export default function SearchPage({ lang = 'es', navigate, initialCategory = 'a
         navigate={navigate}
       />
 
-      {/* â”€â”€ CARRUSEL Ã‰PICO VIP DE PROFESIONALES DESTACADOS (ENCIMA DEL CUADRO MAMEY) â”€â”€ */}
+      {/* ── CARRUSEL ÉPICO VIP DE PROFESIONALES DESTACADOS (ENCIMA DEL CUADRO MAMEY) ── */}
       <VIPSection 
         realVipPros={vipProsList} 
         lang={lang} 
         navigate={navigate} 
-        sectionTitle={lang === 'es' ? 'ðŸ‘‘ NUESTROS VIP' : 'ðŸ‘‘ OUR VIPs'}
+        sectionTitle={lang === 'es' ? '👑 NUESTROS VIP' : '👑 OUR VIPs'}
         sectionSub={lang === 'es' ? 'Profesionales preparados para cumplir todas tus necesidades' : 'Professionals ready to fulfill all your needs'}
         showSeeAll={false}
         strictVipOnly={true}
@@ -920,43 +1056,43 @@ export default function SearchPage({ lang = 'es', navigate, initialCategory = 'a
       <PromoBanner lang={lang} userRole={userRole} />
       <ProDelMes lang={lang} navigate={navigate} userRole={userRole} />
 
-      {/* â”€â”€ ALERTA INTELIGENTE DE PLAN Y CONTRATOS PARA PROFESIONALES â”€â”€ */}
+      {/* ── ALERTA INTELIGENTE DE PLAN Y CONTRATOS PARA PROFESIONALES ── */}
       <ProPlanAlertWidget userData={userData} onOpenPlanModal={() => setShowPlanModal(true)} />
 
       <div className="pill-filters" style={{ display: 'flex', gap: '8px', overflowX: 'auto', alignItems: 'center' }}>
         <button className={`pill-btn ${quickFilter === 'all' ? 'active' : ''}`} onClick={() => setQuickFilter('all')}>
-          ðŸŒ {lang === 'es' ? 'Todos' : 'All'}
+          🌐 {lang === 'es' ? 'Todos' : 'All'}
         </button>
         <button className={`pill-btn ${quickFilter === 'stars45' ? 'active' : ''}`} onClick={() => setQuickFilter('stars45')}>
-          ðŸŒŸ {lang === 'es' ? '4.5+ Estrellas' : '4.5+ Stars'}
+          🌟 {lang === 'es' ? '4.5+ Estrellas' : '4.5+ Stars'}
         </button>
         <button className={`pill-btn ${quickFilter === 'mostHired' ? 'active' : ''}`} onClick={() => setQuickFilter('mostHired')}>
-          ðŸ”¥ {lang === 'es' ? 'MÃ¡s contratados' : 'Most hired'}
+          🔥 {lang === 'es' ? 'Más contratados' : 'Most hired'}
         </button>
         <button className={`pill-btn ${quickFilter === 'nearest' ? 'active' : ''}`} onClick={() => setQuickFilter('nearest')}>
-          ðŸ“ {lang === 'es' ? 'MÃ¡s cercanos' : 'Nearest'}
+          📍 {lang === 'es' ? 'Más cercanos' : 'Nearest'}
         </button>
         <button className={`pill-btn ${quickFilter === 'available' ? 'active' : ''}`} onClick={() => setQuickFilter('available')}>
-          âš¡ {lang === 'es' ? 'Disponibles' : 'Available'}
+          ⚡ {lang === 'es' ? 'Disponibles' : 'Available'}
         </button>
         <button className={`pill-btn ${quickFilter === 'premium' ? 'active' : ''}`} onClick={() => setQuickFilter('premium')}>
-          ðŸ’Ž {lang === 'es' ? 'Premium' : 'Premium'}
+          💎 {lang === 'es' ? 'Premium' : 'Premium'}
         </button>
         <button className="pill-btn" onClick={() => setShowEstimadorModal(true)} style={{ background: '#ECFDF5', color: '#059669', borderColor: '#A7F3D0', fontWeight: '800' }}>
-          ðŸ“Š {lang === 'es' ? 'Precios RD$' : 'RD$ Prices'}
+          📊 {lang === 'es' ? 'Precios RD$' : 'RD$ Prices'}
         </button>
         <button className="pill-btn" onClick={() => setShowCalcModal(true)} style={{ background: '#F0FDF4', color: '#059669', borderColor: '#BBF7D0', fontWeight: '900' }}>
-          ðŸ§° {lang === 'es' ? 'Calculadora RD$' : 'Calculator RD$'}
+          🧰 {lang === 'es' ? 'Calculadora RD$' : 'Calculator RD$'}
         </button>
         <button className="pill-btn" onClick={() => setShowSolicitudExpress(true)} style={{ background: 'linear-gradient(135deg, #FFF7ED, #FFEDD5)', color: '#C2410C', borderColor: '#FDBA74', fontWeight: '900' }}>
-          âš¡ {lang === 'es' ? 'CotizaciÃ³n Flash' : 'Flash Quote'}
+          ⚡ {lang === 'es' ? 'Cotización Flash' : 'Flash Quote'}
         </button>
         <button className="pill-btn" onClick={() => setViewMode(v => v === 'list' ? 'map' : 'list')} style={{ background: viewMode==='map' ? '#F26000' : '#1E293B', color: '#fff', border: 'none', fontWeight: '800' }}>
-          {viewMode === 'list' ? 'ðŸ—ºï¸ Mapa GPS' : 'ðŸ“‹ Lista'}
+          {viewMode === 'list' ? '🗺️ Mapa GPS' : '📋 Lista'}
         </button>
       </div>
 
-      {/* â”€â”€ FILTRO POR PROVINCIA Y SECTOR (UBICACIÃ“N EXACTA CON GPS 1-CLIC) â”€â”€ */}
+      {/* ── FILTRO POR PROVINCIA Y SECTOR (UBICACIÓN EXACTA CON GPS 1-CLIC) ── */}
       <div className="province-filters-scroll" style={{ display: 'flex', gap: '8px', overflowX: 'auto', padding: '0 16px 14px', scrollbarWidth: 'none', alignItems: 'center' }}>
         <button
           onClick={handleDetectGps}
@@ -978,14 +1114,14 @@ export default function SearchPage({ lang = 'es', navigate, initialCategory = 'a
             gap: '6px',
             transition: 'all 0.2s ease'
           }}
-          title={lang === 'es' ? 'Detectar mi provincia y zona automÃ¡ticamente por GPS' : 'Detect GPS location'}
+          title={lang === 'es' ? 'Detectar mi provincia y zona automáticamente por GPS' : 'Detect GPS location'}
         >
           <span style={{ fontSize: '14px', animation: isLocatingGps ? 'spin 1s linear infinite' : 'none' }}>
-            {isLocatingGps ? 'ðŸ”„' : 'ðŸŽ¯'}
+            {isLocatingGps ? '🔄' : '🎯'}
           </span>
           {isLocatingGps 
             ? (lang === 'es' ? 'Detectando GPS...' : 'Detecting GPS...') 
-            : (lang === 'es' ? 'Mi UbicaciÃ³n GPS' : 'My GPS Location')}
+            : (lang === 'es' ? 'Mi Ubicación GPS' : 'My GPS Location')}
         </button>
 
         {PROVINCES_LIST.map(prov => (
@@ -1016,7 +1152,7 @@ export default function SearchPage({ lang = 'es', navigate, initialCategory = 'a
       <div className="categories-wrapper">
         <div className="categories-scroll">
           <button className={`cat-pill ${activeCategory === 'all' ? 'active' : ''}`} onClick={() => handleCategoryClick('all')}>
-            <span className="cat-icon">âœ¦</span> {T.allCats}
+            <span className="cat-icon">✦</span> {T.allCats}
           </button>
           {CATEGORIES.map(cat => (
             <button key={cat.id} className={`cat-pill ${activeCategory === cat.id ? 'active' : ''}`} onClick={() => handleCategoryClick(cat.id)}>
@@ -1030,7 +1166,7 @@ export default function SearchPage({ lang = 'es', navigate, initialCategory = 'a
         {currentCat && currentCat.subcategories && currentCat.subcategories.length > 0 && (
           <div className="subcategories-scroll">
             <button className={`sub-pill ${activeSubcategory === 'all' ? 'active' : ''}`} onClick={() => handleSubcategoryClick('all')}>
-              âœ“ Todas en {lang === 'es' ? currentCat.labelEs : currentCat.labelEn}
+              ✓ Todas en {lang === 'es' ? currentCat.labelEs : currentCat.labelEn}
             </button>
             {currentCat.subcategories.map(sub => (
               <button key={sub.id} className={`sub-pill ${activeSubcategory === sub.id ? 'active' : ''}`} onClick={() => handleSubcategoryClick(sub.id)}>
@@ -1058,12 +1194,12 @@ export default function SearchPage({ lang = 'es', navigate, initialCategory = 'a
                     <div style={{ textAlign: 'center', padding: '6px' }}>
                       <h4 style={{ margin: '0 0 4px', fontSize: '14px', fontWeight: '800', color: '#1A1A2E' }}>{pro.name}</h4>
                       <p style={{ margin: '0 0 6px', fontSize: '12px', color: '#F26000', fontWeight: '700' }}>{pro.category}</p>
-                      <p style={{ margin: '0 0 8px', fontSize: '11px', color: '#64748B' }}>ðŸ“ {pro.location}</p>
+                      <p style={{ margin: '0 0 8px', fontSize: '11px', color: '#64748B' }}>📍 {pro.location}</p>
                       <button 
                         onClick={() => navigate('proProfile', pro)}
                         style={{ background: '#F26000', color: '#fff', border: 'none', padding: '6px 12px', borderRadius: '12px', fontSize: '11px', fontWeight: '800', cursor: 'pointer' }}
                       >
-                        Ver Perfil â†’
+                        Ver Perfil →
                       </button>
                     </div>
                   </Popup>
@@ -1100,7 +1236,7 @@ export default function SearchPage({ lang = 'es', navigate, initialCategory = 'a
           const isPlatinum = proTier === 'platinum';
           const isGold = proTier === 'gold';
 
-          // â”€â”€ FOTOS GRANDES RESERVADAS EXCLUSIVAMENTE PARA PROFESIONALES VIP â”€â”€
+          // ── FOTOS GRANDES RESERVADAS EXCLUSIVAMENTE PARA PROFESIONALES VIP ──
           if (isVip) {
             const sData = getProStoryData(pro)
             const hasStory = Boolean(sData && sData.stories && sData.stories.length > 0)
@@ -1108,12 +1244,12 @@ export default function SearchPage({ lang = 'es', navigate, initialCategory = 'a
             return (
               <div key={pro.id} className="pro-card-premium" style={{ animationDelay:`${i * 0.06}s` }} onClick={() => navigate('proProfile', pro)}>
                 <div className="premium-photo-wrap" style={{ position: 'relative' }}>
-                  <div className="listo-brand-watermark vip-corner-watermark" style={{ top: '10px', right: '10px', zIndex: 10 }}>
-                    <img src={logoEsquina || logoListo} alt="Pedidos Listo" className="listo-brand-watermark-img vip-corner-logo-img" />
+                  <div className="listo-brand-watermark" style={{ top: '12px', right: '12px' }}>
+                    <img src={logoListo} alt="Pedidos Listo" className="listo-brand-watermark-img" />
                   </div>
                   <div className="premium-badges-top">
-                    <span className="premium-amz-badge" style={{background: 'linear-gradient(135deg, #FF6B00, #FF3D00)'}}>âœ¨ Exclusivo VIP</span>
-                    <span className="premium-amz-badge badge-urgent" style={{background: '#E11D48'}}>âš¡ Responde al instante</span>
+                    <span className="premium-amz-badge" style={{background: 'linear-gradient(135deg, #FF6B00, #FF3D00)'}}>✨ Exclusivo VIP</span>
+                    <span className="premium-amz-badge badge-urgent" style={{background: '#E11D48'}}>⚡ Responde al instante</span>
                   </div>
                   
                   <img 
@@ -1165,7 +1301,7 @@ export default function SearchPage({ lang = 'es', navigate, initialCategory = 'a
 
                   {pro.rating && pro.rating > 0 && pro.reviews > 0 && (
                     <div style={{ position: 'absolute', bottom: '16px', right: '16px', background: 'rgba(26, 26, 46, 0.85)', backdropFilter: 'blur(4px)', borderRadius: '8px', padding: '4px 8px', display: 'flex', alignItems: 'center', gap: '4px', border: '1.5px solid #FFD700', boxShadow: '0 4px 10px rgba(0,0,0,0.15)', zIndex: 10 }}>
-                      <span style={{ fontSize: '11px', color: '#FFD700', fontWeight: 'bold' }}>â­</span>
+                      <span style={{ fontSize: '11px', color: '#FFD700', fontWeight: 'bold' }}>⭐</span>
                       <span style={{ fontSize: '11px', color: 'white', fontWeight: '900' }}>{Number(pro.rating).toFixed(1)}</span>
                     </div>
                   )}
@@ -1192,13 +1328,13 @@ export default function SearchPage({ lang = 'es', navigate, initialCategory = 'a
                   <div>
                     <h3 className="premium-name">{pro.name}</h3>
                     <p className="premium-cat">
-                      {(subCat?.image || mainCat?.image) ? <img src={subCat?.image || mainCat?.image} style={{ width: '16px', height: '16px', objectFit: 'contain', verticalAlign: 'middle', marginRight: '4px' }} alt="" /> : (subCat?.icon || mainCat?.icon || 'ðŸ”§')} 
+                      {(subCat?.image || mainCat?.image) ? <img src={subCat?.image || mainCat?.image} style={{ width: '16px', height: '16px', objectFit: 'contain', verticalAlign: 'middle', marginRight: '4px' }} alt="" /> : (subCat?.icon || mainCat?.icon || '🔧')} 
                       {lang === 'es' ? (subCat?.labelEs || mainCat?.labelEs || pro.category) : (subCat?.labelEn || mainCat?.labelEn || pro.category)}
-                      <span style={{marginLeft: '6px', fontSize: '10px', textTransform: 'uppercase', background: 'linear-gradient(135deg, #FF6B00, #FF3D00)', color: '#fff', padding: '2px 8px', borderRadius: '6px', fontWeight: '900', boxShadow: '0 2px 8px rgba(255,107,0,0.4)', textShadow: '0 1px 2px rgba(0,0,0,0.3)'}}>âœ¨ VIP</span>
+                      <span style={{marginLeft: '6px', fontSize: '10px', textTransform: 'uppercase', background: 'linear-gradient(135deg, #FF6B00, #FF3D00)', color: '#fff', padding: '2px 8px', borderRadius: '6px', fontWeight: '900', boxShadow: '0 2px 8px rgba(255,107,0,0.4)', textShadow: '0 1px 2px rgba(0,0,0,0.3)'}}>✨ VIP</span>
                     </p>
                   </div>
                   <div style={{ textAlign: 'right' }}>
-                    <p className="pro-location" style={{ margin: 0, fontSize: '13px' }}>ðŸ“ {pro.location}</p>
+                    <p className="pro-location" style={{ margin: 0, fontSize: '13px' }}>📍 {pro.location}</p>
                     <p style={{ margin: '6px 0 0', color: '#B12704', fontWeight: '900', fontSize: '15px' }}>{lang === 'es' ? 'Precios a convenir' : 'Fixed prices'}</p>
                   </div>
                 </div>
@@ -1206,67 +1342,67 @@ export default function SearchPage({ lang = 'es', navigate, initialCategory = 'a
                 <div className="premium-rating-row">
                   {(() => {
                     const validStars = Math.max(0, Math.min(5, Math.round(pro.rating || 0)));
-                    return <span className="premium-stars">{'â˜…'.repeat(validStars)}{'â˜†'.repeat(5 - validStars)}</span>;
+                    return <span className="premium-stars">{'★'.repeat(validStars)}{'☆'.repeat(5 - validStars)}</span>;
                   })()}
                   <span className="premium-rating-text">{Number(pro.rating || 0).toFixed(1)} ({pro.reviews || 0} {lang==='es'?'valoraciones':'ratings'})</span>
                 </div>
 
                 <div className="premium-stats">
-                  <p>ðŸ”¥ {pro.contracts || 0} <span>{lang==='es'?'contratados el mes pasado':'hired last month'}</span></p>
+                  <p>🔥 {pro.contracts || 0} <span>{lang==='es'?'contratados el mes pasado':'hired last month'}</span></p>
                 </div>
 
                 {pro.reviews > 0 && (
                   <div className="premium-review-box">
-                    <span className="premium-quote-icon">ðŸ’¬</span>
+                    <span className="premium-quote-icon">💬</span>
                     <p className="premium-review-text">
-                      <strong>Â¡Excelente trabajo!</strong> "El mejor {lang==='es' ? (subCat?.labelEs || mainCat?.labelEs || pro.category) : 'profesional'} que he contratado."
+                      <strong>¡Excelente trabajo!</strong> "El mejor {lang==='es' ? (subCat?.labelEs || mainCat?.labelEs || pro.category) : 'profesional'} que he contratado."
                     </p>
                   </div>
                 )}
 
                 <div className="premium-actions">
                   <button className="premium-btn-profile" onClick={(e) => { e.stopPropagation(); navigate('proProfile', pro); }}>
-                    ðŸ‘¤ {T.profile}
+                    👤 {T.profile}
                   </button>
                   <button className="premium-btn-book" onClick={(e) => { e.stopPropagation(); navigate('booking', pro); }} style={{ background: 'linear-gradient(135deg, #FF6B00, #FF3D00)', boxShadow: '0 4px 15px rgba(255, 107, 0, 0.4)' }}>
-                    âœ¨ {lang === 'es' ? 'Contratar' : 'Hire'}
+                    ✨ {lang === 'es' ? 'Contratar' : 'Hire'}
                   </button>
                 </div>
               </div>
             )
           }
 
-          // â”€â”€ PROFESIONALES NO VIP (PLATINUM, GOLD, ESTÃNDAR) â”€â”€
+          // ── PROFESIONALES NO VIP (PLATINUM, GOLD, ESTÁNDAR) ──
           const sDataStd = getProStoryData(pro)
           const hasStoryStd = Boolean(sDataStd && sDataStd.stories && sDataStd.stories.length > 0)
 
           let cardTierClass = 'standard-card';
           let badgeMarkup = null;
           let btnBookClass = 'btn-book standard-plan';
-          let btnBookIcon = 'ðŸ”¹';
+          let btnBookIcon = '🔹';
 
           if (isPlatinum) {
             cardTierClass = 'platinum-card';
-            badgeMarkup = <span className="pro-tier-badge badge-platinum">ðŸ’Ž PLATINUM</span>;
+            badgeMarkup = <span className="pro-tier-badge badge-platinum">💎 PLATINUM</span>;
             btnBookClass = 'btn-book platinum-plan';
-            btnBookIcon = 'ðŸ’Ž';
+            btnBookIcon = '💎';
           } else if (isGold) {
             cardTierClass = 'gold-card';
-            badgeMarkup = <span className="pro-tier-badge badge-gold">â­ GOLD</span>;
+            badgeMarkup = <span className="pro-tier-badge badge-gold">⭐ GOLD</span>;
             btnBookClass = 'btn-book gold-plan';
-            btnBookIcon = 'â­';
+            btnBookIcon = '⭐';
           } else {
             cardTierClass = 'standard-card';
-            badgeMarkup = <span className="pro-tier-badge badge-standard">ðŸ”¹ ESTÃNDAR</span>;
+            badgeMarkup = <span className="pro-tier-badge badge-standard">🔹 ESTÁNDAR</span>;
             btnBookClass = 'btn-book standard-plan';
-            btnBookIcon = 'ðŸ”¹';
+            btnBookIcon = '🔹';
           }
 
           return (
             <div key={pro.id} className={`pro-card ${cardTierClass} ${isTopRated ? 'top-rated' : ''}`} style={{ animationDelay:`${i * 0.06}s` }}>
               <div className="card-photo" style={{ position: 'relative' }}>
-                <div className="listo-brand-watermark" style={{ top: '8px', right: '8px', zIndex: 10 }}>
-                  <img src={logoEsquina || logoListo} alt="Pedidos Listo" className="listo-brand-watermark-img" />
+                <div className="listo-brand-watermark">
+                  <img src={logoListo} alt="Pedidos Listo" className="listo-brand-watermark-img" />
                 </div>
                 <img 
                   src={pro.photoURL || pro.img} 
@@ -1317,12 +1453,12 @@ export default function SearchPage({ lang = 'es', navigate, initialCategory = 'a
 
                 {pro.rating && pro.rating > 0 && pro.reviews > 0 && (
                   <div style={{ position: 'absolute', top: '6px', right: '6px', background: 'rgba(26, 26, 46, 0.85)', backdropFilter: 'blur(4px)', borderRadius: '8px', padding: '3px 6px', display: 'flex', alignItems: 'center', gap: '4px', border: '1.5px solid #FFD700', boxShadow: '0 4px 10px rgba(0,0,0,0.15)', zIndex: 10 }}>
-                    <span style={{ fontSize: '10px', color: '#FFD700', fontWeight: 'bold' }}>â­</span>
+                    <span style={{ fontSize: '10px', color: '#FFD700', fontWeight: 'bold' }}>⭐</span>
                     <span style={{ fontSize: '10px', color: 'white', fontWeight: '900' }}>{Number(pro.rating).toFixed(1)}</span>
                   </div>
                 )}
 
-                {/* CONTENEDOR INFERIOR: PLAN ENCIMA DEL BOTÃ“N DISPONIBLE */}
+                {/* CONTENEDOR INFERIOR: PLAN ENCIMA DEL BOTÓN DISPONIBLE */}
                 <div className="card-photo-overlay-bottom">
                   {badgeMarkup}
                   <span className={`status-badge ${pro.available ? 'avail' : 'busy'}`}>
@@ -1347,21 +1483,21 @@ export default function SearchPage({ lang = 'es', navigate, initialCategory = 'a
               <div className="card-body">
                 <h3 className="pro-name">{pro.name}</h3>
                 <p className="pro-cat">
-                  {(subCat?.image || mainCat?.image) ? <img src={subCat?.image || mainCat?.image} style={{ width: '16px', height: '16px', objectFit: 'contain', verticalAlign: 'middle', marginRight: '4px' }} alt="" /> : (subCat?.icon || mainCat?.icon || 'ðŸ”§')}{' '}
+                  {(subCat?.image || mainCat?.image) ? <img src={subCat?.image || mainCat?.image} style={{ width: '16px', height: '16px', objectFit: 'contain', verticalAlign: 'middle', marginRight: '4px' }} alt="" /> : (subCat?.icon || mainCat?.icon || '🔧')}{' '}
                   {lang === 'es' ? (subCat?.labelEs || mainCat?.labelEs || pro.category) : (subCat?.labelEn || mainCat?.labelEn || pro.category)}
                 </p>
-                <p className="pro-location">ðŸ“ {pro.location}</p>
+                <p className="pro-location">📍 {pro.location}</p>
                 <div className="pro-meta">
-                  <span className="pro-rating">â˜… {Number(pro.rating || 0).toFixed(1)} <em>({pro.reviews || 0} {T.reviews})</em></span>
-                  <span className="pro-exp">â± {pro.experience || 'Nuevo'}</span>
+                  <span className="pro-rating">★ {Number(pro.rating || 0).toFixed(1)} <em>({pro.reviews || 0} {T.reviews})</em></span>
+                  <span className="pro-exp">⏱ {pro.experience || 'Nuevo'}</span>
                 </div>
               </div>
               <div className="card-footer">
                 <span className="pro-exp-badge" style={{ color:'#666', fontSize:'13px', fontWeight:'600', padding:'4px 8px', background:'#eee', borderRadius:'6px' }}>
-                  ðŸ¤ Precio a convenir
+                  🤝 Precio a convenir
                 </span>
                 <div className="card-actions">
-                  <button className="btn-profile" onClick={() => navigate('proProfile', pro)}>ðŸ‘¤ {T.profile}</button>
+                  <button className="btn-profile" onClick={() => navigate('proProfile', pro)}>👤 {T.profile}</button>
                   <button className={btnBookClass} onClick={() => navigate('booking', pro)}>
                     <span style={{ marginRight: '4px' }}>{btnBookIcon}</span>
                     {T.book}
@@ -1375,18 +1511,18 @@ export default function SearchPage({ lang = 'es', navigate, initialCategory = 'a
       )}
 
       {!loading && filtered.length === 0 && (
-        <div className="empty-state"><span>ðŸ”</span><p>{T.empty}</p></div>
+        <div className="empty-state"><span>🔍</span><p>{T.empty}</p></div>
       )}
 
       {showToast && (
         <div className="toast-notification">
-          <span>ðŸ“‹</span> {toastMessage}
+          <span>📋</span> {toastMessage}
         </div>
       )}
 
       <div style={{ height: 80 }} />
 
-      {/* Modal de RenovaciÃ³n de Plan para Profesional */}
+      {/* Modal de Renovación de Plan para Profesional */}
       <PlanSelectionModal 
         isOpen={showPlanModal} 
         onClose={() => setShowPlanModal(false)} 
@@ -1401,7 +1537,7 @@ export default function SearchPage({ lang = 'es', navigate, initialCategory = 'a
         onSelectCategory={(cat) => setSearch(cat)}
       />
 
-      {/* Modal de Solicitud CotizaciÃ³n Flash 3 Pasos */}
+      {/* Modal de Solicitud Cotización Flash 3 Pasos */}
       {showSolicitudExpress && (
         <SolicitudExpressModal 
           lang={lang} 
