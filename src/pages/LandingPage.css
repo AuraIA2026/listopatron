@@ -5674,70 +5674,116 @@ h2.section-title {
 }
 
 /* ==========================================================
-   DROPDOWN DESCARGA DE APP (APP STORE & GOOGLE PLAY)
+   MODAL / POPUP DESCARGA DE APP (APP STORE & GOOGLE PLAY)
    ========================================================== */
-@keyframes downloadFadeIn {
-  0% {
-    opacity: 0;
-    transform: translateY(-8px) scale(0.96);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
+.download-app-portal-wrapper {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
 }
 
-.download-dropdown-wrapper {
+.download-app-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 99998;
+  animation: downloadFadeIn 0.2s ease-out;
+}
+
+.download-app-modal-card {
   position: relative;
-  display: inline-block;
-  z-index: 1050;
-}
-
-.app-download-dropdown-menu {
-  position: absolute;
-  top: calc(100% + 10px);
-  right: 0;
-  background: linear-gradient(180deg, #12141C 0%, #08090C 100%);
-  border: 1.5px solid #FF6B00;
-  border-radius: 18px;
-  padding: 14px 16px;
+  z-index: 99999;
+  background: linear-gradient(180deg, #161824 0%, #0B0C10 100%);
+  border: 2px solid #FF6B00;
+  border-radius: 22px;
+  padding: 22px 24px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.65), 0 0 25px rgba(255, 107, 0, 0.35);
-  z-index: 1100;
-  width: 210px;
-  animation: downloadFadeIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  gap: 16px;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9), 0 0 35px rgba(255, 107, 0, 0.45);
+  width: 320px;
+  max-width: calc(100vw - 32px);
+  animation: downloadModalPop 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.store-badge-link {
+.download-app-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255, 107, 0, 0.25);
+}
+
+.download-app-close-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #CBD5E1;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 700;
+  transition: all 0.2s ease;
+}
+
+.download-app-close-btn:hover {
+  background: #FF6B00;
+  color: #FFFFFF;
+  border-color: #FF6B00;
+  transform: scale(1.08);
+}
+
+.download-app-badges-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.download-badge-item {
   display: block;
-  border-radius: 10px;
+  border-radius: 12px;
   overflow: hidden;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: #000;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  border: 1.5px solid rgba(255, 255, 255, 0.16);
+  background: #000000;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
 }
 
-.store-badge-link:hover {
+.download-badge-item:hover {
   transform: translateY(-2px) scale(1.02);
-  box-shadow: 0 6px 16px rgba(255, 107, 0, 0.4);
+  border-color: #FF6B00;
+  box-shadow: 0 10px 28px rgba(255, 107, 0, 0.55);
 }
 
-.store-badge-link img {
+.download-badge-item img {
   width: 100%;
   height: auto;
   display: block;
 }
 
-@media (max-width: 600px) {
-  .app-download-dropdown-menu {
-    right: -10px;
-    width: 190px;
-    padding: 12px 14px;
-    gap: 10px;
+@keyframes downloadFadeIn {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@keyframes downloadModalPop {
+  0% {
+    opacity: 0;
+    transform: scale(0.88) translateY(12px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
   }
 }
 
