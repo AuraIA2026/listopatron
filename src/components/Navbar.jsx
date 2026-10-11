@@ -1,9 +1,9 @@
-﻿import logoImg from '../assets/pedidos-listo-mamey.png'
+import logoImg from '../assets/pedidos-listo-mamey.png'
 import './Navbar.css'
 
 const t = {
-  es: { services: 'Servicios', login: 'Iniciar sesiÃ³n', register: 'Registrarse', tagline: 'Con la Alita de Listo ðŸ‡©ðŸ‡´' },
-  en: { services: 'Services', login: 'Log in', register: 'Sign up', tagline: 'Express Delivery & Services ðŸ‡©ðŸ‡´' }
+  es: { services: 'Servicios', login: 'Iniciar sesión', register: 'Registrarse', tagline: 'Con la Alita de Listo 🇩🇴' },
+  en: { services: 'Services', login: 'Log in', register: 'Sign up', tagline: 'Express Delivery & Services 🇩🇴' }
 }
 
 export default function Navbar({ navigate, currentPage, lang, setLang }) {
