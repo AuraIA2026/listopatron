@@ -1,4 +1,4 @@
-﻿import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { db, auth } from '../firebase'
 import { doc, updateDoc, deleteDoc, collection, query, where, getDocs, addDoc, serverTimestamp } from 'firebase/firestore'
 import { deleteUser } from 'firebase/auth'
@@ -12,6 +12,7 @@ import ProFinanzasModal from '../components/ProFinanzasModal'
 import StoryAvatar from '../components/StoryAvatar'
 import HistoriasViewerModal from '../components/HistoriasViewerModal'
 import { useStories } from '../hooks/useStories'
+import PhotoNoticeModal from '../components/PhotoNoticeModal'
 
 
 const txt = {
@@ -737,6 +738,22 @@ export default function ProfilePage({ lang, setLang, navigate, onLogout, initial
   const [showPlanModal, setShowPlanModal] = useState(false)
   const [showFinanzasModal, setShowFinanzasModal] = useState(false)
   const [hideUpgrade, setHideUpgrade] = useState(() => localStorage.getItem('hideUpgrade_Listo_' + (userData?.uid || 'guest')) === 'true')
+  const [showPhotoNotice, setShowPhotoNotice] = useState(false)
+  const [photoNoticeTarget, setPhotoNoticeTarget] = useState(null)
+
+  const handleRequestPhotoNotice = (target) => {
+    setPhotoNoticeTarget(target)
+    setShowPhotoNotice(true)
+  }
+
+  const handlePhotoNoticeContinue = () => {
+    setShowPhotoNotice(false)
+    if (photoNoticeTarget === 'gallery') {
+      fileInputRef.current?.click()
+    } else if (photoNoticeTarget === 'camera') {
+      cameraInputRef.current?.click()
+    }
+  }
 
   const { getProStoryData } = useStories()
   const userStoryData = getProStoryData(userData)
@@ -1248,11 +1265,11 @@ export default function ProfilePage({ lang, setLang, navigate, onLogout, initial
             <span className="modal-icon">ðŸ“¸</span>
             <h3 className="modal-title">{T.photoTitle}</h3>
             <button className="modal-btn danger" style={{ background:'linear-gradient(135deg,#F26000,#C24E00)' }}
-              onClick={() => { setShowPhoto(false); fileInputRef.current?.click() }}>
+              onClick={() => { setShowPhoto(false); handleRequestPhotoNotice('gallery') }}>
               {T.photoGallery}
             </button>
             <button className="modal-btn danger" style={{ background:'linear-gradient(135deg,#3B82F6,#2563EB)', marginTop:8 }}
-              onClick={() => { setShowPhoto(false); cameraInputRef.current?.click() }}>
+              onClick={() => { setShowPhoto(false); handleRequestPhotoNotice('camera') }}>
               {T.photoCamera}
             </button>
             {photoURL && (
@@ -1305,6 +1322,13 @@ export default function ProfilePage({ lang, setLang, navigate, onLogout, initial
           navigate={navigate}
         />
       )}
+
+      <PhotoNoticeModal
+        isOpen={showPhotoNotice}
+        onClose={() => setShowPhotoNotice(false)}
+        onContinue={handlePhotoNoticeContinue}
+        lang={lang}
+      />
     </div>
   )
 }

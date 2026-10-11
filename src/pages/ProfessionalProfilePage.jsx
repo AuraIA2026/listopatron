@@ -8,6 +8,7 @@ import HistoriasViewerModal from '../components/HistoriasViewerModal'
 import StoryAvatar from '../components/StoryAvatar'
 import { useStories } from '../hooks/useStories'
 import ExoticWorkPortfolio from '../components/ExoticWorkPortfolio'
+import PhotoNoticeModal from '../components/PhotoNoticeModal'
 import './ProfessionalProfilePage.css'
 
 const txt = {
@@ -128,7 +129,7 @@ function ReviewCard({ review }) {
   )
 }
 
-function PhotoGrid({ photos, lang, isOwnProfile, onUploadPhoto, onDeletePhoto, hasPendingWork, proName = '', proCategory = '', onHireClick }) {
+function PhotoGrid({ photos, lang, isOwnProfile, onUploadPhoto, onDeletePhoto, hasPendingWork, proName = '', proCategory = '', onHireClick, onRequestPhotoNotice }) {
   const T = txt[lang]
   const [lightbox, setLightbox] = useState(null)
 
@@ -145,13 +146,13 @@ function PhotoGrid({ photos, lang, isOwnProfile, onUploadPhoto, onDeletePhoto, h
 
       {hasPendingWork && (
         <div style={{ background: '#FFFBEB', border: '1px solid #FCD34D', borderRadius: '12px', padding: '12px 16px', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <span style={{ fontSize: '20px' }}>â³</span>
+          <span style={{ fontSize: '20px' }}>⏳</span>
           <div>
             <p style={{ margin: 0, fontWeight: '700', fontSize: '13px', color: '#92400E' }}>
-              {lang === 'es' ? 'Fotos de trabajos en revisiÃ³n por el Administrador' : 'Work photos under Admin review'}
+              {lang === 'es' ? 'Fotos de trabajos en revisión por el Administrador' : 'Work photos under Admin review'}
             </p>
             <p style={{ margin: '2px 0 0', fontSize: '11px', color: '#B45309' }}>
-              {lang === 'es' ? 'Tus fotos enviadas se publicarÃ¡n en tu portafolio en cuanto sean autorizadas por Central de Mando.' : 'Your submitted photos will be published to your portfolio as soon as authorized.'}
+              {lang === 'es' ? 'Tus fotos enviadas se publicarán en tu portafolio en cuanto sean autorizadas por Central de Mando.' : 'Your submitted photos will be published to your portfolio as soon as authorized.'}
             </p>
           </div>
         </div>
@@ -159,12 +160,12 @@ function PhotoGrid({ photos, lang, isOwnProfile, onUploadPhoto, onDeletePhoto, h
       
       {photos.length === 0 && !isOwnProfile && (
          <div style={{ textAlign: 'center', padding: '40px 20px' }}>
-            <span style={{ fontSize: 40, display: 'block', marginBottom: 12 }}>ðŸ“¸</span>
+            <span style={{ fontSize: 40, display: 'block', marginBottom: 12 }}>📸</span>
             <p style={{ fontWeight: 'bold', margin: 0, color: '#333' }}>{T.noPhotos}</p>
          </div>
       )}
 
-      {/* Ãlbum ExÃ³tico de Trabajos Realizados */}
+      {/* Álbum Exótico de Trabajos Realizados */}
       <ExoticWorkPortfolio 
         lang={lang}
         photos={photos}
@@ -172,7 +173,7 @@ function PhotoGrid({ photos, lang, isOwnProfile, onUploadPhoto, onDeletePhoto, h
         proCategory={proCategory}
         onHireClick={onHireClick}
         isOwnProfile={isOwnProfile}
-        onUploadPhoto={onUploadPhoto}
+        onUploadPhoto={() => onRequestPhotoNotice ? onRequestPhotoNotice('work') : document.getElementById('pro-work-upload')?.click()}
       />
 
       <div className="photos-grid-title-wrap">
@@ -181,8 +182,8 @@ function PhotoGrid({ photos, lang, isOwnProfile, onUploadPhoto, onDeletePhoto, h
 
       <div className="photos-grid">
         {isOwnProfile && (
-          <button className="photo-upload-btn-new" onClick={() => document.getElementById('pro-work-upload').click()}>
-            <span className="upload-icon">âž•</span>
+          <button className="photo-upload-btn-new" onClick={() => onRequestPhotoNotice ? onRequestPhotoNotice('work') : document.getElementById('pro-work-upload')?.click()}>
+            <span className="upload-icon">➕</span>
             <span className="upload-text">Subir Trabajo</span>
           </button>
         )}
@@ -347,6 +348,26 @@ export default function ProfessionalProfilePage({ lang = 'es', navigate, profess
   const [showStoryViewer, setShowStoryViewer] = useState(false)
   const [hasHiredPro, setHasHiredPro] = useState(false)
   const [showGuaranteeModal, setShowGuaranteeModal] = useState(false)
+  const [showPhotoNotice, setShowPhotoNotice] = useState(false)
+  const [photoNoticeTarget, setPhotoNoticeTarget] = useState(null)
+
+  const handleRequestPhotoNotice = (target) => {
+    setPhotoNoticeTarget(target)
+    setShowPhotoNotice(true)
+  }
+
+  const handlePhotoNoticeContinue = () => {
+    setShowPhotoNotice(false)
+    if (photoNoticeTarget === 'work') {
+      document.getElementById('pro-work-upload')?.click()
+    } else if (photoNoticeTarget === 'cover') {
+      document.getElementById('pro-cover-upload')?.click()
+    } else if (photoNoticeTarget === 'avatar') {
+      document.getElementById('pro-avatar-upload')?.click()
+    } else if (photoNoticeTarget === 'avatar-cam') {
+      document.getElementById('pro-avatar-camera')?.click()
+    }
+  }
 
   const { getProStoryData } = useStories()
   const fetchedStoryData = getProStoryData(displayPro)
@@ -910,6 +931,7 @@ export default function ProfessionalProfilePage({ lang = 'es', navigate, profess
             proName={displayPro.name}
             proCategory={displayPro.category || displayPro.especialidad || displayPro.categoryEs || ''}
             onHireClick={handleBookClick}
+            onRequestPhotoNotice={handleRequestPhotoNotice}
           />
         )}
 
@@ -1021,12 +1043,12 @@ export default function ProfessionalProfilePage({ lang = 'es', navigate, profess
               </h4>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 10 }}>
                 <button className="modal-btn" style={{ background: 'linear-gradient(135deg,#F26000,#C24E00)', color: '#fff', padding: '10px 8px', fontSize: 12, fontWeight: 700, borderRadius: 10, border: 'none', cursor: 'pointer' }}
-                  onClick={() => { setShowPhotoOptions(false); document.getElementById('pro-avatar-upload').click(); }}>
-                  ðŸ“· GalerÃ­a
+                  onClick={() => { setShowPhotoOptions(false); handleRequestPhotoNotice('avatar'); }}>
+                  📷 Galería
                 </button>
                 <button className="modal-btn" style={{ background: 'linear-gradient(135deg,#3B82F6,#2563EB)', color: '#fff', padding: '10px 8px', fontSize: 12, fontWeight: 700, borderRadius: 10, border: 'none', cursor: 'pointer' }}
-                  onClick={() => { setShowPhotoOptions(false); document.getElementById('pro-avatar-camera').click(); }}>
-                  ðŸ¤³ CÃ¡mara
+                  onClick={() => { setShowPhotoOptions(false); handleRequestPhotoNotice('avatar-cam'); }}>
+                  🤳 Cámara
                 </button>
               </div>
 
@@ -1074,7 +1096,7 @@ export default function ProfessionalProfilePage({ lang = 'es', navigate, profess
                 ðŸ–¼ï¸ {lang === 'es' ? 'Foto de Portada' : 'Cover Photo'}
               </h4>
               <button className="modal-btn" style={{ width: '100%', background: 'linear-gradient(135deg,#10B981,#059669)', color: '#fff', padding: '10px', fontSize: 12, fontWeight: 700, borderRadius: 10, border: 'none', cursor: 'pointer', marginBottom: 10 }}
-                onClick={() => { setShowPhotoOptions(false); document.getElementById('pro-cover-upload').click(); }}>
+                onClick={() => { setShowPhotoOptions(false); handleRequestPhotoNotice('cover'); }}>
                 ðŸ–¼ï¸ {lang === 'es' ? 'Cambiar Foto de Portada' : 'Change Cover Photo'}
               </button>
 
@@ -1203,6 +1225,13 @@ export default function ProfessionalProfilePage({ lang = 'es', navigate, profess
           navigate={navigate}
         />
       )}
+
+      <PhotoNoticeModal
+        isOpen={showPhotoNotice}
+        onClose={() => setShowPhotoNotice(false)}
+        onContinue={handlePhotoNoticeContinue}
+        lang={lang}
+      />
     </div>
   )
 }

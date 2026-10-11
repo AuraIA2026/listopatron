@@ -1,9 +1,10 @@
-﻿import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { collection, query, where, getDocs, updateDoc, doc, getDoc, addDoc, serverTimestamp, onSnapshot } from 'firebase/firestore'
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage'
 import { db, storage } from '../firebase'
 import listoLogo from '../assets/logo-blanco.png'
 import ReciboDigitalModal from '../components/ReciboDigitalModal'
+import PhotoNoticeModal from '../components/PhotoNoticeModal'
 
 const compressImage = (file) => new Promise((resolve, reject) => {
   const reader = new FileReader()
@@ -65,6 +66,27 @@ export default function WorkDonePage({ lang = 'es', navigate, professional, user
   const [quejaTexto, setQuejaTexto] = useState('')
   const [showReciboModal, setShowReciboModal] = useState(false)
   const [pendingRequests, setPendingRequests] = useState([])
+  const [showPhotoNotice, setShowPhotoNotice] = useState(false)
+  const [photoNoticeTarget, setPhotoNoticeTarget] = useState(null)
+  const evidenceFileRef = useRef(null)
+
+  const handleRequestPhotoNotice = (target) => {
+    setPhotoNoticeTarget(target)
+    setShowPhotoNotice(true)
+  }
+
+  const handlePhotoNoticeContinue = () => {
+    setShowPhotoNotice(false)
+    if (photoNoticeTarget === 'avatar') {
+      document.getElementById('pro-direct-avatar')?.click()
+    } else if (photoNoticeTarget === 'cover') {
+      document.getElementById('pro-direct-cover')?.click()
+    } else if (photoNoticeTarget === 'work') {
+      document.getElementById('pro-direct-work')?.click()
+    } else if (photoNoticeTarget === 'evidence') {
+      evidenceFileRef.current?.click()
+    }
+  }
 
   useEffect(() => {
     if (!isPro || !finalUserData?.uid) return
@@ -709,26 +731,26 @@ export default function WorkDonePage({ lang = 'es', navigate, professional, user
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               <button 
                 type="button"
-                onClick={() => document.getElementById('pro-direct-avatar').click()}
+                onClick={() => handleRequestPhotoNotice('avatar')}
                 style={{ width: '100%', padding: '12px 16px', borderRadius: '12px', background: 'linear-gradient(135deg, #F26000, #C24E00)', color: 'white', fontWeight: '800', fontSize: '13px', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', boxShadow: '0 4px 12px rgba(242,96,0,0.4)' }}
               >
-                <span>ðŸ“·</span> {lang === 'es' ? 'Cambiar Foto de Perfil' : 'Change Profile Photo'}
+                <span>📷</span> {lang === 'es' ? 'Cambiar Foto de Perfil' : 'Change Profile Photo'}
               </button>
 
               <button 
                 type="button"
-                onClick={() => document.getElementById('pro-direct-cover').click()}
+                onClick={() => handleRequestPhotoNotice('cover')}
                 style={{ width: '100%', padding: '12px 16px', borderRadius: '12px', background: 'linear-gradient(135deg, #3B82F6, #1D4ED8)', color: 'white', fontWeight: '800', fontSize: '13px', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', boxShadow: '0 4px 12px rgba(59,130,246,0.4)' }}
               >
-                <span>ðŸ–¼ï¸</span> {lang === 'es' ? 'Cambiar Foto de Portada' : 'Change Cover Photo'}
+                <span>🖼️</span> {lang === 'es' ? 'Cambiar Foto de Portada' : 'Change Cover Photo'}
               </button>
 
               <button 
                 type="button"
-                onClick={() => document.getElementById('pro-direct-work').click()}
+                onClick={() => handleRequestPhotoNotice('work')}
                 style={{ width: '100%', padding: '12px 16px', borderRadius: '12px', background: 'linear-gradient(135deg, #10B981, #047857)', color: 'white', fontWeight: '800', fontSize: '13px', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', boxShadow: '0 4px 12px rgba(16,185,129,0.4)' }}
               >
-                <span>ðŸ’¼</span> {lang === 'es' ? 'Subir Foto de Trabajo Realizado (1 por trabajo)' : 'Upload Completed Work Photo (1 per job)'}
+                <span>💼</span> {lang === 'es' ? 'Subir Foto de Trabajo Realizado (1 por trabajo)' : 'Upload Completed Work Photo (1 per job)'}
               </button>
             </div>
           </div>
@@ -776,15 +798,15 @@ export default function WorkDonePage({ lang = 'es', navigate, professional, user
               ))}
               
               {fotos.length < 3 && (
-                <label style={s.photoAdd}>
-                  <input type="file" accept="image/*" multiple onChange={handleFotos} style={{ display: 'none' }} />
-                    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-                      <path d="M14 6v16M6 14h16" stroke="#F26000" strokeWidth="2.5" strokeLinecap="round"/>
-                    </svg>
-                    <span style={{ fontSize: '12px', color: '#F26000', fontWeight: '600', marginTop: '4px' }}>
-                      {fotos.length === 0 ? 'Agregar foto' : 'Otra foto'}
-                    </span>
-                </label>
+                <div style={s.photoAdd} onClick={() => handleRequestPhotoNotice('evidence')}>
+                  <input ref={evidenceFileRef} type="file" accept="image/*" multiple onChange={handleFotos} style={{ display: 'none' }} />
+                  <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                    <path d="M14 6v16M6 14h16" stroke="#F26000" strokeWidth="2.5" strokeLinecap="round"/>
+                  </svg>
+                  <span style={{ fontSize: '12px', color: '#F26000', fontWeight: '600', marginTop: '4px' }}>
+                    {fotos.length === 0 ? 'Agregar foto' : 'Otra foto'}
+                  </span>
+                </div>
               )}
             </div>
           </div>
@@ -806,9 +828,16 @@ export default function WorkDonePage({ lang = 'es', navigate, professional, user
             style={s.btnPrimary}
             disabled={submitted || isUploading}
           >
-            {isUploading ? 'Subiendo fotos a la nube...' : (submitted ? 'Evidencias Guardadas âœ“' : 'Subir Fotos y Terminar âœ“')}
+            {isUploading ? 'Subiendo fotos a la nube...' : (submitted ? 'Evidencias Guardadas ✓' : 'Subir Fotos y Terminar ✓')}
           </button>
           <div style={{ height: '100px' }} />
+
+          <PhotoNoticeModal
+            isOpen={showPhotoNotice}
+            onClose={() => setShowPhotoNotice(false)}
+            onContinue={handlePhotoNoticeContinue}
+            lang={lang}
+          />
         </div>
       </div>
     )
