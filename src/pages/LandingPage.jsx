@@ -662,6 +662,33 @@ export default function LandingPage({ navigate, lang }) {
   const [selectedMapRegion, setSelectedMapRegion] = useState('all');
   const [activeCityId, setActiveCityId] = useState(null);
 
+  // Escuchar parámetros de la URL para abrir el modal de planes automáticamente cuando viene de la app
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      const search = window.location.search || '';
+      const hash = window.location.hash || '';
+      const params = new URLSearchParams(search);
+      let hashParams = new URLSearchParams('');
+      if (hash.includes('?')) {
+        hashParams = new URLSearchParams(hash.split('?')[1]);
+      }
+
+      const hasComprarPlan = params.has('comprar-plan') || hashParams.has('comprar-plan') || search.includes('comprar-plan') || hash.includes('planes') || search.includes('planes');
+      const planFromUrl = params.get('plan') || hashParams.get('plan') || params.get('planId') || hashParams.get('planId');
+      const hasUid = params.has('uid') || hashParams.has('uid');
+
+      if (hasComprarPlan || planFromUrl || hasUid) {
+        if (planFromUrl) {
+          setSelectedPlanInitial(planFromUrl);
+        }
+        setShowPlanModal(true);
+      }
+    } catch (err) {
+      console.warn('Error detectando plan en LandingPage:', err);
+    }
+  }, []);
+
   const toggleHeroSound = (e) => {
     e.stopPropagation();
     if (heroVideoRef.current) {

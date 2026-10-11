@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../firebase';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, doc, getDoc } from 'firebase/firestore';
 
 export default function PlanSelectionModal({ 
   isOpen, 
@@ -11,34 +11,79 @@ export default function PlanSelectionModal({
 }) {
   if (!isOpen) return null;
 
-  const proData = propProInfo || (() => {
-    try {
-      return JSON.parse(localStorage.getItem('listo_user') || '{}');
-    } catch {
-      return {};
-    }
-  })();
+  // Extraer parámetros dinámicos de URL, propProInfo o localStorage
+  const parseUserData = () => {
+    let urlParams = {};
+    if (typeof window !== 'undefined') {
+      try {
+        const search = window.location.search || '';
+        const params = new URLSearchParams(search);
 
-  const [step, setStep] = useState(initialPlanId ? 'benefits' : 'list');
+        let hashParams = new URLSearchParams('');
+        if (window.location.hash && window.location.hash.includes('?')) {
+          hashParams = new URLSearchParams(window.location.hash.split('?')[1]);
+        }
+
+        const getParam = (k) => params.get(k) || hashParams.get(k) || '';
+
+        urlParams = {
+          uid: getParam('uid'),
+          name: getParam('name') || getParam('nombre'),
+          email: getParam('email') || getParam('correo'),
+          phone: getParam('phone') || getParam('telefono') || getParam('tel'),
+          category: getParam('category') || getParam('categoria') || getParam('especialidad') || getParam('job') || getParam('oficio'),
+          cedula: getParam('cedula'),
+          plan: getParam('plan') || getParam('planId'),
+          step: getParam('step')
+        };
+      } catch (err) {
+        console.warn('Error leyendo URL params:', err);
+      }
+    }
+
+    let localUser = {};
+    if (typeof window !== 'undefined') {
+      try {
+        localUser = JSON.parse(localStorage.getItem('listo_user') || '{}');
+      } catch (err) {}
+    }
+
+    return {
+      uid: propProInfo?.uid || urlParams.uid || localUser.uid || '',
+      name: propProInfo?.name || propProInfo?.displayName || urlParams.name || localUser.name || localUser.displayName || '',
+      email: propProInfo?.email || urlParams.email || localUser.email || '',
+      phone: propProInfo?.phone || urlParams.phone || localUser.phone || '',
+      category: propProInfo?.category || propProInfo?.job || propProInfo?.especialidad || urlParams.category || localUser.category || localUser.job || '',
+      cedula: propProInfo?.cedula || urlParams.cedula || localUser.cedula || '',
+      plan: urlParams.plan || initialPlanId || '',
+      step: urlParams.step || ''
+    };
+  };
+
+  const parsed = parseUserData();
+
+  const [step, setStep] = useState(parsed.plan ? (parsed.step === 'checkout' ? 'checkout' : 'benefits') : 'list');
   const [selectedPlan, setSelectedPlan] = useState(null);
   const [activeTab, setActiveTab] = useState('card'); // 'card' | 'transfer'
   const [submitting, setSubmitting] = useState(false);
 
-  // Datos del Profesional
-  const [proName, setProName] = useState(proData.name || proData.displayName || 'Juan Carlos p');
-  const [proEmail, setProEmail] = useState(proData.email || 'juancarlosperez112725@gmail.com');
-  const [proPhone, setProPhone] = useState(proData.phone || '8096163322');
-  const [proCategory, setProCategory] = useState(proData.category || proData.job || 'tapicero');
+  // Datos del Profesional pre-llenados automáticamente
+  const [proUid, setProUid] = useState(parsed.uid);
+  const [proCedula, setProCedula] = useState(parsed.cedula);
+  const [proName, setProName] = useState(parsed.name);
+  const [proEmail, setProEmail] = useState(parsed.email);
+  const [proPhone, setProPhone] = useState(parsed.phone);
+  const [proCategory, setProCategory] = useState(parsed.category);
 
   // Datos Tarjeta
-  const [cardHolder, setCardHolder] = useState(proData.name || 'JUAN CARLOS P');
+  const [cardHolder, setCardHolder] = useState((parsed.name || '').toUpperCase());
   const [cardNumber, setCardNumber] = useState('');
   const [cardExp, setCardExp] = useState('');
   const [cardCvv, setCardCvv] = useState('');
 
   // Datos Transferencia
   const [originBank, setOriginBank] = useState('');
-  const [depositorName, setDepositorName] = useState(proData.name || 'Juan Carlos p');
+  const [depositorName, setDepositorName] = useState(parsed.name);
   const [voucherFile, setVoucherFile] = useState(null);
   const [copiedIdx, setCopiedIdx] = useState(null);
 
@@ -138,20 +183,64 @@ export default function PlanSelectionModal({
     }
   ];
 
-  // Al abrir o cambiar initialPlanId
+  // Al abrir o cambiar initialPlanId o parámetros de URL
   useEffect(() => {
-    if (initialPlanId) {
-      const match = plans.find(p => p.id === initialPlanId || p.num.toString() === initialPlanId.toString());
+    if (!isOpen) return;
+
+    const data = parseUserData();
+    if (data.name) {
+      setProName(data.name);
+      setDepositorName(data.name);
+      setCardHolder(data.name.toUpperCase());
+    }
+    if (data.email) setProEmail(data.email);
+    if (data.phone) setProPhone(data.phone);
+    if (data.category) setProCategory(data.category);
+    if (data.uid) setProUid(data.uid);
+    if (data.cedula) setProCedula(data.cedula);
+
+    // Si viene UID, consultar Firestore para obtener los datos más recientes en caso de que falte algo
+    if (data.uid) {
+      getDoc(doc(db, 'users', data.uid)).then(docSnap => {
+        if (docSnap.exists()) {
+          const u = docSnap.data();
+          const vf = u.verificacion || {};
+          const fullN = u.name || vf.nombre || data.name;
+          const fullCat = u.category || vf.especialidad || u.especialidad || data.category;
+          const fullMail = u.email || vf.correo || data.email;
+          const fullPh = u.phone || vf.telefono || data.phone;
+          const fullCed = u.cedula || vf.cedula || data.cedula;
+
+          if (fullN) {
+            setProName(fullN);
+            setDepositorName(fullN);
+            setCardHolder(fullN.toUpperCase());
+          }
+          if (fullCat) setProCategory(fullCat);
+          if (fullMail) setProEmail(fullMail);
+          if (fullPh) setProPhone(fullPh);
+          if (fullCed) setProCedula(fullCed);
+        }
+      }).catch(err => console.log('Firestore fetch error in modal:', err));
+    }
+
+    const targetPlanId = initialPlanId || data.plan;
+    if (targetPlanId) {
+      const match = plans.find(p => p.id === targetPlanId || p.num.toString() === targetPlanId.toString() || p.name.toLowerCase().includes(targetPlanId.toLowerCase()));
       if (match) {
         setSelectedPlan(match);
-        setStep('benefits');
+        if (data.step === 'checkout') {
+          setStep('checkout');
+        } else {
+          setStep('benefits');
+        }
         return;
       }
     }
-    // Si no viene initialPlanId, mostrar lista de 4 tarjetas
+
     setSelectedPlan(null);
     setStep('list');
-  }, [initialPlanId, isOpen]);
+  }, [isOpen, initialPlanId, propProInfo]);
 
   const copyCuenta = (num, idx) => {
     navigator.clipboard.writeText(num);
@@ -182,7 +271,8 @@ export default function PlanSelectionModal({
     setSubmitting(true);
     try {
       await addDoc(collection(db, 'payments'), {
-        proId: proData.uid || '',
+        proId: proUid || '',
+        cedula: proCedula || '',
         proName: proName.trim(),
         email: proEmail.trim(),
         phone: proPhone.trim(),
@@ -199,7 +289,7 @@ export default function PlanSelectionModal({
       });
 
       await addDoc(collection(db, 'notificaciones'), {
-        userId: proData.uid || 'admin',
+        userId: proUid || 'admin',
         type: 'plan_activated',
         title: '🎉 ¡PLAN ACTIVADO CON ÉXITO!',
         text: `Se ha procesado tu pago de ${selectedPlan.price} con pasarela AZUL. Tu ${selectedPlan.name} está activo.`,
@@ -225,7 +315,8 @@ export default function PlanSelectionModal({
     setSubmitting(true);
     try {
       await addDoc(collection(db, 'payments'), {
-        proId: proData.uid || '',
+        proId: proUid || '',
+        cedula: proCedula || '',
         proName: proName.trim(),
         email: proEmail.trim(),
         phone: proPhone.trim(),
