@@ -5243,52 +5243,15 @@ h2.section-title {
 
 @media (max-width: 900px) {
   nav {
-    padding: 0 10px !important;
-    height: 64px !important;
-  }
-  .nav-left-group {
-    min-width: 0 !important;
-    flex: 1 !important;
-    gap: 6px !important;
-  }
-  .nav-logo {
-    height: 34px !important;
-    width: 34px !important;
-  }
-  .nav-header-buttons {
-    margin-left: 6px !important;
-    gap: 6px !important;
-    overflow-x: auto !important;
-    scrollbar-width: none !important;
-    -ms-overflow-style: none !important;
-  }
-  .nav-header-buttons::-webkit-scrollbar {
-    display: none !important;
-  }
-  .nav-header-buttons .nav-action-btn {
-    padding: 3px 6px 3px 10px !important;
-    gap: 5px !important;
-    box-shadow: 0 0 10px rgba(255, 107, 0, 0.35) !important;
-  }
-  .btn-brand-label {
-    font-size: 13px !important;
-  }
-  .btn-tag-pill {
-    padding: 4px 10px !important;
-    font-size: 11px !important;
-  }
-}
-
-@media (max-width: 768px) {
-  nav {
-    padding: 0 10px !important;
+    padding: 0 8px !important;
     height: 60px !important;
   }
   .nav-left-group {
-    justify-content: flex-start !important;
     min-width: 0 !important;
     flex: 1 !important;
-    overflow: hidden !important;
+    gap: 4px !important;
+    overflow: visible !important;
+    justify-content: flex-start !important;
   }
   .nav-logo {
     height: 32px !important;
@@ -5296,14 +5259,15 @@ h2.section-title {
     flex-shrink: 0 !important;
   }
   .nav-header-buttons {
-    justify-content: flex-start !important;
-    gap: 6px !important;
-    margin-left: 6px !important;
-    overflow-x: auto !important;
+    margin: 0 auto !important;
+    gap: 4px !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    flex: 1 !important;
+    overflow: visible !important;
     scrollbar-width: none !important;
     -ms-overflow-style: none !important;
-    white-space: nowrap !important;
-    padding: 2px 0 !important;
   }
   .nav-header-buttons::-webkit-scrollbar {
     display: none !important;
@@ -5312,45 +5276,116 @@ h2.section-title {
     display: none !important;
   }
   .nav-header-buttons .nav-action-btn {
-    padding: 4px 8px !important;
+    padding: 2px !important;
+    border: 1.5px solid #FF6B00 !important;
     border-radius: 50px !important;
-    box-shadow: 0 0 10px rgba(255, 107, 0, 0.4) !important;
+    background: #0B0C10 !important;
+    box-shadow: 0 0 8px rgba(255, 107, 0, 0.35) !important;
     flex-shrink: 0 !important;
   }
   .btn-tag-pill {
-    padding: 4px 10px !important;
-    font-size: 11.5px !important;
+    padding: 3.5px 7px !important;
+    font-size: 10.5px !important;
     font-weight: 800 !important;
+    letter-spacing: -0.2px !important;
+    white-space: nowrap !important;
+    border-radius: 50px !important;
+  }
+}
+
+@media (max-width: 768px) {
+  nav {
+    padding: 0 8px !important;
+    height: 58px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+  }
+  .nav-left-group {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    min-width: 0 !important;
+    flex: 1 !important;
+    overflow: visible !important;
+    gap: 0 !important;
+  }
+  .nav-logo {
+    height: 30px !important;
+    width: 30px !important;
+    flex-shrink: 0 !important;
+    margin-right: 4px !important;
+  }
+  .nav-header-buttons {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex: 1 !important;
+    gap: 4px !important;
+    margin: 0 auto !important;
+    overflow: visible !important;
+    white-space: nowrap !important;
+    padding: 0 !important;
+  }
+  .btn-brand-label {
+    display: none !important;
+  }
+  .nav-header-buttons .nav-action-btn {
+    padding: 2px !important;
+    border: 1.5px solid #FF6B00 !important;
+    border-radius: 50px !important;
+    background: #0B0C10 !important;
+    box-shadow: 0 0 8px rgba(255, 107, 0, 0.4) !important;
+    flex-shrink: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  .btn-tag-pill {
+    padding: 3.5px 7px !important;
+    font-size: 10.5px !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.2px !important;
+    border-radius: 50px !important;
+    white-space: nowrap !important;
   }
   .nav-btn-direct {
     display: none !important;
   }
   .nav-right-group {
-    gap: 6px !important;
+    display: flex !important;
+    align-items: center !important;
+    flex-shrink: 0 !important;
+    gap: 0 !important;
+    margin-left: 4px !important;
   }
   .burger {
     display: flex !important;
+    flex-shrink: 0 !important;
   }
 }
 
-@media (max-width: 400px) {
+@media (max-width: 375px) {
   nav {
-    padding: 0 6px !important;
+    padding: 0 4px !important;
   }
   .nav-logo {
     height: 28px !important;
     width: 28px !important;
+    margin-right: 2px !important;
   }
   .nav-header-buttons {
-    margin-left: 4px !important;
-    gap: 4px !important;
+    gap: 2.5px !important;
   }
   .nav-header-buttons .nav-action-btn {
-    padding: 3px 6px !important;
+    padding: 1.5px !important;
   }
   .btn-tag-pill {
-    padding: 3px 8px !important;
-    font-size: 10.5px !important;
+    padding: 3px 5px !important;
+    font-size: 9.5px !important;
+  }
+  .nav-right-group {
+    margin-left: 2px !important;
   }
 }
 
