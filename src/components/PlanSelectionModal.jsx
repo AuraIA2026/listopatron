@@ -2,6 +2,34 @@ import React, { useState, useEffect } from 'react';
 import { db } from '../firebase';
 import { collection, addDoc, serverTimestamp, doc, getDoc } from 'firebase/firestore';
 
+// Comprime imagen a base64 (o lee directamente si es PDF)
+const compressImage = (file) => new Promise((resolve, reject) => {
+  const reader = new FileReader();
+  if (file.type === 'application/pdf' || (file.name && file.name.toLowerCase().endsWith('.pdf'))) {
+    reader.onload = (e) => resolve(e.target.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+    return;
+  }
+  reader.onload = (e) => {
+    const img = new Image();
+    img.onload = () => {
+      const MAX = 900;
+      let { width, height } = img;
+      if (width > height) { if (width > MAX) { height = Math.round(height * MAX / width); width = MAX; } }
+      else { if (height > MAX) { width = Math.round(width * MAX / height); height = MAX; } }
+      const canvas = document.createElement("canvas");
+      canvas.width = width; canvas.height = height;
+      canvas.getContext("2d").drawImage(img, 0, 0, width, height);
+      resolve(canvas.toDataURL("image/jpeg", 0.8));
+    };
+    img.onerror = reject;
+    img.src = e.target.result;
+  };
+  reader.onerror = reject;
+  reader.readAsDataURL(file);
+});
+
 export default function PlanSelectionModal({ 
   isOpen, 
   onClose, 
@@ -85,6 +113,7 @@ export default function PlanSelectionModal({
   const [originBank, setOriginBank] = useState('');
   const [depositorName, setDepositorName] = useState(parsed.name);
   const [voucherFile, setVoucherFile] = useState(null);
+  const [voucherPreview, setVoucherPreview] = useState(null);
   const [copiedIdx, setCopiedIdx] = useState(null);
 
   const plans = [
@@ -314,6 +343,15 @@ export default function PlanSelectionModal({
     }
     setSubmitting(true);
     try {
+      let receiptBase64 = null;
+      if (voucherFile) {
+        try {
+          receiptBase64 = await compressImage(voucherFile);
+        } catch (errImg) {
+          console.warn('Error comprimiendo comprobante:', errImg);
+        }
+      }
+
       await addDoc(collection(db, 'payments'), {
         proId: proUid || '',
         cedula: proCedula || '',
@@ -324,9 +362,12 @@ export default function PlanSelectionModal({
         planId: selectedPlan.id,
         planName: selectedPlan.name,
         planPriceVal: selectedPlan.priceNum,
+        transferAmount: selectedPlan.priceNum,
+        planContracts: selectedPlan.numContracts,
         paymentMethod: 'bank_transfer',
         bank: originBank || 'Banreservas',
         depositorName: depositorName || proName,
+        receiptUrl: receiptBase64 || null,
         status: 'pending',
         createdAt: serverTimestamp()
       });
@@ -859,17 +900,51 @@ export default function PlanSelectionModal({
 
                 {/* Subir comprobante y WhatsApp */}
                 <div style={{
-                  border: '2px dashed #CBD5E1', borderRadius: '16px', padding: '14px',
-                  textAlign: 'center', marginBottom: '14px', background: '#F8FAFC'
+                  border: voucherPreview ? '2px solid #10B981' : '2px dashed #CBD5E1',
+                  borderRadius: '16px', padding: '14px',
+                  textAlign: 'center', marginBottom: '14px',
+                  background: voucherPreview ? '#F0FDF4' : '#F8FAFC',
+                  transition: 'all 0.2s'
                 }}>
-                  <div style={{ fontSize: '24px', marginBottom: '4px' }}>📎</div>
-                  <div style={{ fontSize: '12px', fontWeight: '700', color: '#475569' }}>
-                    {voucherFile ? `Archivo: ${voucherFile.name}` : 'Arrastra tu comprobante o haz clic para subir'}
-                  </div>
+                  {voucherPreview && voucherPreview !== 'pdf' ? (
+                    <div style={{ marginBottom: '8px' }}>
+                      <img 
+                        src={voucherPreview} 
+                        alt="Comprobante" 
+                        style={{ maxHeight: '140px', maxWidth: '100%', borderRadius: '10px', border: '1px solid #86EFAC', objectFit: 'contain' }} 
+                      />
+                      <div style={{ fontSize: '11px', color: '#15803D', fontWeight: '800', marginTop: '4px' }}>
+                        ✓ Foto de comprobante lista ({voucherFile?.name})
+                      </div>
+                    </div>
+                  ) : voucherPreview === 'pdf' ? (
+                    <div style={{ marginBottom: '8px', color: '#2563EB', fontWeight: '800', fontSize: '12px' }}>
+                      📑 Archivo PDF cargado ({voucherFile?.name})
+                    </div>
+                  ) : (
+                    <>
+                      <div style={{ fontSize: '24px', marginBottom: '4px' }}>📎</div>
+                      <div style={{ fontSize: '12px', fontWeight: '700', color: '#475569' }}>
+                        Arrastra tu comprobante o haz clic para subir
+                      </div>
+                    </>
+                  )}
                   <input
                     type="file"
                     accept="image/*,.pdf"
-                    onChange={e => setVoucherFile(e.target.files[0])}
+                    onChange={e => {
+                      const f = e.target.files[0];
+                      if (f) {
+                        setVoucherFile(f);
+                        if (f.type.startsWith('image/')) {
+                          const reader = new FileReader();
+                          reader.onload = ev => setVoucherPreview(ev.target.result);
+                          reader.readAsDataURL(f);
+                        } else {
+                          setVoucherPreview('pdf');
+                        }
+                      }
+                    }}
                     style={{ marginTop: '6px', fontSize: '11px' }}
                   />
                 </div>
