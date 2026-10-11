@@ -14,6 +14,7 @@ import pro22 from '../assets/landing/extracted_22.jpeg';
 import pro23 from '../assets/landing/extracted_23.jpeg';
 import pro24 from '../assets/landing/extracted_24.jpeg';
 import pro25 from '../assets/landing/extracted_25.jpeg';
+import logoMarcador from '../assets/logo_marcador.png';
 
 function DeliveryPartnerModal({ onClose, navigate }) {
   const [activeTab, setActiveTab] = useState('registro'); // 'registro' | 'pasos' | 'documentos' | 'soluciones' | 'testimonios'
@@ -607,6 +608,49 @@ function DeliveryPartnerModal({ onClose, navigate }) {
   );
 }
 
+const DOMINICAN_CITIES = [
+  // Gran Santo Domingo
+  { id: 'dn', name: 'Distrito Nacional', sub: 'Santo Domingo Centro', region: 'capital', x: 444, y: 328, count: '500+ Profesionales', type: 'active' },
+  { id: 'sdo', name: 'Santo Domingo Este / Norte', sub: 'Prov. Santo Domingo', region: 'capital', x: 468, y: 308, count: '350+ Profesionales', type: 'active' },
+
+  // Cibao / Norte
+  { id: 'sti', name: 'Santiago de los Caballeros', sub: 'Corazón del Cibao', region: 'cibao', x: 242, y: 118, count: '250+ Profesionales', type: 'active' },
+  { id: 'pop', name: 'Puerto Plata', sub: 'Costa Norte', region: 'cibao', x: 265, y: 44, count: '120+ Profesionales', type: 'active' },
+  { id: 'veg', name: 'La Vega', sub: 'Cibao Central', region: 'cibao', x: 302, y: 175, count: '95+ Profesionales', type: 'active' },
+  { id: 'sfm', name: 'San Francisco de Macorís', sub: 'Prov. Duarte', region: 'cibao', x: 420, y: 152, count: '80+ Profesionales', type: 'active' },
+  { id: 'moca', name: 'Moca', sub: 'Prov. Espaillat', region: 'cibao', x: 348, y: 88, count: '65+ Profesionales', type: 'active' },
+  { id: 'bonao', name: 'Bonao', sub: 'Prov. Monseñor Nouel', region: 'cibao', x: 342, y: 236, count: '70+ Profesionales', type: 'active' },
+  { id: 'sam', name: 'Samaná / Las Terrenas', sub: 'Península Turística', region: 'cibao', x: 540, y: 158, count: '55+ Profesionales', type: 'active' },
+  { id: 'nagua', name: 'Nagua', sub: 'María Trinidad Sánchez', region: 'cibao', x: 438, y: 108, count: '45+ Profesionales', type: 'active' },
+  { id: 'cotui', name: 'Cotuí', sub: 'Sánchez Ramírez', region: 'cibao', x: 396, y: 202, count: '40+ Profesionales', type: 'active' },
+  { id: 'salcedo', name: 'Salcedo', sub: 'Hermanas Mirabal', region: 'cibao', x: 356, y: 120, count: '35+ Profesionales', type: 'active' },
+  { id: 'mao', name: 'Mao', sub: 'Prov. Valverde', region: 'cibao', x: 211, y: 80, count: '40+ Profesionales', type: 'active' },
+  { id: 'mcristi', name: 'Monte Cristi', sub: 'Noroeste Costero', region: 'cibao', x: 115, y: 48, count: '30+ Profesionales', type: 'growth' },
+  { id: 'dajabon', name: 'Dajabón', sub: 'Frontera Norte', region: 'cibao', x: 82, y: 116, count: '25+ Profesionales', type: 'growth' },
+  { id: 'sabaneta', name: 'Sabaneta', sub: 'Santiago Rodríguez', region: 'cibao', x: 156, y: 125, count: '20+ Profesionales', type: 'growth' },
+
+  // Este
+  { id: 'puj', name: 'Punta Cana / Bávaro', sub: 'Polo Turístico', region: 'este', x: 755, y: 315, count: '200+ Profesionales', type: 'active' },
+  { id: 'higuey', name: 'Higüey', sub: 'La Altagracia', region: 'este', x: 710, y: 330, count: '85+ Profesionales', type: 'active' },
+  { id: 'romana', name: 'La Romana', sub: 'Costa Este', region: 'este', x: 648, y: 335, count: '110+ Profesionales', type: 'active' },
+  { id: 'spm', name: 'San Pedro de Macorís', sub: 'Región Este', region: 'este', x: 572, y: 312, count: '90+ Profesionales', type: 'active' },
+  { id: 'hmayor', name: 'Hato Mayor del Rey', sub: 'Zona Oriental', region: 'este', x: 562, y: 245, count: '35+ Profesionales', type: 'growth' },
+  { id: 'seibo', name: 'El Seibo', sub: 'Prov. El Seibo', region: 'este', x: 628, y: 248, count: '30+ Profesionales', type: 'growth' },
+  { id: 'mplata', name: 'Monte Plata', sub: 'Zona Esmeralda', region: 'este', x: 468, y: 252, count: '40+ Profesionales', type: 'growth' },
+
+  // Sur
+  { id: 'scris', name: 'San Cristóbal', sub: 'Entrada al Sur', region: 'sur', x: 390, y: 325, count: '130+ Profesionales', type: 'active' },
+  { id: 'bani', name: 'Baní', sub: 'Prov. Peravia', region: 'sur', x: 352, y: 360, count: '75+ Profesionales', type: 'active' },
+  { id: 'ocoa', name: 'San José de Ocoa', sub: 'Valle de Ocoa', region: 'sur', x: 320, y: 300, count: '35+ Profesionales', type: 'growth' },
+  { id: 'azua', name: 'Azua de Compostela', sub: 'Sur Central', region: 'sur', x: 252, y: 310, count: '60+ Profesionales', type: 'active' },
+  { id: 'barahona', name: 'Barahona', sub: 'La Perla del Sur', region: 'sur', x: 180, y: 388, count: '85+ Profesionales', type: 'active' },
+  { id: 'sjuan', name: 'San Juan de la Maguana', sub: 'El Gran Granero', region: 'sur', x: 160, y: 238, count: '65+ Profesionales', type: 'active' },
+  { id: 'neyba', name: 'Neyba', sub: 'Prov. Baoruco', region: 'sur', x: 155, y: 325, count: '25+ Profesionales', type: 'growth' },
+  { id: 'jimani', name: 'Jimaní', sub: 'Independencia', region: 'sur', x: 88, y: 338, count: '20+ Profesionales', type: 'growth' },
+  { id: 'comen', name: 'Comendador', sub: 'Elías Piña', region: 'sur', x: 78, y: 210, count: '20+ Profesionales', type: 'growth' },
+  { id: 'peder', name: 'Pedernales / Cabo Rojo', sub: 'Nuevo Polo Sur', region: 'sur', x: 98, y: 460, count: '30+ Profesionales', type: 'growth' },
+];
+
 export default function LandingPage({ navigate, lang }) {
   useLandingLogic();
   const [showPlanModal, setShowPlanModal] = useState(false);
@@ -615,6 +659,8 @@ export default function LandingPage({ navigate, lang }) {
   const [isHeroMuted, setIsHeroMuted] = useState(true);
   const heroVideoRef = useRef(null);
   const [showDownloadDropdown, setShowDownloadDropdown] = useState(false);
+  const [selectedMapRegion, setSelectedMapRegion] = useState('all');
+  const [activeCityId, setActiveCityId] = useState(null);
 
   const toggleHeroSound = (e) => {
     e.stopPropagation();
@@ -1802,71 +1848,89 @@ export default function LandingPage({ navigate, lang }) {
      title="Valverde"
      id="DO-27"  fill="rgba(255,255,255,0.12)" stroke="rgba(255,255,255,0.35)" strokeWidth="1.5" strokeLinejoin="round"/>
 
-        {/*  City markers  */}
-        
-  {/*  Santo Domingo  */}
-  <g>
-    <circle cx="446.3" cy="326.8" r="24" fill="#F26000" opacity="0.2"><animate attributeName="r" values="22;30;22" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.25;0.05;0.25" dur="2s" repeatCount="indefinite"/></circle>
-    <circle cx="446.3" cy="326.8" r="16" fill="#F26000" stroke="white" strokeWidth="2.5" filter="url(#dropshadow)"/>
-    <circle cx="446.3" cy="326.8" r="6" fill="white"/>
-    <rect x="391.3" y="270.8" width="110" height="32" rx="8" ry="8" fill="white" opacity="0.93" filter="url(#dropshadow)"/>
-    <text x="446.3" y="283.8" textAnchor="middle" fontFamily="Nunito,sans-serif" fontSize="10" fontWeight="800" fill="#C24D00">Santo Domingo</text>
-    <text x="446.3" y="295.8" textAnchor="middle" fontFamily="Nunito,sans-serif" fontSize="9" fontWeight="600" fill="#F26000">500+ profesionales</text>
-  </g>
-  {/*  Santiago  */}
-  <g>
-    <circle cx="282.4" cy="108.6" r="24" fill="#F26000" opacity="0.2"><animate attributeName="r" values="22;30;22" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.25;0.05;0.25" dur="2s" repeatCount="indefinite"/></circle>
-    <circle cx="282.4" cy="108.6" r="16" fill="#F26000" stroke="white" strokeWidth="2.5" filter="url(#dropshadow)"/>
-    <circle cx="282.4" cy="108.6" r="6" fill="white"/>
-    <rect x="227.39999999999998" y="52.599999999999994" width="110" height="32" rx="8" ry="8" fill="white" opacity="0.93" filter="url(#dropshadow)"/>
-    <text x="282.4" y="65.6" textAnchor="middle" fontFamily="Nunito,sans-serif" fontSize="10" fontWeight="800" fill="#C24D00">Santiago</text>
-    <text x="282.4" y="77.6" textAnchor="middle" fontFamily="Nunito,sans-serif" fontSize="9" fontWeight="600" fill="#F26000">200+ profesionales</text>
-  </g>
-  {/*  La Vega  */}
-  <g>
-    
-    <circle cx="317.4" cy="160.7" r="11" fill="#FF8C42" stroke="white" strokeWidth="2.5" filter="url(#dropshadow)"/>
-    <circle cx="317.4" cy="160.7" r="4" fill="white"/>
-    <rect x="262.4" y="104.69999999999999" width="110" height="32" rx="8" ry="8" fill="white" opacity="0.93" filter="url(#dropshadow)"/>
-    <text x="317.4" y="117.69999999999999" textAnchor="middle" fontFamily="Nunito,sans-serif" fontSize="10" fontWeight="800" fill="#C24D00">La Vega</text>
-    <text x="317.4" y="129.7" textAnchor="middle" fontFamily="Nunito,sans-serif" fontSize="9" fontWeight="600" fill="#F26000">En crecimiento</text>
-  </g>
-  {/*  La Romana  */}
-  <g>
-    
-    <circle cx="652.8" cy="340.1" r="11" fill="#FF8C42" stroke="white" strokeWidth="2.5" filter="url(#dropshadow)"/>
-    <circle cx="652.8" cy="340.1" r="4" fill="white"/>
-    <rect x="597.8" y="284.1" width="110" height="32" rx="8" ry="8" fill="white" opacity="0.93" filter="url(#dropshadow)"/>
-    <text x="652.8" y="297.1" textAnchor="middle" fontFamily="Nunito,sans-serif" fontSize="10" fontWeight="800" fill="#C24D00">La Romana</text>
-    <text x="652.8" y="309.1" textAnchor="middle" fontFamily="Nunito,sans-serif" fontSize="9" fontWeight="600" fill="#F26000">En crecimiento</text>
-  </g>
-  {/*  Puerto Plata  */}
-  <g>
-    
-    <circle cx="282.9" cy="31.4" r="11" fill="#FFB380" stroke="white" strokeWidth="2.5" filter="url(#dropshadow)"/>
-    <circle cx="282.9" cy="31.4" r="4" fill="white"/>
-    <rect x="227.89999999999998" y="61.4" width="110" height="32" rx="8" ry="8" fill="white" opacity="0.93" filter="url(#dropshadow)"/>
-    <text x="282.9" y="74.4" textAnchor="middle" fontFamily="Nunito,sans-serif" fontSize="10" fontWeight="800" fill="#C24D00">Puerto Plata</text>
-    <text x="282.9" y="86.4" textAnchor="middle" fontFamily="Nunito,sans-serif" fontSize="9" fontWeight="600" fill="#F26000">Próximamente</text>
-  </g>
-  {/*  Punta Cana  */}
-  <g>
-    
-    <circle cx="775.0" cy="308.3" r="11" fill="#FFB380" stroke="white" strokeWidth="2.5" filter="url(#dropshadow)"/>
-    <circle cx="775.0" cy="308.3" r="4" fill="white"/>
-    <rect x="677" y="252.3" width="110" height="32" rx="8" ry="8" fill="white" opacity="0.93" filter="url(#dropshadow)"/>
-    <text x="775.0" y="265.3" textAnchor="middle" fontFamily="Nunito,sans-serif" fontSize="10" fontWeight="800" fill="#C24D00">Punta Cana</text>
-    <text x="775.0" y="277.3" textAnchor="middle" fontFamily="Nunito,sans-serif" fontSize="9" fontWeight="600" fill="#F26000">Próximamente</text>
-  </g>
-  {/*  San Pedro  */}
-  <g>
-    
-    <circle cx="581.1" cy="332.7" r="11" fill="#FF8C42" stroke="white" strokeWidth="2.5" filter="url(#dropshadow)"/>
-    <circle cx="581.1" cy="332.7" r="4" fill="white"/>
-    <rect x="526.1" y="276.7" width="110" height="32" rx="8" ry="8" fill="white" opacity="0.93" filter="url(#dropshadow)"/>
-    <text x="581.1" y="289.7" textAnchor="middle" fontFamily="Nunito,sans-serif" fontSize="10" fontWeight="800" fill="#C24D00">San Pedro</text>
-    <text x="581.1" y="301.7" textAnchor="middle" fontFamily="Nunito,sans-serif" fontSize="9" fontWeight="600" fill="#F26000">En crecimiento</text>
-  </g>
+        {/*  Marcadores oficiales con Logo Listo y animación en todas las ciudades del país  */}
+        {DOMINICAN_CITIES.map((city, idx) => {
+          const isSelectedRegion = selectedMapRegion === 'all' || city.region === selectedMapRegion;
+          const isCityActive = activeCityId === city.id;
+          if (!isSelectedRegion) return null;
+
+          return (
+            <g
+              key={city.id}
+              onClick={() => setActiveCityId(activeCityId === city.id ? null : city.id)}
+              onMouseEnter={() => setActiveCityId(city.id)}
+              onMouseLeave={() => setActiveCityId(null)}
+              style={{ cursor: 'pointer' }}
+            >
+              {/* Onda expansiva de radar animada (Radar pulse animation) */}
+              <circle cx={city.x} cy={city.y} r="14" fill="#FFFFFF" opacity="0.45">
+                <animate attributeName="r" values="9;22;9" dur={`${1.8 + (idx % 4) * 0.3}s`} repeatCount="indefinite" />
+                <animate attributeName="opacity" values="0.65;0;0.65" dur={`${1.8 + (idx % 4) * 0.3}s`} repeatCount="indefinite" />
+              </circle>
+
+              {/* Círculo base blanco con borde naranja Listo */}
+              <circle
+                cx={city.x}
+                cy={city.y}
+                r={isCityActive ? "12" : "9.5"}
+                fill="#FFFFFF"
+                stroke={isCityActive ? "#0B0C10" : "#F26000"}
+                strokeWidth={isCityActive ? "2.5" : "2"}
+                filter="url(#dropshadow)"
+              />
+
+              {/* Logo oficial de Listo en el centro de cada marcador */}
+              <image
+                href={logoMarcador}
+                xlinkHref={logoMarcador}
+                x={city.x - (isCityActive ? 8.5 : 7)}
+                y={city.y - (isCityActive ? 8.5 : 7)}
+                width={isCityActive ? "17" : "14"}
+                height={isCityActive ? "17" : "14"}
+                preserveAspectRatio="xMidYMid meet"
+              />
+
+              {/* Tarjeta flotante cuando la ciudad está activa o seleccionada */}
+              {isCityActive && (
+                <g transform={`translate(${city.x}, ${city.y < 120 ? city.y + 16 : city.y - 44})`} style={{ pointerEvents: 'none' }}>
+                  <rect
+                    x="-68"
+                    y="0"
+                    width="136"
+                    height="38"
+                    rx="9"
+                    fill="#0B0C10"
+                    stroke="#FF6B00"
+                    strokeWidth="1.8"
+                    filter="url(#dropshadow)"
+                  />
+                  <text x="0" y="15" textAnchor="middle" fontFamily="'Outfit', sans-serif" fontSize="10.5" fontWeight="900" fill="#FFFFFF">
+                    {city.name}
+                  </text>
+                  <text x="0" y="28" textAnchor="middle" fontFamily="'Outfit', sans-serif" fontSize="9" fontWeight="700" fill="#FF8533">
+                    ● {city.count}
+                  </text>
+                </g>
+              )}
+            </g>
+          );
+        })}
+
+        {/* Micro-etiquetas limpias para las 5 ciudades principales cuando ninguna está activa para evitar solapamientos */}
+        {!activeCityId && [
+          { name: 'Santo Domingo', x: 444, y: 350 },
+          { name: 'Santiago', x: 242, y: 98 },
+          { name: 'Puerto Plata', x: 265, y: 24 },
+          { name: 'Punta Cana', x: 755, y: 338 },
+          { name: 'Barahona', x: 180, y: 410 }
+        ].map(hub => (
+          <g key={hub.name} style={{ pointerEvents: 'none' }}>
+            <rect x={hub.x - 44} y={hub.y - 10} width="88" height="20" rx="6" fill="#FFFFFF" opacity="0.95" filter="url(#dropshadow)" />
+            <text x={hub.x} y={hub.y + 4} textAnchor="middle" fontFamily="'Outfit', sans-serif" fontSize="9" fontWeight="800" fill="#C24D00">
+              {hub.name}
+            </text>
+          </g>
+        ))}
 
         {/*  Ocean labels  */}
         <text x="400" y="18" textAnchor="middle" fontFamily="Nunito,sans-serif" fontSize="13" fill="rgba(255,255,255,0.45)" fontStyle={{}} fontWeight="600">Océano Atlántico</text>
@@ -1881,36 +1945,72 @@ export default function LandingPage({ navigate, lang }) {
       </svg>
     </div>
 
-    {/*  City badges  */}
-    <div style={{"display": "flex", "gap": "10px", "justifyContent": "center", "flexWrap": "wrap", "marginBottom": "20px"}}>
-      <span style={{"display": "inline-flex", "alignItems": "center", "gap": "7px", "background": "#F26000", "color": "#fff", "padding": "9px 18px", "borderRadius": "50px", "fontWeight": "800", "fontSize": "13px", "boxShadow": "0 4px 14px rgba(242,96,0,0.35)"}}>
-        <span style={{"width": "9px", "height": "9px", "background": "#fff", "borderRadius": "50%", "animation": "pulse 1.5s infinite"}}></span>Santo Domingo
-      </span>
-      <span style={{"display": "inline-flex", "alignItems": "center", "gap": "7px", "background": "#F26000", "color": "#fff", "padding": "9px 18px", "borderRadius": "50px", "fontWeight": "800", "fontSize": "13px", "boxShadow": "0 4px 14px rgba(242,96,0,0.35)"}}>
-        <span style={{"width": "9px", "height": "9px", "background": "#fff", "borderRadius": "50%", "animation": "pulse 1.5s infinite"}}></span>Santiago
-      </span>
-      <span style={{"display": "inline-flex", "alignItems": "center", "gap": "7px", "background": "#FF8C42", "color": "#fff", "padding": "9px 18px", "borderRadius": "50px", "fontWeight": "800", "fontSize": "13px"}}>
-        <span style={{"width": "9px", "height": "9px", "background": "#fff", "borderRadius": "50%"}}></span>La Vega
-      </span>
-      <span style={{"display": "inline-flex", "alignItems": "center", "gap": "7px", "background": "#FF8C42", "color": "#fff", "padding": "9px 18px", "borderRadius": "50px", "fontWeight": "800", "fontSize": "13px"}}>
-        <span style={{"width": "9px", "height": "9px", "background": "#fff", "borderRadius": "50%"}}></span>La Romana
-      </span>
-      <span style={{"display": "inline-flex", "alignItems": "center", "gap": "7px", "background": "#FF8C42", "color": "#fff", "padding": "9px 18px", "borderRadius": "50px", "fontWeight": "800", "fontSize": "13px"}}>
-        <span style={{"width": "9px", "height": "9px", "background": "#fff", "borderRadius": "50%"}}></span>San Pedro de Macorís
-      </span>
-      <span style={{"display": "inline-flex", "alignItems": "center", "gap": "7px", "background": "#FFD4B8", "color": "#C24D00", "padding": "9px 18px", "borderRadius": "50px", "fontWeight": "800", "fontSize": "13px", "border": "2px dashed #F26000"}}>
-        🚀 Puerto Plata
-      </span>
-      <span style={{"display": "inline-flex", "alignItems": "center", "gap": "7px", "background": "#FFD4B8", "color": "#C24D00", "padding": "9px 18px", "borderRadius": "50px", "fontWeight": "800", "fontSize": "13px", "border": "2px dashed #F26000"}}>
-        🚀 Punta Cana
-      </span>
+    {/*  Filtros de región interactivos  */}
+    <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '18px' }}>
+      {[
+        { id: 'all', label: '🇩🇴 Todas las ciudades (33)' },
+        { id: 'capital', label: '🏙️ Gran Santo Domingo' },
+        { id: 'cibao', label: '🌾 Cibao / Norte' },
+        { id: 'este', label: '🏖️ Región Este' },
+        { id: 'sur', label: '☀️ Región Sur' }
+      ].map(tab => (
+        <button
+          key={tab.id}
+          type="button"
+          onClick={() => setSelectedMapRegion(tab.id)}
+          style={{
+            background: selectedMapRegion === tab.id ? '#F26000' : 'rgba(255, 255, 255, 0.9)',
+            color: selectedMapRegion === tab.id ? '#FFFFFF' : '#475569',
+            border: selectedMapRegion === tab.id ? '1.5px solid #F26000' : '1px solid rgba(242, 96, 0, 0.25)',
+            padding: '7px 16px',
+            borderRadius: '50px',
+            fontWeight: '800',
+            fontSize: '12.5px',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease',
+            boxShadow: selectedMapRegion === tab.id ? '0 4px 14px rgba(242, 96, 0, 0.35)' : 'none'
+          }}
+        >
+          {tab.label}
+        </button>
+      ))}
     </div>
 
-    {/*  Legend  */}
+    {/*  Chips de ciudades con Logo Listo según región  */}
+    <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap', maxWidth: '850px', margin: '0 auto 20px' }}>
+      {DOMINICAN_CITIES
+        .filter(c => selectedMapRegion === 'all' || c.region === selectedMapRegion)
+        .map(city => (
+          <span
+            key={city.id}
+            onClick={() => setActiveCityId(activeCityId === city.id ? null : city.id)}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              background: activeCityId === city.id ? '#0B0C10' : (city.type === 'active' ? '#F26000' : '#FF8C42'),
+              color: '#FFFFFF',
+              border: activeCityId === city.id ? '1.5px solid #FF6B00' : 'none',
+              padding: '6px 14px',
+              borderRadius: '50px',
+              fontWeight: '800',
+              fontSize: '12px',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+            }}
+          >
+            <img src={logoMarcador} alt="Listo" style={{ width: '13px', height: '13px', borderRadius: '50%', background: '#fff', padding: '1px' }} />
+            {city.name}
+          </span>
+        ))}
+    </div>
+
+    {/*  Leyenda de cobertura  */}
     <div style={{"display": "flex", "gap": "20px", "justifyContent": "center", "flexWrap": "wrap", "marginBottom": "18px", "fontSize": "12px", "fontWeight": "700", "color": "#888"}}>
-      <span style={{"display": "flex", "alignItems": "center", "gap": "6px"}}><span style={{"width": "12px", "height": "12px", "background": "#F26000", "borderRadius": "50%", "border": "2px solid white", "boxShadow": "0 0 0 3px rgba(242,96,0,0.3)", "display": "inline-block"}}></span>Activo</span>
+      <span style={{"display": "flex", "alignItems": "center", "gap": "6px"}}><span style={{"width": "12px", "height": "12px", "background": "#F26000", "borderRadius": "50%", "border": "2px solid white", "boxShadow": "0 0 0 3px rgba(242,96,0,0.3)", "display": "inline-block"}}></span>Alta Demanda</span>
       <span style={{"display": "flex", "alignItems": "center", "gap": "6px"}}><span style={{"width": "12px", "height": "12px", "background": "#FF8C42", "borderRadius": "50%", "border": "2px solid white", "display": "inline-block"}}></span>En crecimiento</span>
-      <span style={{"display": "flex", "alignItems": "center", "gap": "6px"}}><span style={{"width": "12px", "height": "12px", "background": "#FFB380", "borderRadius": "50%", "border": "2px dashed #F26000", "display": "inline-block"}}></span>Próximamente</span>
+      <span style={{"display": "flex", "alignItems": "center", "gap": "6px"}}><span style={{"width": "12px", "height": "12px", "background": "#FFB380", "borderRadius": "50%", "border": "2px dashed #F26000", "display": "inline-block"}}></span>Expansión activa</span>
     </div>
 
     {/*  CTA  */}
