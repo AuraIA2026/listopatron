@@ -5247,6 +5247,8 @@ h2.section-title {
     height: 64px !important;
   }
   .nav-left-group {
+    min-width: 0 !important;
+    flex: 1 !important;
     gap: 6px !important;
   }
   .nav-logo {
@@ -5277,22 +5279,34 @@ h2.section-title {
   }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   nav {
-    padding: 0 8px !important;
+    padding: 0 10px !important;
     height: 60px !important;
   }
   .nav-left-group {
     justify-content: flex-start !important;
+    min-width: 0 !important;
+    flex: 1 !important;
+    overflow: hidden !important;
   }
   .nav-logo {
     height: 32px !important;
     width: 32px !important;
+    flex-shrink: 0 !important;
   }
   .nav-header-buttons {
-    justify-content: center !important;
-    gap: 5px !important;
-    margin-left: 4px !important;
+    justify-content: flex-start !important;
+    gap: 6px !important;
+    margin-left: 6px !important;
+    overflow-x: auto !important;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+    white-space: nowrap !important;
+    padding: 2px 0 !important;
+  }
+  .nav-header-buttons::-webkit-scrollbar {
+    display: none !important;
   }
   .btn-brand-label {
     display: none !important;
@@ -5300,14 +5314,43 @@ h2.section-title {
   .nav-header-buttons .nav-action-btn {
     padding: 4px 8px !important;
     border-radius: 50px !important;
-    box-shadow: 0 0 8px rgba(255, 107, 0, 0.4) !important;
+    box-shadow: 0 0 10px rgba(255, 107, 0, 0.4) !important;
+    flex-shrink: 0 !important;
   }
   .btn-tag-pill {
     padding: 4px 10px !important;
-    font-size: 11px !important;
+    font-size: 11.5px !important;
+    font-weight: 800 !important;
   }
   .nav-btn-direct {
     display: none !important;
+  }
+  .nav-right-group {
+    gap: 6px !important;
+  }
+  .burger {
+    display: flex !important;
+  }
+}
+
+@media (max-width: 400px) {
+  nav {
+    padding: 0 6px !important;
+  }
+  .nav-logo {
+    height: 28px !important;
+    width: 28px !important;
+  }
+  .nav-header-buttons {
+    margin-left: 4px !important;
+    gap: 4px !important;
+  }
+  .nav-header-buttons .nav-action-btn {
+    padding: 3px 6px !important;
+  }
+  .btn-tag-pill {
+    padding: 3px 8px !important;
+    font-size: 10.5px !important;
   }
 }
 

@@ -700,48 +700,20 @@ export default function LandingPage({ navigate, lang }) {
 
 {/*  NAV  */}
 <nav id="nav">
-  <div style={{ display: 'flex', alignItems: 'center' }}>
-    <img className="nav-logo" src="./assets/logo_listo.png" alt="Listo Patrón" style={{"height": "40px", "objectFit": "contain"}} />
+  <div className="nav-left-group">
+    <img className="nav-logo" src="./assets/logo_listo.png" alt="Listo Patrón" style={{"height": "38px", "objectFit": "contain"}} />
     
-    <div className="nav-header-buttons" style={{ display: 'flex', alignItems: 'center', gap: '10px', marginLeft: '10px', flexWrap: 'nowrap' }}>
+    <div className="nav-header-buttons">
       {/* BOTÓN TIENDA OFICIAL ESTILO PREMIUM EXÓTICO */}
       <button
         onClick={() => navigate ? navigate('shop') : (window.location.href = '/?page=shop')}
         className="nav-action-btn partner-btn-glow"
-        style={{
-          background: '#0B0C10',
-          color: '#FFFFFF',
-          border: '1.5px solid #FF6B00',
-          borderRadius: '50px',
-          padding: '4px 6px 4px 14px',
-          cursor: 'pointer',
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: '8px',
-          boxShadow: '0 0 16px rgba(255, 107, 0, 0.45)',
-          transition: 'all 0.2s ease-in-out',
-          whiteSpace: 'nowrap',
-          flexShrink: 0
-        }}
         title="Tienda Oficial Listo Patrón"
       >
-        <span style={{ fontWeight: '900', fontStyle: 'italic', fontSize: '15px', color: '#ffffff', letterSpacing: '-0.3px', fontFamily: "'Outfit', 'Fredoka One', sans-serif" }}>
+        <span className="btn-brand-label">
           Listo<span style={{ color: '#FF6B00' }}>Patrón</span>
         </span>
-        <span style={{
-          background: 'linear-gradient(135deg, #FF6B00 0%, #FF8533 100%)',
-          color: '#ffffff',
-          fontFamily: "'Outfit', sans-serif",
-          fontWeight: '900',
-          fontSize: '12px',
-          padding: '5px 14px',
-          borderRadius: '50px',
-          boxShadow: '0 2px 8px rgba(255,107,0,0.5)',
-          letterSpacing: '0.3px',
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: '4px'
-        }}>
+        <span className="btn-tag-pill">
           Tienda 🛒
         </span>
       </button>
@@ -750,41 +722,13 @@ export default function LandingPage({ navigate, lang }) {
       <button
         onClick={() => setShowPlanModal(true)}
         className="nav-action-btn partner-btn-glow"
-        style={{
-          background: '#0B0C10',
-          color: '#FFFFFF',
-          border: '1.5px solid #FF6B00',
-          borderRadius: '50px',
-          padding: '4px 6px 4px 14px',
-          cursor: 'pointer',
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: '8px',
-          boxShadow: '0 0 16px rgba(255, 107, 0, 0.45)',
-          transition: 'all 0.2s ease-in-out',
-          whiteSpace: 'nowrap',
-          flexShrink: 0
-        }}
         title="Adquirir Plan Profesional Listo Patrón"
       >
-        <span style={{ fontWeight: '900', fontStyle: 'italic', fontSize: '15px', color: '#ffffff', letterSpacing: '-0.3px', fontFamily: "'Outfit', 'Fredoka One', sans-serif" }}>
+        <span className="btn-brand-label">
           Listo<span style={{ color: '#FF6B00' }}>Pro</span>
         </span>
-        <span style={{
-          background: 'linear-gradient(135deg, #FF6B00 0%, #FF8533 100%)',
-          color: '#ffffff',
-          fontFamily: "'Outfit', sans-serif",
-          fontWeight: '900',
-          fontSize: '12px',
-          padding: '5px 14px',
-          borderRadius: '50px',
-          boxShadow: '0 2px 8px rgba(255,107,0,0.5)',
-          letterSpacing: '0.3px',
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: '4px'
-        }}>
-          💳 Comprar Plan
+        <span className="btn-tag-pill">
+          💳 Planes
         </span>
       </button>
 
@@ -792,56 +736,32 @@ export default function LandingPage({ navigate, lang }) {
       <button
         onClick={() => setShowDeliveryModal(true)}
         className="nav-action-btn partner-btn-glow"
-        style={{
-          background: '#0B0C10',
-          color: '#FFFFFF',
-          border: '1.5px solid #FF6B00',
-          borderRadius: '50px',
-          padding: '4px 6px 4px 14px',
-          cursor: 'pointer',
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: '8px',
-          boxShadow: '0 0 16px rgba(255, 107, 0, 0.45)',
-          transition: 'all 0.2s ease-in-out',
-          whiteSpace: 'nowrap',
-          flexShrink: 0
-        }}
         title="Portal PedidosListo Partner"
       >
-        <span style={{ fontWeight: '900', fontStyle: 'italic', fontSize: '15px', color: '#ffffff', letterSpacing: '-0.3px', fontFamily: "'Outfit', 'Fredoka One', sans-serif" }}>
+        <span className="btn-brand-label">
           Pedidos<span style={{ color: '#FF6B00' }}>Listo</span>
         </span>
-        <span style={{
-          background: 'linear-gradient(135deg, #FF6B00 0%, #FF8533 100%)',
-          color: '#ffffff',
-          fontFamily: "'Outfit', sans-serif",
-          fontWeight: '900',
-          fontSize: '12px',
-          padding: '5px 14px',
-          borderRadius: '50px',
-          boxShadow: '0 2px 8px rgba(255,107,0,0.5)',
-          letterSpacing: '0.3px',
-          display: 'inline-block'
-        }}>
+        <span className="btn-tag-pill">
           Partner
         </span>
       </button>
     </div>
   </div>
 
-  <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+  <div className="nav-right-group">
     {/* ENLACES DE TEXTO (Se ocultan en el menú hamburguesa cuando no hay suficiente espacio) */}
     <div className="nav-links" id="navLinks">
+      <a href="#tienda" onClick={(e) => { e.preventDefault(); navigate ? navigate('shop') : (window.location.href = '/?page=shop'); }}>🛍️ Tienda Oficial</a>
+      <a href="#planes" onClick={(e) => { e.preventDefault(); setShowPlanModal(true); }}>💳 Comprar Plan Pro</a>
+      <a href="#partner" onClick={(e) => { e.preventDefault(); setShowDeliveryModal(true); }}>🛵 PedidosListo Partner</a>
       <a href="#servicios">Servicios</a>
       <a href="#como-funciona">Cómo funciona</a>
       <a href="#profesionales">Para profesionales</a>
-      <a href="#planes" onClick={(e) => { e.preventDefault(); setShowPlanModal(true); }}>Planes</a>
       <a href="#faq">FAQ</a>
       <a onClick={() => navigate('login')} className="nav-btn nav-btn-inside-menu" style={{ cursor: "pointer", color: "#FFFFFF", fontWeight: "bold" }}>Abrir app →</a>
     </div>
 
-    {/* BOTÓN ABRIR APP SIEMPRE VISIBLE EN LA BARRA */}
+    {/* BOTÓN ABRIR APP SIEMPRE VISIBLE EN PANTALLAS GRANDES */}
     <a 
       onClick={() => navigate('login')} 
       className="nav-btn nav-btn-direct" 
@@ -860,7 +780,7 @@ export default function LandingPage({ navigate, lang }) {
 
 {/*  PORTADA PRINCIPAL / VIDEO OFICIAL PROFESIONALES  */}
 <div id="intro-portada-container" style={{"width": "100%", "background": "#F26000", "paddingTop": "70px", "display": "flex", "justifyContent": "center", "position": "relative"}}>
-    <div style={{"position": "relative", "width": "100%", "maxWidth": "1000px", "boxShadow": "0 0 40px rgba(0,0,0,0.3)", "overflow": "hidden", "background": "#000", "borderRadius": "16px", "margin": "0 15px", "aspectRatio": "250 / 111"}}>
+    <div style={{"position": "relative", "width": "100%", "maxWidth": "1000px", "boxShadow": "0 0 40px rgba(0,0,0,0.3)", "overflow": "hidden", "background": "#000", "borderRadius": "16px", "margin": "0 15px", "aspectRatio": "250 / 111", "minHeight": "175px"}}>
       
       {/* Video Oficial Listo Patrón en la Portada */}
       <video
@@ -879,34 +799,34 @@ export default function LandingPage({ navigate, lang }) {
         onClick={toggleHeroSound}
         style={{
           position: "absolute",
-          bottom: "16px",
-          left: "16px",
+          bottom: "clamp(10px, 2.5vw, 16px)",
+          left: "clamp(10px, 2.5vw, 16px)",
           zIndex: 10,
           background: "rgba(0, 0, 0, 0.65)",
           color: "#ffffff",
           border: "1px solid rgba(255, 255, 255, 0.3)",
           backdropFilter: "blur(8px)",
           borderRadius: "50px",
-          padding: "8px 16px",
-          fontSize: "13px",
+          padding: "clamp(5px, 1.5vw, 8px) clamp(10px, 2.5vw, 16px)",
+          fontSize: "clamp(11px, 2vw, 13px)",
           fontWeight: "700",
           cursor: "pointer",
           display: "inline-flex",
           alignItems: "center",
-          gap: "8px",
+          gap: "6px",
           boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
           transition: "all 0.2s ease"
         }}
         title={isHeroMuted ? "Activar audio" : "Silenciar audio"}
       >
-        <span>{isHeroMuted ? "🔇 Activar Sonido" : "🔊 Silenciar"}</span>
+        <span>{isHeroMuted ? "🔇 Sonido" : "🔊 Silenciar"}</span>
       </button>
       
       {/* El logo circular en la esquina superior derecha */}
-      <img src="./assets/logo_esquina.png" style={{"position": "absolute", "top": "4%", "right": "4%", "width": "clamp(46px, 7vw, 85px)", "height": "auto", "objectFit": "contain", "zIndex": "2", "filter": "drop-shadow(0 4px 6px rgba(0,0,0,0.2))"}} alt="Logo Listo" />
+      <img src="./assets/logo_esquina.png" style={{"position": "absolute", "top": "4%", "right": "3.5%", "width": "clamp(40px, 7vw, 85px)", "height": "auto", "objectFit": "contain", "zIndex": "2", "filter": "drop-shadow(0 4px 6px rgba(0,0,0,0.2))"}} alt="Logo Listo" />
 
       {/* Botones de App Store y Google Play */}
-      <div style={{"position": "absolute", "bottom": "clamp(12px, 4vw, 24px)", "right": "4%", "display": "flex", "flexDirection": "column", "gap": "6px", "zIndex": "5", "width": "clamp(100px, 15vw, 150px)"}}>
+      <div style={{"position": "absolute", "bottom": "clamp(10px, 3.5vw, 24px)", "right": "3.5%", "display": "flex", "flexDirection": "column", "gap": "clamp(4px, 1.5vw, 7px)", "zIndex": "5", "width": "clamp(88px, 15vw, 150px)"}}>
          <a href="https://play.google.com/store/apps" target="_blank" rel="noopener noreferrer" style={{"display": "block", "transition": "transform 0.2s"}} onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.05)'} onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}>
            <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" alt="Disponible en Google Play" style={{"width": "100%", "height": "auto", "display": "block"}} />
          </a>
