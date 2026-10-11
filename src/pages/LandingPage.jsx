@@ -2,8 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import './LandingPage.css';
 import useLandingLogic from '../useLandingLogic';
 import PlanSelectionModal from '../components/PlanSelectionModal';
-import { collection, addDoc } from 'firebase/firestore';
-import { db } from '../firebase';
+import { collection, addDoc, doc, onSnapshot } from 'firebase/firestore';
+import { db, auth } from '../firebase';
 import ad15 from '../assets/landing/extracted_15.png';
 import ad16 from '../assets/landing/extracted_16.png';
 import ad17 from '../assets/landing/extracted_17.png';
@@ -31,12 +31,27 @@ function DeliveryPartnerModal({ onClose, navigate }) {
   });
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [createdRequestId, setCreatedRequestId] = useState(null);
+  const [isApprovedLive, setIsApprovedLive] = useState(false);
+
+  useEffect(() => {
+    if (!createdRequestId) return;
+    const unsub = onSnapshot(doc(db, 'partner_requests', createdRequestId), (snap) => {
+      if (snap.exists() && snap.data().status === 'approved') {
+        setIsApprovedLive(true);
+      }
+    });
+    return () => unsub();
+  }, [createdRequestId]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
     try {
-      // 1. Guardar la solicitud en la colección 'partner_requests'
+      const currentUid = auth?.currentUser?.uid || null;
+      const currentEmail = auth?.currentUser?.email || (formData.email || '').toLowerCase().trim();
+
+      // 1. Guardar la solicitud en la colección 'partner_requests' con el UID del usuario
       const docRef = await addDoc(collection(db, 'partner_requests'), {
         businessName: (formData.businessName || '').trim(),
         ownerName: (formData.ownerName || '').trim(),
@@ -47,9 +62,13 @@ function DeliveryPartnerModal({ onClose, navigate }) {
         businessType: formData.businessType || 'Restaurante / Comida',
         branches: parseInt(formData.branches || '1'),
         isStreetStore: formData.isStreetStore || 'Si',
+        userId: currentUid,
+        userEmail: currentEmail,
         status: 'pending',
         createdAt: new Date().toISOString()
       });
+
+      setCreatedRequestId(docRef.id);
 
       // 2. Notificar al administrador en la colección 'notificaciones'
       await addDoc(collection(db, 'notificaciones'), {
@@ -146,29 +165,55 @@ function DeliveryPartnerModal({ onClose, navigate }) {
           
           {submitted ? (
             <div style={{ textAlign: 'center', padding: '40px 20px', background: '#FFFFFF', borderRadius: '20px', border: '1.5px solid #E2E8F0' }}>
-              <div style={{ fontSize: '60px', marginBottom: '16px' }}>🎉</div>
+              <div style={{ fontSize: '60px', marginBottom: '16px' }}>{isApprovedLive ? '🚀' : '🎉'}</div>
               <h3 style={{ fontSize: '24px', fontWeight: '900', color: '#0d0e15', marginBottom: '8px' }}>
-                ¡Solicitud recibida con éxito!
+                {isApprovedLive ? '¡Tu Comercio ha sido Validado y Aprobado!' : '¡Solicitud recibida con éxito!'}
               </h3>
               <p style={{ fontSize: '15px', color: '#64748B', maxWidth: '480px', margin: '0 auto 24px', lineHeight: '1.5' }}>
-                Un ejecutivo de <strong>PedidosListo Partner</strong> revisará tu información y se pondrá en contacto contigo a través de WhatsApp o llamada telefónica en menos de 24 horas para completar la activación.
+                {isApprovedLive 
+                  ? '¡Excelente! El administrador acaba de validar tu negocio. Ya se encuentra activo en el catálogo público y tienes acceso al portal de gestión.'
+                  : 'Un ejecutivo de PedidosListo Partner revisará tu información para completar la activación de tu negocio.'
+                }
               </p>
-              <button
-                onClick={onClose}
-                style={{
-                  padding: '12px 28px',
-                  background: 'linear-gradient(135deg, #ff6b00, #ff3d00)',
-                  color: '#FFF',
-                  border: 'none',
-                  borderRadius: '30px',
-                  fontWeight: '800',
-                  fontSize: '14px',
-                  cursor: 'pointer',
-                  boxShadow: '0 4px 15px rgba(255,107,0,0.4)'
-                }}
-              >
-                Entendido / Cerrar
-              </button>
+              <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                {isApprovedLive && navigate && (
+                  <button
+                    onClick={() => {
+                      onClose();
+                      navigate('mandame');
+                    }}
+                    style={{
+                      padding: '12px 28px',
+                      background: 'linear-gradient(135deg, #10B981, #059669)',
+                      color: '#FFF',
+                      border: 'none',
+                      borderRadius: '30px',
+                      fontWeight: '800',
+                      fontSize: '14px',
+                      cursor: 'pointer',
+                      boxShadow: '0 4px 15px rgba(16,185,129,0.4)'
+                    }}
+                  >
+                    🏪 Ver Mi Comercio en la App
+                  </button>
+                )}
+                <button
+                  onClick={onClose}
+                  style={{
+                    padding: '12px 28px',
+                    background: 'linear-gradient(135deg, #ff6b00, #ff3d00)',
+                    color: '#FFF',
+                    border: 'none',
+                    borderRadius: '30px',
+                    fontWeight: '800',
+                    fontSize: '14px',
+                    cursor: 'pointer',
+                    boxShadow: '0 4px 15px rgba(255,107,0,0.4)'
+                  }}
+                >
+                  Entendido / Cerrar
+                </button>
+              </div>
             </div>
           ) : (
             <div>
@@ -584,111 +629,6 @@ export default function LandingPage({ navigate, lang }) {
     setShowPlanModal(true);
   };
 
-  const heroPlans = [
-    {
-      id: 'standard',
-      badge: '✦ BÁSICO',
-      title: 'Plan Estándar',
-      price: 'RD$500',
-      period: '/mes',
-      theme: 'green',
-      bgGradient: 'linear-gradient(135deg, #0b4d34 0%, #156947 100%)',
-      accentColor: '#10b981',
-      benefits: [
-        '3 contratos al mes incluidos en la aplicación.',
-        'Ideal para profesionales que realizan servicios ocasionales.',
-        'Visibilidad básica en los listados de búsqueda.',
-        'Calificaciones y comentarios de clientes habilitados.'
-      ],
-      ctaText: 'Obtener Plan Estándar →'
-    },
-    {
-      id: 'gold',
-      badge: '🏅 POPULAR',
-      title: 'Plan Gold',
-      price: 'RD$1,000',
-      period: '/mes',
-      theme: 'gold',
-      bgGradient: 'linear-gradient(135deg, #8a6500 0%, #a67c00 100%)',
-      accentColor: '#f59e0b',
-      benefits: [
-        '8 contratos al mes incluidos (¡Más del doble que el plan estándar!).',
-        'Destacado popular en los listados de búsqueda.',
-        'Posicionamiento mejorado en los resultados de búsqueda.',
-        'Acceso prioritario a nuevas solicitudes en tu área de cobertura.'
-      ],
-      ctaText: 'Obtener Plan Gold →'
-    },
-    {
-      id: 'platinum',
-      badge: '⚡ ACTIVO',
-      title: 'Plan Platinum',
-      price: 'RD$1,500',
-      period: '/mes',
-      theme: 'platinum',
-      bgGradient: 'linear-gradient(135deg, #2b394a 0%, #3e4f63 100%)',
-      accentColor: '#38bdf8',
-      benefits: [
-        '12 contratos al mes incluidos (¡Ideal para profesionales muy activos!).',
-        'Insignia de "Profesional Recomendado" visible en tu perfil.',
-        'Posicionamiento de búsqueda prioritario sobre Estándar y Gold.',
-        'Notificaciones de solicitudes en tiempo real con ventaja.'
-      ],
-      ctaText: 'Obtener Plan Platinum →'
-    },
-    {
-      id: 'vip',
-      badge: '💎 ÉLITE VIP',
-      title: 'Plan VIP',
-      price: 'RD$2,500',
-      period: '/mes',
-      theme: 'vip',
-      bgGradient: 'linear-gradient(135deg, #18181b 0%, #2e1d0f 50%, #1c1917 100%)',
-      accentColor: '#ff6b00',
-      benefits: [
-        'Contratos ILIMITADOS en toda la República Dominicana.',
-        'Insignia de "Élite VIP" y máxima exposición en la plataforma.',
-        'Primeros resultados de búsqueda garantizados siempre.',
-        'Alertas instantáneas y soporte prioritario 24/7.'
-      ],
-      ctaText: 'Obtener Plan VIP →'
-    }
-  ];
-
-  const [currentPlanSlide, setCurrentPlanSlide] = useState(0);
-  const [touchStartX, setTouchStartX] = useState(null);
-
-  const nextPlanSlide = () => {
-    setCurrentPlanSlide((prev) => (prev + 1) % heroPlans.length);
-  };
-
-  const prevPlanSlide = () => {
-    setCurrentPlanSlide((prev) => (prev - 1 + heroPlans.length) % heroPlans.length);
-  };
-
-  const handleTouchStart = (e) => {
-    setTouchStartX(e.touches[0].clientX);
-  };
-
-  const handleTouchEnd = (e) => {
-    if (touchStartX === null) return;
-    const touchEndX = e.changedTouches[0].clientX;
-    const diff = touchStartX - touchEndX;
-    if (diff > 50) {
-      nextPlanSlide();
-    } else if (diff < -50) {
-      prevPlanSlide();
-    }
-    setTouchStartX(null);
-  };
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentPlanSlide((prev) => (prev + 1) % 4);
-    }, 6000);
-    return () => clearInterval(timer);
-  }, []);
-
   useEffect(() => {
     const checkUrlForPlan = () => {
       const search = window.location.search || '';
@@ -760,20 +700,48 @@ export default function LandingPage({ navigate, lang }) {
 
 {/*  NAV  */}
 <nav id="nav">
-  <div className="nav-left-group">
-    <img className="nav-logo" src="./assets/logo_listo.png" alt="Listo Patrón" />
+  <div style={{ display: 'flex', alignItems: 'center' }}>
+    <img className="nav-logo" src="./assets/logo_listo.png" alt="Listo Patrón" style={{"height": "40px", "objectFit": "contain"}} />
     
-    <div className="nav-header-buttons">
+    <div className="nav-header-buttons" style={{ display: 'flex', alignItems: 'center', gap: '10px', marginLeft: '10px', flexWrap: 'nowrap' }}>
       {/* BOTÓN TIENDA OFICIAL ESTILO PREMIUM EXÓTICO */}
       <button
         onClick={() => navigate ? navigate('shop') : (window.location.href = '/?page=shop')}
         className="nav-action-btn partner-btn-glow"
+        style={{
+          background: '#0B0C10',
+          color: '#FFFFFF',
+          border: '1.5px solid #FF6B00',
+          borderRadius: '50px',
+          padding: '4px 6px 4px 14px',
+          cursor: 'pointer',
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '8px',
+          boxShadow: '0 0 16px rgba(255, 107, 0, 0.45)',
+          transition: 'all 0.2s ease-in-out',
+          whiteSpace: 'nowrap',
+          flexShrink: 0
+        }}
         title="Tienda Oficial Listo Patrón"
       >
-        <span className="btn-brand-label">
+        <span style={{ fontWeight: '900', fontStyle: 'italic', fontSize: '15px', color: '#ffffff', letterSpacing: '-0.3px', fontFamily: "'Outfit', 'Fredoka One', sans-serif" }}>
           Listo<span style={{ color: '#FF6B00' }}>Patrón</span>
         </span>
-        <span className="btn-tag-pill">
+        <span style={{
+          background: 'linear-gradient(135deg, #FF6B00 0%, #FF8533 100%)',
+          color: '#ffffff',
+          fontFamily: "'Outfit', sans-serif",
+          fontWeight: '900',
+          fontSize: '12px',
+          padding: '5px 14px',
+          borderRadius: '50px',
+          boxShadow: '0 2px 8px rgba(255,107,0,0.5)',
+          letterSpacing: '0.3px',
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '4px'
+        }}>
           Tienda 🛒
         </span>
       </button>
@@ -782,12 +750,40 @@ export default function LandingPage({ navigate, lang }) {
       <button
         onClick={() => setShowPlanModal(true)}
         className="nav-action-btn partner-btn-glow"
+        style={{
+          background: '#0B0C10',
+          color: '#FFFFFF',
+          border: '1.5px solid #FF6B00',
+          borderRadius: '50px',
+          padding: '4px 6px 4px 14px',
+          cursor: 'pointer',
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '8px',
+          boxShadow: '0 0 16px rgba(255, 107, 0, 0.45)',
+          transition: 'all 0.2s ease-in-out',
+          whiteSpace: 'nowrap',
+          flexShrink: 0
+        }}
         title="Adquirir Plan Profesional Listo Patrón"
       >
-        <span className="btn-brand-label">
+        <span style={{ fontWeight: '900', fontStyle: 'italic', fontSize: '15px', color: '#ffffff', letterSpacing: '-0.3px', fontFamily: "'Outfit', 'Fredoka One', sans-serif" }}>
           Listo<span style={{ color: '#FF6B00' }}>Pro</span>
         </span>
-        <span className="btn-tag-pill">
+        <span style={{
+          background: 'linear-gradient(135deg, #FF6B00 0%, #FF8533 100%)',
+          color: '#ffffff',
+          fontFamily: "'Outfit', sans-serif",
+          fontWeight: '900',
+          fontSize: '12px',
+          padding: '5px 14px',
+          borderRadius: '50px',
+          boxShadow: '0 2px 8px rgba(255,107,0,0.5)',
+          letterSpacing: '0.3px',
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '4px'
+        }}>
           💳 Comprar Plan
         </span>
       </button>
@@ -796,19 +792,45 @@ export default function LandingPage({ navigate, lang }) {
       <button
         onClick={() => setShowDeliveryModal(true)}
         className="nav-action-btn partner-btn-glow"
+        style={{
+          background: '#0B0C10',
+          color: '#FFFFFF',
+          border: '1.5px solid #FF6B00',
+          borderRadius: '50px',
+          padding: '4px 6px 4px 14px',
+          cursor: 'pointer',
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '8px',
+          boxShadow: '0 0 16px rgba(255, 107, 0, 0.45)',
+          transition: 'all 0.2s ease-in-out',
+          whiteSpace: 'nowrap',
+          flexShrink: 0
+        }}
         title="Portal PedidosListo Partner"
       >
-        <span className="btn-brand-label">
+        <span style={{ fontWeight: '900', fontStyle: 'italic', fontSize: '15px', color: '#ffffff', letterSpacing: '-0.3px', fontFamily: "'Outfit', 'Fredoka One', sans-serif" }}>
           Pedidos<span style={{ color: '#FF6B00' }}>Listo</span>
         </span>
-        <span className="btn-tag-pill">
-          Partner 🤝
+        <span style={{
+          background: 'linear-gradient(135deg, #FF6B00 0%, #FF8533 100%)',
+          color: '#ffffff',
+          fontFamily: "'Outfit', sans-serif",
+          fontWeight: '900',
+          fontSize: '12px',
+          padding: '5px 14px',
+          borderRadius: '50px',
+          boxShadow: '0 2px 8px rgba(255,107,0,0.5)',
+          letterSpacing: '0.3px',
+          display: 'inline-block'
+        }}>
+          Partner
         </span>
       </button>
     </div>
   </div>
 
-  <div className="nav-right-group">
+  <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
     {/* ENLACES DE TEXTO (Se ocultan en el menú hamburguesa cuando no hay suficiente espacio) */}
     <div className="nav-links" id="navLinks">
       <a href="#servicios">Servicios</a>
@@ -917,112 +939,6 @@ export default function LandingPage({ navigate, lang }) {
       <button className="store-ribbon-btn" onClick={(e) => { e.stopPropagation(); navigate ? navigate('shop') : window.location.href = '/?page=shop'; }}>
         🛒 Visitar Tienda ›
       </button>
-    </div>
-  </div>
-</div>
-
-{/*  CARRUSEL OFICIAL DE PLANES PROFESIONALES (BÁSICO, GOLD, PLATINUM, VIP)  */}
-<div id="planes-carrusel-section" style={{ width: '100%', background: '#F26000', padding: '0 15px 32px', display: 'flex', justifyContent: 'center' }}>
-  <div className="plans-hero-container">
-    {/* Flecha Anterior */}
-    <button 
-      onClick={prevPlanSlide} 
-      className="plans-hero-arrow prev" 
-      aria-label="Plan anterior"
-    >
-      ‹
-    </button>
-
-    {/* Flecha Siguiente */}
-    <button 
-      onClick={nextPlanSlide} 
-      className="plans-hero-arrow next" 
-      aria-label="Siguiente plan"
-    >
-      ›
-    </button>
-
-    {/* Track del Slider */}
-    <div 
-      className="plans-hero-track-wrapper"
-      onTouchStart={handleTouchStart}
-      onTouchEnd={handleTouchEnd}
-    >
-      {heroPlans.map((plan, index) => {
-        if (index !== currentPlanSlide) return null;
-        return (
-          <div 
-            key={plan.id}
-            className="plans-hero-slide"
-            style={{ background: plan.bgGradient }}
-          >
-            {/* Columna Izquierda: Información del Plan */}
-            <div className="plans-hero-info">
-              <div className="plans-hero-badge">
-                {plan.badge}
-              </div>
-              <h2 className="plans-hero-title">
-                {plan.title}
-              </h2>
-              <div className="plans-hero-price-row">
-                <span className="plans-hero-price">{plan.price}</span>
-                <span className="plans-hero-period">{plan.period}</span>
-              </div>
-            </div>
-
-            {/* Columna Derecha: Tarjeta Frosted Glass con Beneficios */}
-            <div className="plans-hero-card">
-              {/* Logo Listo en la esquina superior derecha */}
-              <img
-                src="./assets/logo_esquina.png"
-                alt="Listo"
-                className="plans-hero-corner-logo"
-              />
-
-              {/* Lista de beneficios con checkmarks verdes */}
-              <div className="plans-hero-benefits">
-                {plan.benefits.map((b, i) => (
-                  <div key={i} className="plans-hero-benefit-item">
-                    <span className="plans-hero-check">✓</span>
-                    <span className="plans-hero-benefit-text">{b}</span>
-                  </div>
-                ))}
-              </div>
-
-              {/* Parte inferior con Botón y Badges de descarga */}
-              <div className="plans-hero-card-bottom">
-                <button
-                  onClick={() => openPlanModalWithPlan(plan.id)}
-                  className="plans-hero-cta-btn"
-                >
-                  {plan.ctaText}
-                </button>
-
-                <div className="plans-hero-store-badges">
-                  <a href="https://play.google.com/store/apps" target="_blank" rel="noopener noreferrer">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" alt="Google Play" />
-                  </a>
-                  <a href="https://www.apple.com/app-store/" target="_blank" rel="noopener noreferrer">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Download_on_the_App_Store_Badge.svg" alt="App Store" />
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-        );
-      })}
-    </div>
-
-    {/* Indicador de Puntos (Dots) */}
-    <div className="plans-hero-dots-container">
-      {heroPlans.map((_, idx) => (
-        <button
-          key={idx}
-          onClick={() => setCurrentPlanSlide(idx)}
-          className={`plans-hero-dot ${idx === currentPlanSlide ? 'active' : ''}`}
-          aria-label={`Ir al plan ${idx + 1}`}
-        />
-      ))}
     </div>
   </div>
 </div>
@@ -1154,49 +1070,40 @@ export default function LandingPage({ navigate, lang }) {
       <button onClick={() => { shiftSlider(-1) }} aria-label="Anterior" style={{"position": "absolute", "left": "-20px", "top": "50%", "transform": "translateY(-50%)", "width": "44px", "height": "44px", "borderRadius": "50%", "border": "none", "cursor": "pointer", "background": "#F26000", "color": "#fff", "fontSize": "22px", "zIndex": "10", "boxShadow": "0 4px 16px rgba(242,96,0,0.4)", "display": "flex", "alignItems": "center", "justifyContent": "center"}}>‹</button>
 
       <div id="proSliderTrack" style={{"display": "flex", "transition": "transform 0.5s ease-out", "gap": "20px"}}>
-        <div className="pro-slide" style={{"flex": "0 0 calc(100% / 4 - 15px)", "minWidth": "220px", "position": "relative"}}>
+        <div className="pro-slide" style={{"flex": "0 0 calc(100% / 4 - 15px)", "minWidth": "220px"}}>
           <img src="./assets/extracted_6.png" alt="Mecánico" />
-          <img src="./assets/logo_esquina.png" alt="Listo" className="pro-slide-corner-logo" />
           <div className="pro-slide-label">🔧 Mecánico</div>
         </div>
-        <div className="pro-slide" style={{"flex": "0 0 calc(100% / 4 - 15px)", "minWidth": "220px", "position": "relative"}}>
+        <div className="pro-slide" style={{"flex": "0 0 calc(100% / 4 - 15px)", "minWidth": "220px"}}>
           <img src="./assets/extracted_7.png" alt="Limpieza" />
-          <img src="./assets/logo_esquina.png" alt="Listo" className="pro-slide-corner-logo" />
           <div className="pro-slide-label">🧹 Limpieza</div>
         </div>
-        <div className="pro-slide" style={{"flex": "0 0 calc(100% / 4 - 15px)", "minWidth": "220px", "position": "relative"}}>
+        <div className="pro-slide" style={{"flex": "0 0 calc(100% / 4 - 15px)", "minWidth": "220px"}}>
           <img src="./assets/extracted_8.png" alt="Limpieza 2" />
-          <img src="./assets/logo_esquina.png" alt="Listo" className="pro-slide-corner-logo" />
           <div className="pro-slide-label">🧹 Limpieza</div>
         </div>
-        <div className="pro-slide" style={{"flex": "0 0 calc(100% / 4 - 15px)", "minWidth": "220px", "position": "relative"}}>
+        <div className="pro-slide" style={{"flex": "0 0 calc(100% / 4 - 15px)", "minWidth": "220px"}}>
           <img src="./assets/extracted_9.png" alt="Jardinero" />
-          <img src="./assets/logo_esquina.png" alt="Listo" className="pro-slide-corner-logo" />
           <div className="pro-slide-label">🌿 Jardinero</div>
         </div>
-        <div className="pro-slide" style={{"flex": "0 0 calc(100% / 4 - 15px)", "minWidth": "220px", "position": "relative"}}>
+        <div className="pro-slide" style={{"flex": "0 0 calc(100% / 4 - 15px)", "minWidth": "220px"}}>
           <img src="./assets/extracted_10.png" alt="Jardinero 2" />
-          <img src="./assets/logo_esquina.png" alt="Listo" className="pro-slide-corner-logo" />
           <div className="pro-slide-label">🌿 Jardinero</div>
         </div>
-        <div className="pro-slide" style={{"flex": "0 0 calc(100% / 4 - 15px)", "minWidth": "220px", "position": "relative"}}>
+        <div className="pro-slide" style={{"flex": "0 0 calc(100% / 4 - 15px)", "minWidth": "220px"}}>
           <img src="./assets/extracted_11.png" alt="Plomero" />
-          <img src="./assets/logo_esquina.png" alt="Listo" className="pro-slide-corner-logo" />
           <div className="pro-slide-label">🔩 Plomero</div>
         </div>
-        <div className="pro-slide" style={{"flex": "0 0 calc(100% / 4 - 15px)", "minWidth": "220px", "position": "relative"}}>
+        <div className="pro-slide" style={{"flex": "0 0 calc(100% / 4 - 15px)", "minWidth": "220px"}}>
           <img src="./assets/extracted_12.png" alt="Enfermería" />
-          <img src="./assets/logo_esquina.png" alt="Listo" className="pro-slide-corner-logo" />
           <div className="pro-slide-label">🏥 Enfermería</div>
         </div>
-        <div className="pro-slide" style={{"flex": "0 0 calc(100% / 4 - 15px)", "minWidth": "220px", "position": "relative"}}>
+        <div className="pro-slide" style={{"flex": "0 0 calc(100% / 4 - 15px)", "minWidth": "220px"}}>
           <img src="./assets/extracted_13.png" alt="Masajes" />
-          <img src="./assets/logo_esquina.png" alt="Listo" className="pro-slide-corner-logo" />
           <div className="pro-slide-label">💆 Masajes</div>
         </div>
-        <div className="pro-slide" style={{"flex": "0 0 calc(100% / 4 - 15px)", "minWidth": "220px", "position": "relative"}}>
+        <div className="pro-slide" style={{"flex": "0 0 calc(100% / 4 - 15px)", "minWidth": "220px"}}>
           <img src="./assets/extracted_14.jpeg" alt="Pintor" />
-          <img src="./assets/logo_esquina.png" alt="Listo" className="pro-slide-corner-logo" />
           <div className="pro-slide-label">🎨 Pintor</div>
         </div>
       </div>
@@ -1250,10 +1157,10 @@ export default function LandingPage({ navigate, lang }) {
     <div style={{"textAlign": "center", "fontSize": "11px", "color": "#999", "letterSpacing": "1.5px", "textTransform": "uppercase", "marginBottom": "12px"}}>Publicidad</div>
     <div style={{"position": "relative", "maxWidth": "960px", "margin": "0 auto", "overflow": "hidden", "borderRadius": "16px", "boxShadow": "0 8px 30px rgba(0,0,0,0.1)"}}>
       <div id="ad-track" style={{"display": "flex", "transition": "transform .6s ease"}}>
-        <div className="ad-slide" style={{"position": "relative"}}><img src={ad15} alt="Caney Discoteca" style={{"width": "100%", "display": "block", "objectFit": "cover", "maxHeight": "200px"}}/><img src="./assets/logo_esquina.png" alt="Listo" className="pro-slide-corner-logo" /></div>
-        <div className="ad-slide" style={{"position": "relative"}}><img src={ad16} alt="Arte Urbano" style={{"width": "100%", "display": "block", "objectFit": "cover", "maxHeight": "200px"}}/><img src="./assets/logo_esquina.png" alt="Listo" className="pro-slide-corner-logo" /></div>
-        <div className="ad-slide" style={{"position": "relative"}}><img src={ad17} alt="Arte Medios" style={{"width": "100%", "display": "block", "objectFit": "cover", "maxHeight": "200px"}}/><img src="./assets/logo_esquina.png" alt="Listo" className="pro-slide-corner-logo" /></div>
-        <div className="ad-slide" style={{"position": "relative"}}><img src={ad18} alt="FCO Ren Cars" style={{"width": "100%", "display": "block", "objectFit": "cover", "maxHeight": "200px"}}/><img src="./assets/logo_esquina.png" alt="Listo" className="pro-slide-corner-logo" /></div>
+        <div className="ad-slide"><img src={ad15} alt="Caney Discoteca" style={{"width": "100%", "display": "block", "objectFit": "cover", "maxHeight": "200px"}}/></div>
+        <div className="ad-slide"><img src={ad16} alt="Arte Urbano" style={{"width": "100%", "display": "block", "objectFit": "cover", "maxHeight": "200px"}}/></div>
+        <div className="ad-slide"><img src={ad17} alt="Arte Medios" style={{"width": "100%", "display": "block", "objectFit": "cover", "maxHeight": "200px"}}/></div>
+        <div className="ad-slide"><img src={ad18} alt="FCO Ren Cars" style={{"width": "100%", "display": "block", "objectFit": "cover", "maxHeight": "200px"}}/></div>
       </div>
       <button onClick={() => { adSlide(-1) }} style={{"position": "absolute", "left": "10px", "top": "50%", "transform": "translateY(-50%)", "background": "rgba(0,0,0,0.4)", "color": "#fff", "border": "none", "borderRadius": "50%", "width": "36px", "height": "36px", "fontSize": "20px", "cursor": "pointer", "zIndex": "10"}}>‹</button>
       <button onClick={() => { adSlide(1) }} style={{"position": "absolute", "right": "10px", "top": "50%", "transform": "translateY(-50%)", "background": "rgba(0,0,0,0.4)", "color": "#fff", "border": "none", "borderRadius": "50%", "width": "36px", "height": "36px", "fontSize": "20px", "cursor": "pointer", "zIndex": "10"}}>›</button>
