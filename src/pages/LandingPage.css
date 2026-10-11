@@ -5672,3 +5672,72 @@ h2.section-title {
     display: none;
   }
 }
+
+/* ==========================================================
+   DROPDOWN DESCARGA DE APP (APP STORE & GOOGLE PLAY)
+   ========================================================== */
+@keyframes downloadFadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.96);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.download-dropdown-wrapper {
+  position: relative;
+  display: inline-block;
+  z-index: 1050;
+}
+
+.app-download-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  background: linear-gradient(180deg, #12141C 0%, #08090C 100%);
+  border: 1.5px solid #FF6B00;
+  border-radius: 18px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.65), 0 0 25px rgba(255, 107, 0, 0.35);
+  z-index: 1100;
+  width: 210px;
+  animation: downloadFadeIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.store-badge-link {
+  display: block;
+  border-radius: 10px;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: #000;
+}
+
+.store-badge-link:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 6px 16px rgba(255, 107, 0, 0.4);
+}
+
+.store-badge-link img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+@media (max-width: 600px) {
+  .app-download-dropdown-menu {
+    right: -10px;
+    width: 190px;
+    padding: 12px 14px;
+    gap: 10px;
+  }
+}
+

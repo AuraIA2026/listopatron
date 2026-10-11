@@ -614,6 +614,24 @@ export default function LandingPage({ navigate, lang }) {
   const [showDeliveryModal, setShowDeliveryModal] = useState(false);
   const [isHeroMuted, setIsHeroMuted] = useState(true);
   const heroVideoRef = useRef(null);
+  const [showDownloadDropdown, setShowDownloadDropdown] = useState(false);
+  const downloadDropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (downloadDropdownRef.current && !downloadDropdownRef.current.contains(event.target)) {
+        setShowDownloadDropdown(false);
+      }
+    };
+    if (showDownloadDropdown) {
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('touchstart', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
+  }, [showDownloadDropdown]);
 
   const toggleHeroSound = (e) => {
     e.stopPropagation();
@@ -850,6 +868,63 @@ export default function LandingPage({ navigate, lang }) {
           Partner
         </span>
       </button>
+
+      {/* BOTÓN DESPLEGABLE DESCARGAR APP */}
+      <div className="download-dropdown-wrapper" ref={downloadDropdownRef}>
+        <button
+          onClick={() => setShowDownloadDropdown(prev => !prev)}
+          className="nav-action-btn partner-btn-glow"
+          title="Descargar la app oficial de Listo Patrón"
+          aria-expanded={showDownloadDropdown}
+        >
+          <span className="btn-brand-label">
+            Descargar<span style={{ color: '#FF6B00' }}>App</span>
+          </span>
+          <span className="btn-tag-pill">
+            📲 App <span style={{ fontSize: '9px', marginLeft: '2px', display: 'inline-block', transition: 'transform 0.25s ease', transform: showDownloadDropdown ? 'rotate(180deg)' : 'none' }}>▼</span>
+          </span>
+        </button>
+
+        {showDownloadDropdown && (
+          <div className="app-download-dropdown-menu">
+            <div style={{ textAlign: 'center', fontSize: '11px', fontWeight: '800', color: '#CBD5E1', textTransform: 'uppercase', letterSpacing: '0.8px', paddingBottom: '4px', borderBottom: '1px solid rgba(255, 107, 0, 0.2)' }}>
+              Disponible en:
+            </div>
+
+            {/* BOTÓN APP STORE */}
+            <a
+              href="https://www.apple.com/app-store/"
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => setShowDownloadDropdown(false)}
+              className="store-badge-link"
+              title="Descargar en App Store"
+            >
+              <img
+                src="./assets/app_store_badge.png"
+                alt="Available on the App Store"
+                onError={(e) => { e.target.onerror = null; e.target.src = 'https://upload.wikimedia.org/wikipedia/commons/3/3c/Download_on_the_App_Store_Badge.svg'; }}
+              />
+            </a>
+
+            {/* BOTÓN GOOGLE PLAY */}
+            <a
+              href="https://play.google.com/store/apps"
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => setShowDownloadDropdown(false)}
+              className="store-badge-link"
+              title="Disponible en Google Play"
+            >
+              <img
+                src="./assets/google_play_badge.png"
+                alt="Get it on Google Play"
+                onError={(e) => { e.target.onerror = null; e.target.src = 'https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg'; }}
+              />
+            </a>
+          </div>
+        )}
+      </div>
     </div>
   </div>
 
@@ -859,6 +934,7 @@ export default function LandingPage({ navigate, lang }) {
       <a href="#tienda" onClick={(e) => { e.preventDefault(); navigate ? navigate('shop') : (window.location.href = '/?page=shop'); }}>🛍️ Tienda Oficial</a>
       <a href="#planes" onClick={(e) => { e.preventDefault(); setShowPlanModal(true); }}>💳 Comprar Plan Pro</a>
       <a href="#partner" onClick={(e) => { e.preventDefault(); setShowDeliveryModal(true); }}>🛵 PedidosListo Partner</a>
+      <a href="#descargar-app" onClick={(e) => { e.preventDefault(); setShowDownloadDropdown(prev => !prev); }}>📲 Descargar App</a>
       <a href="#servicios">Servicios</a>
       <a href="#como-funciona">Cómo funciona</a>
       <a href="#profesionales">Para profesionales</a>
