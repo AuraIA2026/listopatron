@@ -1,25 +1,26 @@
-﻿import { useRef } from 'react'
+import { useRef } from 'react'
 import logoListo from '../assets/logo-mamey.png'
 import './ReciboDigitalModal.css'
 
-export default function ReciboDigitalModal({ lang = 'es', onClose, orderData }) {
+export default function ReciboDigitalModal({ lang = 'es', onClose, orderData, order }) {
   const receiptRef = useRef(null)
+  const d = orderData || order || {}
 
-  const invoiceNo = `LP-${orderData?.id ? orderData.id.substring(0, 8).toUpperCase() : Math.floor(100000 + Math.random() * 900000)}`
-  const dateStr = orderData?.createdAt?.seconds 
-    ? new Date(orderData.createdAt.seconds * 1000).toLocaleDateString(lang === 'es' ? 'es-DO' : 'en-US', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+  const invoiceNo = `LP-${d?.id ? d.id.substring(0, 8).toUpperCase() : Math.floor(100000 + Math.random() * 900000)}`
+  const dateStr = d?.createdAt?.seconds 
+    ? new Date(d.createdAt.seconds * 1000).toLocaleDateString(lang === 'es' ? 'es-DO' : 'en-US', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })
     : new Date().toLocaleDateString(lang === 'es' ? 'es-DO' : 'en-US', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })
 
-  const proName = orderData?.proName || orderData?.pro || orderData?.professionalName || 'Profesional Listo'
-  const proCategory = orderData?.proSpecialty || orderData?.specialty || orderData?.category || 'Servicios Profesionales'
-  const proPhone = orderData?.proPhone || orderData?.phone || '+1 (809) 909-0455'
+  const proName = d?.proName || d?.pro || d?.professionalName || 'Profesional Listo'
+  const proCategory = d?.proSpecialty || d?.specialty || d?.category || 'Servicios Profesionales'
+  const proPhone = d?.proPhone || d?.phone || '+1 (809) 909-0455'
 
-  const clientName = orderData?.clientName || orderData?.reviewerName || orderData?.client || 'Cliente Listo'
-  const clientPhone = orderData?.clientPhone || ''
-  const locationStr = orderData?.location || orderData?.city || orderData?.provincia || 'RepÃºblica Dominicana'
+  const clientName = d?.clientName || d?.reviewerName || d?.client || 'Cliente Listo'
+  const clientPhone = d?.clientPhone || ''
+  const locationStr = d?.location || d?.city || d?.provincia || 'República Dominicana'
 
-  const amountStr = orderData?.montoFinal || orderData?.checkoutMontoFinal || orderData?.montoAcordado || orderData?.checkoutMontoAcordado || orderData?.price || '1,500'
-  const paymentMethod = orderData?.formaPago || orderData?.checkoutFormaPago || 'Transferencia / Efectivo'
+  const amountStr = d?.montoFinal || d?.checkoutMontoFinal || d?.montoAcordado || d?.checkoutMontoAcordado || d?.price || '1,500'
+  const paymentMethod = d?.formaPago || d?.checkoutFormaPago || (d?.paymentMethod === 'cash' ? '💵 Efectivo en mano' : d?.paymentMethod === 'transfer' ? '🏦 Transferencia bancaria' : 'Transferencia / Efectivo')
 
   const handlePrint = () => {
     window.print()
