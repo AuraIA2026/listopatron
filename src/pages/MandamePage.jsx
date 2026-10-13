@@ -6,6 +6,7 @@ import './HomePage.css';
 import PedidosListoHub from '../components/PedidosListoHub';
 import HistoriasCarrusel from '../components/HistoriasCarrusel';
 import ConfigurarRestauranteModal from '../components/ConfigurarRestauranteModal';
+import { BUSINESS_TYPES, RENTAL_PERIODS } from '../data/businessTypes';
 
 // Initial Mock State
 const ANIMATED_BANNERS_CATALOG = [
@@ -555,6 +556,7 @@ export default function MandamePage({ navigate, userData, userRole, lang }) {
   const [checkoutPaymentMethod, setCheckoutPaymentMethod] = useState('efectivo'); // 'efectivo' | 'transferencia'
   const [cashChangeAmount, setCashChangeAmount] = useState('exacto'); // 'exacto' | '500' | '1000' | '2000'
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
+  const [deliveryFulfillmentType, setDeliveryFulfillmentType] = useState('delivery'); // 'delivery' | 'pickup'
   const [tempAddressInput, setTempAddressInput] = useState('');
   const [isDetectingGps, setIsDetectingGps] = useState(false);
 
@@ -840,6 +842,43 @@ export default function MandamePage({ navigate, userData, userRole, lang }) {
   const [prepTimeShift, setPrepTimeShift] = useState('15-25');
   const [menuShift, setMenuShift] = useState('all');
 
+  // ── Tipo de comercio: cambia categorías, etiquetas y opciones del menú ──
+  const [businessType, setBusinessType] = useState(() => {
+    try { return localStorage.getItem('pedidos_listo_business_type') || 'restaurante'; } catch (e) { return 'restaurante'; }
+  });
+  const bizCfg = BUSINESS_TYPES[businessType] || BUSINESS_TYPES.restaurante;
+  const [selectedBizTags, setSelectedBizTags] = useState([]);
+  const [selectedBizOptions, setSelectedBizOptions] = useState({});
+  const [rentalPrices, setRentalPrices] = useState({});
+
+  const handleChangeBusinessType = (type) => {
+    const cfg = BUSINESS_TYPES[type] || BUSINESS_TYPES.restaurante;
+    setBusinessType(type);
+    setNewProdCategory(cfg.categories[0][0]);
+    setSelectedBizTags([]);
+    setSelectedBizOptions({});
+    setRentalPrices({});
+    try { localStorage.setItem('pedidos_listo_business_type', type); } catch (e) {}
+  };
+
+  const handleToggleBizTag = (tag) => {
+    setSelectedBizTags(prev => prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]);
+  };
+
+  useEffect(() => {
+    if (!bizCfg.categories.some(([val]) => val === newProdCategory)) {
+      setNewProdCategory(bizCfg.categories[0][0]);
+    }
+  }, [businessType]); // eslint-disable-line
+
+  const handleToggleBizOption = (groupKey, opt) => {
+    setSelectedBizOptions(prev => {
+      const current = prev[groupKey] || [];
+      const next = current.includes(opt) ? current.filter(o => o !== opt) : [...current, opt];
+      return { ...prev, [groupKey]: next };
+    });
+  };
+
   // Kitchen Terminal & Comandera Realtime State
   const [kitchenFilterTab, setKitchenFilterTab] = useState('all'); // 'all' | 'new' | 'cooking' | 'ready' | 'completed'
   const [isSoundAlarmEnabled, setIsSoundAlarmEnabled] = useState(true);
@@ -1006,6 +1045,11 @@ export default function MandamePage({ navigate, userData, userRole, lang }) {
             pinOTP: String(d.pinOTP || d.pin || '1234'),
             status: mappedStatus,
             driverName: d.proName || d.driverName || 'Asignando Repartidor 🛵',
+            fulfillmentType: d.fulfillmentType || (d.clientAddress?.includes('Retiro en') ? 'pickup' : 'delivery'),
+            driverType: d.driverType || 'mandame',
+            deliveryFee: Number(d.deliveryFee ?? (d.fulfillmentType === 'pickup' ? 0 : 55)),
+            tip: Number(d.tip || 0),
+            deliveryNotes: d.deliveryNotes || '',
             createdAt: createdAtStr,
             rawTime,
             paymentMethod: d.paymentMethod === 'efectivo' ? '💵 Efectivo Contra Entrega' : (d.paymentMethod === 'transferencia' ? '🏦 Transferencia Bancaria' : (d.paymentMethod || '💵 Efectivo')),
@@ -1102,15 +1146,63 @@ export default function MandamePage({ navigate, userData, userRole, lang }) {
     showToast('👨‍🍳 Pedido Aceptado. ¡Cocinando en Comandera!');
   };
 
+  const handleUpdateDriverType = async (orderId, newDriverType) => {
+    try {
+      const isOwn = newDriverType === 'own';
+      const targetOrder = (merchantState?.orders || []).find(o => o.id === orderId || o.orderDocId === orderId);
+      const storeName = targetOrder?.storeName || merchantState?.storeName || 'Restaurante';
+      const driverName = isOwn 
+        ? `Motorista de la Casa (${storeName})` 
+        : 'Kelvin Santos (Mándame Rider)';
+      const specialty = isOwn 
+        ? '🏪 Delivery Propio del Restaurante' 
+        : 'Delivery Express 🛵';
+
+      setMerchantState(prev => ({
+        ...prev,
+        orders: (prev.orders || []).map(o => {
+          if (o.id === orderId || o.orderDocId === orderId) {
+            return {
+              ...o,
+              driverType: newDriverType,
+              driverName: driverName
+            };
+          }
+          return o;
+        })
+      }));
+
+      await updateDoc(doc(db, 'orders', orderId), {
+        driverType: newDriverType,
+        proName: driverName,
+        proSpecialty: specialty,
+        updatedAt: serverTimestamp()
+      });
+
+      showToast(isOwn 
+        ? '🏪 Pedido asignado a: Delivery Propio (Motorista de la Casa)' 
+        : '🛵 Pedido asignado a: Red Mándame Rider');
+    } catch (err) {
+      console.warn('Error actualizando tipo de delivery:', err);
+    }
+  };
+
   const handleMarkOrderReady = async (orderId) => {
+    const targetOrder = merchantState.orders.find(o => o.id === orderId || o.orderId === orderId);
+    const isPickup = targetOrder?.fulfillmentType === 'pickup';
+    const isOwn = targetOrder?.driverType === 'own';
+    const assignedDriver = isPickup 
+      ? 'Retiro en Mostrador (Cliente)' 
+      : (isOwn ? `Motorista de la Casa (${targetOrder?.storeName || 'Delivery Propio'})` : 'Kelvin Santos (Mándame 🛵)');
+
     setMerchantState(prev => ({
       ...prev,
-      orders: prev.orders.map(o => (o.id === orderId || o.orderId === orderId) ? { ...o, status: 'ready', driverName: 'Kelvin Santos (Mándame 🛵)' } : o)
+      orders: prev.orders.map(o => (o.id === orderId || o.orderId === orderId) ? { ...o, status: 'ready', driverName: assignedDriver } : o)
     }));
     try {
       await updateDoc(doc(db, 'orders', orderId), {
         status: 'ready',
-        driverName: 'Kelvin Santos (Mándame 🛵)',
+        driverName: assignedDriver,
         readyAt: serverTimestamp(),
         updatedAt: serverTimestamp()
       });
@@ -1120,17 +1212,21 @@ export default function MandamePage({ navigate, userData, userRole, lang }) {
           userId: targetOrder.clientId,
           orderId: orderId,
           type: 'order_ready',
-          title: '🟢 ¡Tu pedido está listo!',
-          text: `Tu pedido #${targetOrder.orderId || orderId} está empacado y esperando al repartidor Mándame.`,
+          title: isPickup ? '🛍️ ¡Tu pedido está listo para retirar!' : '🟢 ¡Tu pedido está listo!',
+          text: isPickup 
+            ? `Tu pedido #${targetOrder.orderId || orderId} está listo en el mostrador del restaurante. Pasa a retirar con tu PIN ${targetOrder.pinOTP}.`
+            : (isOwn 
+                ? `Tu pedido #${targetOrder.orderId || orderId} va en camino con el delivery propio del restaurante.` 
+                : `Tu pedido #${targetOrder.orderId || orderId} está empacado y en camino con el repartidor Mándame.`),
           read: false,
-          icon: '🟢',
+          icon: isPickup ? '🛍️' : '🟢',
           createdAt: serverTimestamp()
         });
       }
     } catch (e) {
       console.warn("Error updating order ready status:", e);
     }
-    showToast('🟢 Pedido listo en mostrador. Asignado a Repartidor Mándame.');
+    showToast(isPickup ? '🛍️ Pedido listo en mostrador para el cliente.' : (isOwn ? '🏪 Pedido listo para Delivery Propio.' : '🟢 Pedido listo en mostrador para Repartidor Mándame.'));
   };
 
   const handleVerifyOTPAndCompleteOrder = async (orderId) => {
@@ -1864,10 +1960,15 @@ export default function MandamePage({ navigate, userData, userRole, lang }) {
       images: newProdImages.length > 0 ? newProdImages : [coverImage],
       inStock: true,
       isFlash: isFlashOffer,
-      dietaryTags: selectedDietaryTags,
-      guarniciones: selectedGuarniciones,
-      bebidas: selectedBebidas,
-      extras: selectedExtras,
+      businessType,
+      dietaryTags: bizCfg.useFoodConfig ? selectedDietaryTags : selectedBizTags,
+      guarniciones: bizCfg.useFoodConfig ? selectedGuarniciones : [],
+      bebidas: bizCfg.useFoodConfig ? selectedBebidas : [],
+      extras: bizCfg.useFoodConfig ? selectedExtras : [],
+      attributes: bizCfg.useFoodConfig ? {} : selectedBizOptions,
+      rentalPrices: bizCfg.rental
+        ? Object.fromEntries(Object.entries(rentalPrices).filter(([, v]) => v !== '' && v != null).map(([k, v]) => [k, Number(v)]))
+        : null,
       storeId: activeStoreId,
       storeName: activeStoreName,
       storeEmail: activeStoreEmail,
@@ -1953,7 +2054,9 @@ export default function MandamePage({ navigate, userData, userRole, lang }) {
 
   const totalCartItems = cart.reduce((sum, i) => sum + i.qty, 0);
   const cartSubtotal = cart.reduce((sum, i) => sum + (i.price * i.qty), 0);
-  const cartTotal = cartSubtotal > 0 ? cartSubtotal + 55 + selectedTip : 0;
+  const currentDeliveryFee = deliveryFulfillmentType === 'pickup' ? 0 : 55;
+  const currentTip = deliveryFulfillmentType === 'pickup' ? 0 : selectedTip;
+  const cartTotal = cartSubtotal > 0 ? (cartSubtotal + currentDeliveryFee + currentTip) : 0;
 
   // ── FUNCIÓN DE CONFIRMACIÓN DE PEDIDO ESTILO PEDIDOSYA CON FIRESTORE Y SEGUIMIENTO ──
   const handlePlaceOrder = async (e) => {
@@ -1962,10 +2065,13 @@ export default function MandamePage({ navigate, userData, userRole, lang }) {
       showToast('⚠️ Tu carrito está vacío');
       return;
     }
-    if (!deliveryAddress || deliveryAddress.trim().length < 3) {
-      alert('Por favor ingresa una dirección de entrega válida.');
-      setIsAddressModalOpen(true);
-      return;
+    const isPickup = deliveryFulfillmentType === 'pickup';
+    if (!isPickup) {
+      if (!deliveryAddress || deliveryAddress.trim().length < 3) {
+        alert('Por favor ingresa una dirección de entrega válida.');
+        setIsAddressModalOpen(true);
+        return;
+      }
     }
 
     let phoneToUse = (checkoutPhone || userData?.phone || userData?.telefono || '809-583-2020').trim();
@@ -1979,32 +2085,40 @@ export default function MandamePage({ navigate, userData, userRole, lang }) {
     const generatedOtp = Math.floor(1000 + Math.random() * 9000).toString();
     const currentUid = auth?.currentUser?.uid || userData?.uid || `guest_${Date.now()}`;
     const clientNameClean = (checkoutName || userData?.name || userData?.displayName || 'Cliente Listo').trim();
+    const storeDisplayName = activeStoreModal?.name || 'La Fiera Hot Dog';
+    const finalAddress = isPickup
+      ? `🛍️ Retiro en el Local: ${storeDisplayName}`
+      : (deliveryAddress || 'Santiago Centro, República Dominicana').trim();
 
     const orderPayload = {
       orderId: generatedOrderId,
       type: 'delivery',
-      orderType: 'delivery',
+      orderType: isPickup ? 'pickup' : 'delivery',
+      fulfillmentType: isPickup ? 'pickup' : 'delivery',
+      driverType: isPickup ? 'pickup' : 'mandame',
       status: 'pending',
       clientId: currentUid,
       clientName: clientNameClean,
       clientPhone: phoneToUse,
       clientEmail: auth?.currentUser?.email || userData?.email || '',
-      clientAddress: (deliveryAddress || 'Santiago Centro, República Dominicana').trim(),
+      clientAddress: finalAddress,
+      deliveryAddress: finalAddress,
       deliveryNotes: (deliveryNotes || '').trim(),
       paymentMethod: checkoutPaymentMethod,
       cashChangeFor: checkoutPaymentMethod === 'efectivo' ? cashChangeAmount : null,
       items: cart.map(i => ({ name: i.name, price: i.price, qty: i.qty, subtotal: i.price * i.qty })),
       subtotal: cartSubtotal,
-      deliveryFee: 55,
-      tip: selectedTip,
+      deliveryFee: currentDeliveryFee,
+      tip: currentTip,
       total: cartTotal,
+      price: `RD$ ${cartTotal.toLocaleString()}`,
       pinOTP: generatedOtp,
-      storeName: activeStoreModal?.name || 'La Fiera Hot Dog',
-      proName: 'Kelvin Santos (Mándame Rider)',
-      proSpecialty: 'Delivery Express 🛵',
-      proPhone: '809-555-0192',
+      storeName: storeDisplayName,
+      proName: isPickup ? `Retiro en Local (${storeDisplayName})` : 'Kelvin Santos (Mándame Rider)',
+      proSpecialty: isPickup ? '🛍️ Retiro en Mostrador (Sin Delivery)' : 'Delivery Express 🛵',
+      proPhone: isPickup ? '809-583-2020' : '809-555-0192',
       dateToken: 'Hoy',
-      timeToken: '15 - 25 min',
+      timeToken: isPickup ? 'Listo en 10-15 min' : '15 - 25 min',
       createdAt: serverTimestamp(),
       invoiceNo: generatedOrderId,
       rated: false,
@@ -2020,10 +2134,12 @@ export default function MandamePage({ navigate, userData, userRole, lang }) {
           userId: currentUid,
           orderId: docRef.id,
           type: 'new_order',
-          title: '🛵 ¡Pedido Listo Confirmado!',
-          text: `Tu orden #${generatedOrderId} por RD$ ${cartTotal.toLocaleString()} ha sido enviada. Tu PIN de entrega es ${generatedOtp}.`,
+          title: isPickup ? '🛍️ ¡Pedido Listo para Retirar en Mostrador!' : '🛵 ¡Pedido Listo Confirmado!',
+          text: isPickup 
+            ? `Tu orden #${generatedOrderId} por RD$ ${cartTotal.toLocaleString()} está registrada para recoger. Presenta tu PIN ${generatedOtp} en caja.`
+            : `Tu orden #${generatedOrderId} por RD$ ${cartTotal.toLocaleString()} ha sido enviada. Tu PIN de entrega es ${generatedOtp}.`,
           read: false,
-          icon: '🛵',
+          icon: isPickup ? '🛍️' : '🛵',
           pinOTP: generatedOtp,
           createdAt: serverTimestamp()
         });
@@ -2037,10 +2153,10 @@ export default function MandamePage({ navigate, userData, userRole, lang }) {
           userId: 'merchant',
           orderId: docRef.id,
           type: 'kitchen_order',
-          title: '🚨 ¡Nuevo Pedido en Comandera Cocina!',
-          text: `Pedido #${generatedOrderId} (${clientNameClean}) por RD$ ${cartTotal.toLocaleString()} recibido para preparar.`,
+          title: isPickup ? '🛍️ ¡Nuevo Pedido para Retirar en Mostrador!' : '🚨 ¡Nuevo Pedido en Comandera Cocina!',
+          text: `Pedido #${generatedOrderId} (${clientNameClean}) [${isPickup ? 'Retiro en Local' : 'Delivery'}] por RD$ ${cartTotal.toLocaleString()} recibido para preparar.`,
           read: false,
-          icon: '🔔',
+          icon: isPickup ? '🛍️' : '🔔',
           pinOTP: generatedOtp,
           createdAt: serverTimestamp()
         });
@@ -4098,51 +4214,61 @@ export default function MandamePage({ navigate, userData, userRole, lang }) {
               {/* Form Card */}
               <div style={{ background: 'white', color: '#0f172a', borderRadius: 24, padding: 18, marginBottom: 16 }}>
                 <h3 style={{ fontFamily: 'var(--font-heading)', fontWeight: 900, fontSize: 18, color: '#ff6b00', marginBottom: 14 }}>
-                  ➕ Subir Nuevo Platillo al Catálogo Pedidos Listo
+                  ➕ Subir Nuevo {bizCfg.itemLabel} al Catálogo Pedidos Listo
                 </h3>
+
+                {/* SELECTOR DE TIPO DE COMERCIO */}
+                <div style={{ background: 'linear-gradient(135deg, #fff7ed, #ffedd5)', border: '1.5px solid #fdba74', padding: 12, borderRadius: 16, marginBottom: 14 }}>
+                  <label style={{ fontSize: 12, fontWeight: 900, display: 'block', marginBottom: 6, color: '#9a3412' }}>🏪 Tipo de Comercio (cambia el menú y las opciones)</label>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: 6 }}>
+                    {Object.entries(BUSINESS_TYPES).map(([key, cfg]) => (
+                      <button
+                        key={key}
+                        type="button"
+                        onClick={() => handleChangeBusinessType(key)}
+                        style={{
+                          padding: '8px 10px', borderRadius: 12, fontSize: 11.5, fontWeight: 800, cursor: 'pointer', textAlign: 'left',
+                          background: businessType === key ? 'linear-gradient(135deg, #ff6b00, #ff8533)' : '#ffffff',
+                          color: businessType === key ? '#ffffff' : '#334155',
+                          border: businessType === key ? '1.5px solid #ff6b00' : '1px solid #e2e8f0',
+                          boxShadow: businessType === key ? '0 4px 12px rgba(255,107,0,0.3)' : 'none',
+                          transition: 'all 0.2s ease'
+                        }}
+                      >
+                        {cfg.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
 
                 <form onSubmit={handleAddNewProduct}>
                   <div style={{ marginBottom: 12 }}>
-                    <label style={{ fontSize: 12, fontWeight: 800, display: 'block', marginBottom: 4 }}>Nombre del Platillo / Producto</label>
+                    <label style={{ fontSize: 12, fontWeight: 800, display: 'block', marginBottom: 4 }}>Nombre del {bizCfg.itemLabel}</label>
                     <input type="text" className="custom-search-input" style={{ border: '1px solid #cbd5e1' }} value={newProdName} onChange={e => setNewProdName(e.target.value)} required />
                   </div>
 
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 12 }}>
                     <div>
-                      <label style={{ fontSize: 12, fontWeight: 800, display: 'block', marginBottom: 4 }}>Precio (RD$)</label>
+                      <label style={{ fontSize: 12, fontWeight: 800, display: 'block', marginBottom: 4 }}>{bizCfg.priceLabel || 'Precio (RD$)'}</label>
                       <input type="number" className="custom-search-input" style={{ border: '1px solid #cbd5e1' }} value={newProdPrice} onChange={e => setNewProdPrice(e.target.value)} required />
                     </div>
                     <div>
                       <label style={{ fontSize: 12, fontWeight: 800, display: 'block', marginBottom: 4 }}>Categoría del Menú</label>
                       <select className="custom-search-input" style={{ border: '1px solid #cbd5e1' }} value={newProdCategory} onChange={e => setNewProdCategory(e.target.value)}>
-                        <option value="plato_dia">🍛 Plato del Día</option>
-                        <option value="desayuno">🍳 Desayuno Criollo</option>
-                        <option value="merienda">☕ Merienda / Snacks</option>
-                        <option value="antojitos">🍢 Antojitos & Picaderas</option>
-                        <option value="cena">🌙 Cena Especial</option>
-                        <option value="bocado">🍔 Bocado Rápido / Fast Food</option>
-                        <option value="pollos">🍗 Pollos & Piezas Crujientes</option>
-                        <option value="cubetas">🪣 Cubetas & Combos Familiares</option>
-                        <option value="criollo">🍛 Comida Criolla & Platos Fuertes</option>
-                        <option value="pizzas">🍕 Pizzas & Pastas</option>
-                        <option value="tacos">🌮 Tacos & Comida Mexicana</option>
-                        <option value="sushi">🍣 Sushi & Comida Asiática</option>
-                        <option value="saludable">🥗 Ensaladas & Comida Saludable</option>
-                        <option value="postres">🍰 Postres & Repostería</option>
-                        <option value="bebidas">🥤 Bebidas & Jugos Naturales</option>
-                        <option value="licor">🍾 Licores, Cervezas & Bebidas Frías</option>
-                        <option value="super">🛒 Supermercado, Víveres & Despensa</option>
-                        <option value="salud">💊 Farmacia & Cuidado Personal</option>
+                        {bizCfg.categories.map(([val, lbl]) => (
+                          <option key={val} value={val}>{lbl}</option>
+                        ))}
                       </select>
                     </div>
                   </div>
 
                   <div style={{ marginBottom: 14 }}>
-                    <label style={{ fontSize: 12, fontWeight: 800, display: 'block', marginBottom: 4 }}>Descripción / Ingredientes</label>
+                    <label style={{ fontSize: 12, fontWeight: 800, display: 'block', marginBottom: 4 }}>{bizCfg.descLabel}</label>
                     <textarea className="custom-search-input" style={{ border: '1px solid #cbd5e1', borderRadius: 14 }} rows="2" value={newProdDesc} onChange={e => setNewProdDesc(e.target.value)} />
                   </div>
 
-                  {/* ETIQUETAS DE DIETA & ALÉRGENOS (PEDIDOS LISTO) */}
+                  {/* ETIQUETAS DE DIETA & ALÉRGENOS (PEDIDOS LISTO) — solo restaurantes */}
+                  {bizCfg.useFoodConfig && (
                   <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', padding: 14, borderRadius: 16, marginBottom: 14 }}>
                     <div style={{ fontSize: 12, fontWeight: 800, color: '#0f172a', marginBottom: 8, display: 'flex', justifyContent: 'space-between' }}>
                       <span>🏷️ ETIQUETAS & DIETA ESPECIAL (PEDIDOS LISTO)</span>
@@ -4156,8 +4282,10 @@ export default function MandamePage({ navigate, userData, userRole, lang }) {
                       ))}
                     </div>
                   </div>
+                  )}
 
-                  {/* CONFIGURADOR DE GUARNICIONES, BEBIDAS & EXTRAS PARA EL CLIENTE */}
+                  {/* CONFIGURADOR DE GUARNICIONES, BEBIDAS & EXTRAS PARA EL CLIENTE — solo restaurantes */}
+                  {bizCfg.useFoodConfig && (
                   <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', padding: 14, borderRadius: 16, marginBottom: 14 }}>
                     <div style={{ fontSize: 12, fontWeight: 800, color: '#ff6b00', marginBottom: 10, display: 'flex', justifyContent: 'space-between' }}>
                       <span>⚙️ CONFIGURAR GUARNICIONES, BEBIDAS & EXTRAS</span>
@@ -4215,6 +4343,88 @@ export default function MandamePage({ navigate, userData, userRole, lang }) {
                       </div>
                     </div>
                   </div>
+                  )}
+
+                  {/* ── OPCIONES DINÁMICAS SEGÚN EL TIPO DE COMERCIO (ropa, herramientas, etc.) ── */}
+                  {!bizCfg.useFoodConfig && (
+                    <>
+                      {/* Etiquetas visibles al cliente */}
+                      <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', padding: 14, borderRadius: 16, marginBottom: 14 }}>
+                        <div style={{ fontSize: 12, fontWeight: 800, color: '#0f172a', marginBottom: 8, display: 'flex', justifyContent: 'space-between' }}>
+                          <span>🏷️ ETIQUETAS DEL {bizCfg.itemLabel.toUpperCase()}</span>
+                          <span style={{ fontSize: 10, background: '#e0f2fe', color: '#0284c7', padding: '2px 6px', borderRadius: 4, fontWeight: 700 }}>Visible al Cliente</span>
+                        </div>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 6 }}>
+                          {bizCfg.tags.map(tag => (
+                            <label key={tag} style={{ fontSize: 11, background: 'white', padding: '6px 8px', borderRadius: 8, border: '1px solid #cbd5e1', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+                              <input type="checkbox" checked={selectedBizTags.includes(tag)} onChange={() => handleToggleBizTag(tag)} /> {tag}
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Tabla de precios de alquiler */}
+                      {bizCfg.rental && (
+                        <div style={{ background: '#fff7ed', border: '1.5px solid #fdba74', padding: 14, borderRadius: 16, marginBottom: 14 }}>
+                          <div style={{ fontSize: 12, fontWeight: 900, color: '#c2410c', marginBottom: 10, display: 'flex', justifyContent: 'space-between' }}>
+                            <span>💰 PRECIOS DE ALQUILER (RD$)</span>
+                            <span style={{ fontSize: 10, color: '#64748b', background: 'white', padding: '2px 6px', borderRadius: 4, fontWeight: 700 }}>Deja vacío lo que no ofreces</span>
+                          </div>
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8 }}>
+                            {RENTAL_PERIODS.map(([key, lbl]) => (
+                              <div key={key}>
+                                <label style={{ fontSize: 11, fontWeight: 800, display: 'block', marginBottom: 3, color: '#334155' }}>{lbl}</label>
+                                <input
+                                  type="number"
+                                  min="0"
+                                  placeholder="RD$ 0"
+                                  className="custom-search-input"
+                                  style={{ border: '1px solid #cbd5e1', padding: '8px 12px' }}
+                                  value={rentalPrices[key] ?? ''}
+                                  onChange={e => setRentalPrices(prev => ({ ...prev, [key]: e.target.value }))}
+                                />
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Grupos de opciones (tallas, colores, modalidades, etc.) */}
+                      {bizCfg.optionGroups.length > 0 && (
+                        <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', padding: 14, borderRadius: 16, marginBottom: 14 }}>
+                          <div style={{ fontSize: 12, fontWeight: 800, color: '#ff6b00', marginBottom: 10, display: 'flex', justifyContent: 'space-between' }}>
+                            <span>⚙️ OPCIONES DISPONIBLES PARA EL CLIENTE</span>
+                            <span style={{ fontSize: 10, color: '#64748b', background: 'white', padding: '2px 6px', borderRadius: 4, fontWeight: 700 }}>Personalización Cliente</span>
+                          </div>
+                          {bizCfg.optionGroups.map(group => (
+                            <div key={group.key} style={{ marginBottom: 12 }}>
+                              <label style={{ fontSize: 11, fontWeight: 700, color: '#0f172a', display: 'block', marginBottom: 4 }}>{group.label}</label>
+                              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                                {group.options.map(opt => {
+                                  const active = (selectedBizOptions[group.key] || []).includes(opt);
+                                  return (
+                                    <button
+                                      key={opt}
+                                      type="button"
+                                      onClick={() => handleToggleBizOption(group.key, opt)}
+                                      style={{
+                                        fontSize: 11, fontWeight: 800, padding: '6px 12px', borderRadius: 20, cursor: 'pointer',
+                                        background: active ? '#ff6b00' : '#ffffff',
+                                        color: active ? '#ffffff' : '#475569',
+                                        border: active ? '1.5px solid #ff6b00' : '1px solid #cbd5e1'
+                                      }}
+                                    >
+                                      {active ? '✓ ' : ''}{opt}
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </>
+                  )}
 
                   {/* Photo Upload Zone (Multiple Photos Manager & Studio Pro Launcher) */}
                   <div style={{ background: '#f8fafc', border: '2px solid #ff6b00', padding: 16, borderRadius: 20, marginBottom: 14, boxShadow: '0 6px 20px rgba(255,107,0,0.08)' }}>
@@ -4561,11 +4771,87 @@ export default function MandamePage({ navigate, userData, userRole, lang }) {
                           </div>
                         </div>
 
+                        {/* Tipo de Entrega: Local vs Domicilio */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8, flexWrap: 'wrap' }}>
+                          {order.fulfillmentType === 'pickup' ? (
+                            <span style={{ background: '#059669', color: '#FFFFFF', padding: '3px 9px', borderRadius: 8, fontSize: 11, fontWeight: 900, display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+                              🛍️ RETIRO EN EL LOCAL (PASAR POR MOSTRADOR)
+                            </span>
+                          ) : (
+                            <span style={{ background: '#EA580C', color: '#FFFFFF', padding: '3px 9px', borderRadius: 8, fontSize: 11, fontWeight: 900, display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+                              🛵 ENVÍO A DOMICILIO (DELIVERY)
+                            </span>
+                          )}
+                        </div>
+
                         {/* Customer Address & Payment */}
                         <div style={{ fontSize: 11, color: '#cbd5e1', marginBottom: 10, background: 'rgba(255,255,255,0.04)', padding: 8, borderRadius: 10 }}>
-                          <div>📍 <strong>Entrega:</strong> {order.address}</div>
+                          <div>
+                            {order.fulfillmentType === 'pickup' ? (
+                              <span>🛍️ <strong>Modalidad:</strong> Cliente pasará a recoger al mostrador ({order.storeName})</span>
+                            ) : (
+                              <span>📍 <strong>Entrega:</strong> {order.address}</span>
+                            )}
+                          </div>
                           <div style={{ marginTop: 2 }}>💳 <strong>Pago:</strong> {order.paymentMethod || 'Efectivo'}</div>
+                          {order.deliveryNotes && (
+                            <div style={{ marginTop: 2, color: '#FDBA74' }}>📝 <strong>Nota:</strong> {order.deliveryNotes}</div>
+                          )}
                         </div>
+
+                        {/* Asignación de Delivery del Restaurante (Propio vs Red Mándame) */}
+                        {order.fulfillmentType !== 'pickup' && (
+                          <div style={{ marginBottom: 10, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 10, padding: '8px 10px' }}>
+                            <div style={{ fontSize: 10.5, fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', marginBottom: 6, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                              <span>🛵 ¿QUIÉN HARÁ EL DELIVERY?</span>
+                              <span style={{ color: order.driverType === 'own' ? '#38BDF8' : '#ff6b00', fontWeight: 900 }}>
+                                {order.driverType === 'own' ? '🏪 Delivery Propio de la Casa' : '🛵 Red Mándame Rider'}
+                              </span>
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
+                              <button
+                                type="button"
+                                onClick={() => handleUpdateDriverType(order.id, 'mandame')}
+                                style={{
+                                  padding: '7px 6px',
+                                  borderRadius: 8,
+                                  border: order.driverType !== 'own' ? '1.5px solid #ff6b00' : '1px solid rgba(255,255,255,0.15)',
+                                  background: order.driverType !== 'own' ? 'rgba(255,107,0,0.2)' : 'transparent',
+                                  color: order.driverType !== 'own' ? '#FF8C42' : '#94A3B8',
+                                  fontSize: 10.5,
+                                  fontWeight: 900,
+                                  cursor: 'pointer',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  gap: 4
+                                }}
+                              >
+                                🛵 Mándame Rider
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleUpdateDriverType(order.id, 'own')}
+                                style={{
+                                  padding: '7px 6px',
+                                  borderRadius: 8,
+                                  border: order.driverType === 'own' ? '1.5px solid #38BDF8' : '1px solid rgba(255,255,255,0.15)',
+                                  background: order.driverType === 'own' ? 'rgba(56,189,248,0.2)' : 'transparent',
+                                  color: order.driverType === 'own' ? '#38BDF8' : '#94A3B8',
+                                  fontSize: 10.5,
+                                  fontWeight: 900,
+                                  cursor: 'pointer',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  gap: 4
+                                }}
+                              >
+                                🏪 Delivery Propio (Casa)
+                              </button>
+                            </div>
+                          </div>
+                        )}
 
                         {/* Order Items Breakdown */}
                         <div style={{ marginBottom: 12 }}>
@@ -4613,17 +4899,27 @@ export default function MandamePage({ navigate, userData, userRole, lang }) {
                               onClick={() => handleMarkOrderReady(order.id)}
                               style={{ width: '100%', background: 'linear-gradient(135deg, #00e699, #00b377)', color: '#0a0e1a', border: 'none', padding: 12, borderRadius: 12, fontWeight: 900, fontSize: 13, cursor: 'pointer', boxShadow: '0 4px 15px rgba(0,230,153,0.3)' }}
                             >
-                              🟢 MARCAR LISTO PARA REPARTIDOR MÁNDAME
+                              {order.fulfillmentType === 'pickup' 
+                                ? '🟢 MARCAR LISTO PARA RECOGER EN MOSTRADOR' 
+                                : (order.driverType === 'own' 
+                                    ? '🟢 MARCAR LISTO PARA DELIVERY PROPIO (MOTORISTA CASA)' 
+                                    : '🟢 MARCAR LISTO PARA REPARTIDOR MÁNDAME')}
                             </button>
                           )}
 
                           {isReady && (
                             <div style={{ background: 'rgba(0,230,153,0.1)', border: '1px solid rgba(0,230,153,0.3)', padding: 10, borderRadius: 14 }}>
                               <div style={{ fontSize: 11, fontWeight: 900, color: '#00e699', marginBottom: 4 }}>
-                                🛵 Conductor: {order.driverName}
+                                {order.fulfillmentType === 'pickup'
+                                  ? '🛍️ Esperando al cliente en el mostrador para retirar'
+                                  : (order.driverType === 'own'
+                                      ? '🏪 Motorista de la casa en ruta de entrega'
+                                      : `🛵 Conductor: ${order.driverName}`)}
                               </div>
                               <div style={{ fontSize: 10, color: '#94a3b8', marginBottom: 6 }}>
-                                Ingresa el Token PIN OTP del cliente/repartidor para validar entrega:
+                                {order.fulfillmentType === 'pickup'
+                                  ? 'Pídele el PIN OTP de 4 dígitos al cliente para entregar el pedido:'
+                                  : 'Ingresa el Token PIN OTP del cliente/repartidor para validar entrega:'}
                               </div>
                               <div style={{ display: 'flex', gap: 6 }}>
                                 <input
@@ -5995,36 +6291,119 @@ export default function MandamePage({ navigate, userData, userRole, lang }) {
 
                 {/* DETALLES DE ENTREGA Y CHECKOUT ESTILO PEDIDOSYA */}
                 <div style={{ marginTop: 14, borderTop: '2px dashed #e2e8f0', paddingTop: 14 }}>
-                  {/* 1. DIRECCIÓN DE ENTREGA */}
-                  <div style={{ background: '#FFF4EE', border: '1.5px solid #FED7AA', borderRadius: 14, padding: '12px 14px', marginBottom: 12 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                      <span style={{ fontSize: 11, fontWeight: 900, color: '#C2410C', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                        📍 Dirección de Entrega
-                      </span>
+                  {/* MODALIDAD DE PEDIDO: DELIVERY VS RETIRO EN LOCAL */}
+                  <div style={{ marginBottom: 14 }}>
+                    <label style={{ display: 'block', fontSize: 11, fontWeight: 900, color: '#475569', textTransform: 'uppercase', marginBottom: 6 }}>
+                      📦 ¿Cómo deseas recibir tu orden?
+                    </label>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
                       <button
                         type="button"
-                        onClick={() => setIsAddressModalOpen(true)}
-                        style={{ background: '#ff6b00', color: '#fff', border: 'none', padding: '3px 10px', borderRadius: 10, fontSize: 11, fontWeight: 800, cursor: 'pointer' }}
+                        onClick={() => setDeliveryFulfillmentType('delivery')}
+                        style={{
+                          padding: '10px 8px',
+                          borderRadius: 12,
+                          border: deliveryFulfillmentType === 'delivery' ? '2px solid #ff6b00' : '1.5px solid #CBD5E1',
+                          background: deliveryFulfillmentType === 'delivery' ? '#FFF4EE' : '#FFFFFF',
+                          color: deliveryFulfillmentType === 'delivery' ? '#C2410C' : '#334155',
+                          fontWeight: 800,
+                          fontSize: 12,
+                          cursor: 'pointer',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'center',
+                          gap: 2,
+                          transition: 'all 0.2s ease'
+                        }}
                       >
-                        ✏️ Cambiar
+                        <span style={{ fontSize: 18 }}>🛵</span>
+                        <span style={{ fontWeight: 900 }}>Envío a Domicilio</span>
+                        <span style={{ fontSize: 10.5, color: deliveryFulfillmentType === 'delivery' ? '#ff6b00' : '#64748B', fontWeight: 700 }}>RD$ 55 • 15-25 min</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setDeliveryFulfillmentType('pickup')}
+                        style={{
+                          padding: '10px 8px',
+                          borderRadius: 12,
+                          border: deliveryFulfillmentType === 'pickup' ? '2px solid #059669' : '1.5px solid #CBD5E1',
+                          background: deliveryFulfillmentType === 'pickup' ? '#ECFDF5' : '#FFFFFF',
+                          color: deliveryFulfillmentType === 'pickup' ? '#047857' : '#334155',
+                          fontWeight: 800,
+                          fontSize: 12,
+                          cursor: 'pointer',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'center',
+                          gap: 2,
+                          transition: 'all 0.2s ease'
+                        }}
+                      >
+                        <span style={{ fontSize: 18 }}>🛍️</span>
+                        <span style={{ fontWeight: 900 }}>Pasar por el Local</span>
+                        <span style={{ fontSize: 10.5, color: '#059669', fontWeight: 900 }}>¡GRATIS RD$ 0!</span>
                       </button>
                     </div>
-                    <div style={{ fontSize: 13, fontWeight: 800, color: '#0F172A', lineHeight: 1.3 }}>
-                      {deliveryAddress}
-                    </div>
-                    <input
-                      type="text"
-                      placeholder="🏢 Apto, casa #, timbre o referencia (Ej: Portón negro, timbre 2B)"
-                      value={deliveryNotes}
-                      onChange={(e) => setDeliveryNotes(e.target.value)}
-                      style={{ width: '100%', marginTop: 8, padding: '8px 10px', borderRadius: 10, border: '1px solid #FDBA74', fontSize: 12, outline: 'none', background: '#FFFFFF', boxSizing: 'border-box' }}
-                    />
                   </div>
+
+                  {deliveryFulfillmentType === 'delivery' ? (
+                    /* 1. DIRECCIÓN DE ENTREGA A DOMICILIO */
+                    <div style={{ background: '#FFF4EE', border: '1.5px solid #FED7AA', borderRadius: 14, padding: '12px 14px', marginBottom: 12 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                        <span style={{ fontSize: 11, fontWeight: 900, color: '#C2410C', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                          📍 Dirección de Entrega
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => setIsAddressModalOpen(true)}
+                          style={{ background: '#ff6b00', color: '#fff', border: 'none', padding: '3px 10px', borderRadius: 10, fontSize: 11, fontWeight: 800, cursor: 'pointer' }}
+                        >
+                          ✏️ Cambiar
+                        </button>
+                      </div>
+                      <div style={{ fontSize: 13, fontWeight: 800, color: '#0F172A', lineHeight: 1.3 }}>
+                        {deliveryAddress}
+                      </div>
+                      <input
+                        type="text"
+                        placeholder="🏢 Apto, casa #, timbre o referencia (Ej: Portón negro, timbre 2B)"
+                        value={deliveryNotes}
+                        onChange={(e) => setDeliveryNotes(e.target.value)}
+                        style={{ width: '100%', marginTop: 8, padding: '8px 10px', borderRadius: 10, border: '1px solid #FDBA74', fontSize: 12, outline: 'none', background: '#FFFFFF', boxSizing: 'border-box' }}
+                      />
+                    </div>
+                  ) : (
+                    /* 1. RETIRO EN EL LOCAL (PASAR POR EL LOCAL) */
+                    <div style={{ background: '#ECFDF5', border: '1.5px solid #A7F3D0', borderRadius: 14, padding: '12px 14px', marginBottom: 12 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                        <span style={{ fontSize: 11, fontWeight: 900, color: '#047857', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                          🛍️ Retiro en el Mostrador
+                        </span>
+                        <span style={{ background: '#059669', color: '#fff', padding: '2px 8px', borderRadius: 8, fontSize: 10, fontWeight: 900 }}>
+                          ¡Sin Cargo de Envío!
+                        </span>
+                      </div>
+                      <div style={{ fontSize: 13, fontWeight: 900, color: '#064E3B', lineHeight: 1.3 }}>
+                        🏪 {activeStoreModal?.name || merchantState?.storeName || 'La Fiera Hot Dog'}
+                      </div>
+                      <p style={{ margin: '4px 0 0', fontSize: 11, color: '#047857', lineHeight: 1.3 }}>
+                        Pasa a retirar por el mostrador en cuanto te notifiquemos que la orden está lista. Solo debes dar tu PIN OTP en caja.
+                      </p>
+                      <input
+                        type="text"
+                        placeholder="Nota opcional para la cocina (Ej: Sin cebolla, extra servilletas)"
+                        value={deliveryNotes}
+                        onChange={(e) => setDeliveryNotes(e.target.value)}
+                        style={{ width: '100%', marginTop: 8, padding: '8px 10px', borderRadius: 10, border: '1px solid #6EE7B7', fontSize: 12, outline: 'none', background: '#FFFFFF', boxSizing: 'border-box' }}
+                      />
+                    </div>
+                  )}
 
                   {/* 2. TELÉFONO DE CONTACTO */}
                   <div style={{ marginBottom: 12 }}>
                     <label style={{ display: 'block', fontSize: 11, fontWeight: 900, color: '#475569', textTransform: 'uppercase', marginBottom: 4 }}>
-                      📞 Teléfono / WhatsApp para entrega *
+                      📞 Teléfono / WhatsApp de Contacto *
                     </label>
                     <input
                       type="tel"
@@ -6085,7 +6464,7 @@ export default function MandamePage({ navigate, userData, userRole, lang }) {
 
                     {checkoutPaymentMethod === 'efectivo' && (
                       <div style={{ marginTop: 8, padding: '8px 10px', background: '#F8FAFC', borderRadius: 10, border: '1px solid #E2E8F0' }}>
-                        <span style={{ fontSize: 11, fontWeight: 800, color: '#64748B' }}>¿Con cuánto pagarás? (Para llevarte cambio):</span>
+                        <span style={{ fontSize: 11, fontWeight: 800, color: '#64748B' }}>¿Con cuánto pagarás? (Para cambio):</span>
                         <div style={{ display: 'flex', gap: 6, marginTop: 4 }}>
                           {['exacto', '500', '1000', '2000'].map(val => (
                             <button
@@ -6111,35 +6490,37 @@ export default function MandamePage({ navigate, userData, userRole, lang }) {
                     )}
                   </div>
 
-                  {/* 4. PROPINA AL REPARTIDOR */}
-                  <div style={{ marginBottom: 12 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                      <span style={{ fontSize: 11, fontWeight: 800, color: '#64748B' }}>🛵 Propina voluntaria al repartidor:</span>
-                      <span style={{ fontSize: 12, fontWeight: 900, color: '#ff6b00' }}>RD$ {selectedTip}</span>
+                  {/* 4. PROPINA AL REPARTIDOR (SOLO SI ES DELIVERY A DOMICILIO) */}
+                  {deliveryFulfillmentType === 'delivery' && (
+                    <div style={{ marginBottom: 12 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                        <span style={{ fontSize: 11, fontWeight: 800, color: '#64748B' }}>🛵 Propina voluntaria al repartidor:</span>
+                        <span style={{ fontSize: 12, fontWeight: 900, color: '#ff6b00' }}>RD$ {selectedTip}</span>
+                      </div>
+                      <div style={{ display: 'flex', gap: 6 }}>
+                        {[0, 30, 50, 100].map(tip => (
+                          <button
+                            key={tip}
+                            type="button"
+                            onClick={() => setSelectedTip(tip)}
+                            style={{
+                              flex: 1,
+                              padding: '6px 4px',
+                              borderRadius: 8,
+                              border: selectedTip === tip ? '1.5px solid #ff6b00' : '1px solid #CBD5E1',
+                              background: selectedTip === tip ? '#FFF4EE' : '#FFFFFF',
+                              color: selectedTip === tip ? '#C2410C' : '#334155',
+                              fontSize: 11,
+                              fontWeight: 800,
+                              cursor: 'pointer'
+                            }}
+                          >
+                            {tip === 0 ? 'Sin propina' : `+RD$ ${tip}`}
+                          </button>
+                        ))}
+                      </div>
                     </div>
-                    <div style={{ display: 'flex', gap: 6 }}>
-                      {[0, 30, 50, 100].map(tip => (
-                        <button
-                          key={tip}
-                          type="button"
-                          onClick={() => setSelectedTip(tip)}
-                          style={{
-                            flex: 1,
-                            padding: '6px 4px',
-                            borderRadius: 8,
-                            border: selectedTip === tip ? '1.5px solid #ff6b00' : '1px solid #CBD5E1',
-                            background: selectedTip === tip ? '#FFF4EE' : '#FFFFFF',
-                            color: selectedTip === tip ? '#C2410C' : '#334155',
-                            fontSize: 11,
-                            fontWeight: 800,
-                            cursor: 'pointer'
-                          }}
-                        >
-                          {tip === 0 ? 'Sin propina' : `+RD$ ${tip}`}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
+                  )}
 
                   {/* 5. RESUMEN DE TOTALES */}
                   <div style={{ borderTop: '1px solid #E2E8F0', paddingTop: 10, marginBottom: 12 }}>
@@ -6148,10 +6529,12 @@ export default function MandamePage({ navigate, userData, userRole, lang }) {
                       <span style={{ fontWeight: 800, color: '#0F172A' }}>RD$ {cartSubtotal.toLocaleString()}</span>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#64748B', marginBottom: 4 }}>
-                      <span>Costo de Envío 🛵:</span>
-                      <span style={{ fontWeight: 800, color: '#0F172A' }}>RD$ 55</span>
+                      <span>Costo de Envío {deliveryFulfillmentType === 'pickup' ? '🛍️' : '🛵'}:</span>
+                      <span style={{ fontWeight: 800, color: deliveryFulfillmentType === 'pickup' ? '#059669' : '#0F172A' }}>
+                        {deliveryFulfillmentType === 'pickup' ? '¡GRATIS (Retiro en Local) RD$ 0!' : 'RD$ 55'}
+                      </span>
                     </div>
-                    {selectedTip > 0 && (
+                    {deliveryFulfillmentType === 'delivery' && selectedTip > 0 && (
                       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#64748B', marginBottom: 4 }}>
                         <span>Propina Conductor 💛:</span>
                         <span style={{ fontWeight: 800, color: '#0F172A' }}>RD$ {selectedTip}</span>
@@ -6159,7 +6542,7 @@ export default function MandamePage({ navigate, userData, userRole, lang }) {
                     )}
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 17, fontWeight: 900, color: '#0F172A', paddingTop: 8, borderTop: '1.5px solid #E2E8F0' }}>
                       <span>Total General:</span>
-                      <span style={{ color: '#ff6b00' }}>RD$ {cartTotal.toLocaleString()}</span>
+                      <span style={{ color: deliveryFulfillmentType === 'pickup' ? '#059669' : '#ff6b00' }}>RD$ {cartTotal.toLocaleString()}</span>
                     </div>
                   </div>
 
@@ -6168,13 +6551,32 @@ export default function MandamePage({ navigate, userData, userRole, lang }) {
                     type="button" 
                     className="btn-mamey" 
                     disabled={isPlacingOrder}
-                    style={{ width: '100%', padding: 14, fontSize: 15, fontWeight: 900, borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, boxShadow: '0 8px 24px rgba(255,107,0,0.35)', cursor: isPlacingOrder ? 'not-allowed' : 'pointer' }} 
+                    style={{
+                      width: '100%',
+                      padding: 14,
+                      fontSize: 15,
+                      fontWeight: 900,
+                      borderRadius: 14,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: 8,
+                      background: deliveryFulfillmentType === 'pickup' ? 'linear-gradient(135deg, #059669, #10B981)' : 'linear-gradient(135deg, #ff6b00, #ff8533)',
+                      boxShadow: deliveryFulfillmentType === 'pickup' ? '0 8px 24px rgba(5,150,105,0.35)' : '0 8px 24px rgba(255,107,0,0.35)',
+                      cursor: isPlacingOrder ? 'not-allowed' : 'pointer'
+                    }} 
                     onClick={handlePlaceOrder}
                   >
-                    {isPlacingOrder ? '⏳ Procesando Pedido...' : `🚀 Realizar Pedido Ahora (RD$ ${cartTotal.toLocaleString()})`}
+                    {isPlacingOrder 
+                      ? '⏳ Procesando Pedido...' 
+                      : (deliveryFulfillmentType === 'pickup'
+                          ? `🛍️ Confirmar para Retirar en Local (RD$ ${cartTotal.toLocaleString()})`
+                          : `🚀 Realizar Pedido Ahora (RD$ ${cartTotal.toLocaleString()})`)}
                   </button>
                   <p style={{ textAlign: 'center', fontSize: 10, color: '#94A3B8', margin: '8px 0 0', fontWeight: 600 }}>
-                    🔒 Pago 100% seguro contra entrega • Seguimiento GPS en tiempo real
+                    {deliveryFulfillmentType === 'pickup'
+                      ? '🔒 Retiro en mostrador protegido con PIN OTP • Notificación en vivo'
+                      : '🔒 Pago 100% seguro contra entrega • Seguimiento GPS en tiempo real'}
                   </p>
                 </div>
               </div>
