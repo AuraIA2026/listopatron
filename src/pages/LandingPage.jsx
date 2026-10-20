@@ -92,6 +92,8 @@ function DeliveryPartnerModal({ onClose, navigate }) {
     }
   };
 
+  const [headerCollapsed, setHeaderCollapsed] = React.useState(false);
+
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 10000, background: 'rgba(13, 14, 21, 0.88)', backdropFilter: 'blur(12px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px', overflowY: 'auto' }} onClick={onClose}>
       <div style={{ background: '#FFFFFF', borderRadius: '24px', maxWidth: '1020px', width: '100%', overflow: 'hidden', boxShadow: '0 25px 60px rgba(0,0,0,0.6)', position: 'relative', margin: 'auto', border: '1px solid rgba(255,255,255,0.1)' }} onClick={e => e.stopPropagation()}>
@@ -100,6 +102,7 @@ function DeliveryPartnerModal({ onClose, navigate }) {
         <div style={{ background: 'linear-gradient(135deg, #FF7A1F 0%, #FF6000 100%)', padding: '24px 28px 16px', color: '#FFFFFF', position: 'relative', borderBottom: '3px solid #ffffff' }}>
           <button onClick={onClose} style={{ position: 'absolute', top: '18px', right: '18px', background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.3)', color: '#FFFFFF', width: '36px', height: '36px', borderRadius: '50%', fontSize: '18px', cursor: 'pointer', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s' }}>✕</button>
           
+          <div style={{ maxHeight: headerCollapsed ? 0 : '420px', opacity: headerCollapsed ? 0 : 1, overflow: 'hidden', transition: 'max-height .35s ease, opacity .25s ease' }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(255,255,255,0.2)', border: '1px solid rgba(255,255,255,0.5)', padding: '4px 14px', borderRadius: '20px', fontSize: '12px', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '10px', color: '#ffffff' }}>
             🤝 PEDIDOSLISTO PARTNER · HECHO EN REPÚBLICA DOMINICANA
           </div>
@@ -129,6 +132,7 @@ function DeliveryPartnerModal({ onClose, navigate }) {
               <div style={{ fontSize: '16px', fontWeight: '900', color: '#FFFFFF' }}>0 equipos</div>
               <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.85)' }}>Usa tu celular o PC</div>
             </div>
+          </div>
           </div>
 
           {/* Menú Nav Tabs del Modal */}
@@ -165,7 +169,7 @@ function DeliveryPartnerModal({ onClose, navigate }) {
         </div>
 
         {/* Modal Content */}
-        <div style={{ padding: '24px 28px', maxHeight: '72vh', overflowY: 'auto', background: '#F8FAFC' }}>
+        <div onScroll={e => setHeaderCollapsed(e.currentTarget.scrollTop > 30)} style={{ padding: '24px 28px', maxHeight: headerCollapsed ? '84vh' : '72vh', transition: 'max-height .35s ease', overflowY: 'auto', background: '#F8FAFC' }}>
           
           {submitted ? (
             <div style={{ textAlign: 'center', padding: '40px 20px', background: '#FFFFFF', borderRadius: '20px', border: '1.5px solid #E2E8F0' }}>
