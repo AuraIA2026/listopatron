@@ -70,6 +70,7 @@ export default function SociosPage({ onNavigate }) {
   const [docs, setDocs] = useState(true);
   const [tryOpen, setTry] = useState(false);
   const [venta, setVenta] = useState(150000);
+  const [scr, setScr] = useState('ordenes');
   const [showBar, setShowBar] = useState(false);
 
   useEffect(() => {
@@ -226,6 +227,45 @@ export default function SociosPage({ onNavigate }) {
                 <article key={b.t} className="sx-card"><div className="sx-ic">{b.ic}</div><h3>{b.t}</h3><p>{b.d}</p></article>
               ))}
             </div>
+          </div>
+        </section>
+
+        {/* VITRINA DEL PROGRAMA */}
+        <section id="programa" className="sx-sec">
+          <div className="sx-wrap">
+            <h2>Así se ve tu programa por dentro</h2>
+            <p className="sx-sub">Toca cada pantalla y mira cómo trabajarás el día a día.</p>
+            <div className="sx-scr-tabs">
+              {[['ordenes', '🔔 Órdenes'], ['caja', '💰 Caja'], ['mapa', '🛵 Motoristas']].map(([k, l]) => (
+                <button key={k} id={`sx-scr-${k}`} className={scr === k ? 'on' : ''} onClick={() => setScr(k)}>{l}</button>
+              ))}
+            </div>
+            <div className="sx-screen">
+              <div className="sx-screen-bar"><i /><i /><i /><span>pedidoslisto.vercel.app</span></div>
+              <div className="sx-screen-body" key={scr}>
+                <aside><b>Pedidos Listo</b>{['🔔 Órdenes', '💰 Caja', '🍽️ Mesas', '📖 Menú', '🛵 Delivery', '📊 Reportes'].map((x) => <span key={x} className={(scr === 'ordenes' && x.includes('Órd')) || (scr === 'caja' && x.includes('Caja')) || (scr === 'mapa' && x.includes('Deliv')) ? 'on' : ''}>{x}</span>)}</aside>
+                {scr === 'ordenes' && (
+                  <div className="sx-cols">
+                    {[['Nuevas', [['#1042', 'Chimi + Morir soñando', 'RD$ 650']]], ['En cocina', [['#1040', 'Mangú con los 3 golpes', 'RD$ 350'], ['#1039', 'Pica pollo familiar', 'RD$ 1,200']]], ['Listas', [['#1037', 'Pizza grande', 'RD$ 890']]]].map(([t, os]) => (
+                      <div key={t}><h4>{t} <small>{os.length}</small></h4>{os.map((o) => <div key={o[0]} className="sx-oc"><b>{o[0]}</b><span>{o[1]}</span><em>{o[2]}</em></div>)}</div>
+                    ))}
+                  </div>
+                )}
+                {scr === 'caja' && (
+                  <div className="sx-cash">
+                    <div className="sx-kpis">{[['Vendido hoy', 'RD$ 18,450'], ['Tickets', '37'], ['Efectivo', 'RD$ 9,200'], ['Tarjeta', 'RD$ 9,250']].map(([a, v]) => <div key={a}><small>{a}</small><b>{v}</b></div>)}</div>
+                    <div className="sx-ticket"><b>Factura B02 · Consumidor final</b><p><span>2× Chimi de res</span><span>RD$ 500</span></p><p><span>ITBIS 18%</span><span>RD$ 90</span></p><p><span>Propina legal 10%</span><span>RD$ 50</span></p><p className="t"><span>Total</span><span>RD$ 640</span></p><button className="sx-btn block">Cobrar e imprimir</button></div>
+                  </div>
+                )}
+                {scr === 'mapa' && (
+                  <div className="sx-map">
+                    <div className="sx-map-area"><span className="me">🏪</span><span style={{ top: '22%', left: '30%' }}>🛵</span><span style={{ top: '62%', left: '70%' }}>🛵</span><span style={{ top: '35%', left: '78%' }}>🛵</span><i /></div>
+                    <div className="sx-riders">{[['Carlos M.', '0.6 km · 3 min'], ['Yeuri P.', '1.2 km · 5 min'], ['Ana R.', '2.4 km · 9 min']].map(([n, d]) => <div key={n}><b>{n}</b><small>{d}</small><button className="sx-btn sm">Llamar</button></div>)}</div>
+                  </div>
+                )}
+              </div>
+            </div>
+            <div style={{ textAlign: 'center', marginTop: 24 }}><a className="sx-btn big" href={APP_URL} target="_blank" rel="noreferrer">Probarlo en vivo →</a></div>
           </div>
         </section>
 
