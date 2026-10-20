@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import LandingPage from './pages/LandingPage'
 import ShopPage from './pages/ShopPage'
+import SociosPage from './pages/SociosPage'
 import './index.css'
 import './premium.css'
 
@@ -8,6 +9,7 @@ export default function App() {
   const [currentPage, setCurrentPage] = useState(() => {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
+      if (['/socios', '/unete'].includes(window.location.pathname.replace(/\/$/, '')) || params.get('page') === 'socios') return 'socios';
       if (params.get('page') === 'shop' || window.location.hash.includes('shop')) return 'shop';
     }
     return 'home';
@@ -59,7 +61,9 @@ export default function App() {
 
   return (
     <>
-      {currentPage === 'home' || currentPage === 'landing' ? (
+      {currentPage === 'socios' ? (
+        <SociosPage onNavigate={(p) => { if (p === 'home') { window.location.href = '/'; } else handleNavigate(p); }} />
+      ) : currentPage === 'home' || currentPage === 'landing' ? (
         <LandingPage navigate={handleNavigate} onNavigate={handleNavigate} />
       ) : (
         <ShopPage onNavigate={handleNavigate} navigate={handleNavigate} />
