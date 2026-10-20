@@ -5,6 +5,8 @@ import { db } from '../firebase';
 import './socios.css';
 
 const APP_URL = 'https://pedidoslisto.vercel.app';
+const IOS_URL = 'https://apps.apple.com/search?term=pedidos%20listo';
+const ANDROID_URL = 'https://play.google.com/store/search?q=pedidos%20listo&c=apps';
 
 const BENEFITS = [
   { ic: '🎁', t: '90 días sin pagar', d: 'Arranca sin costo: durante tus primeros 3 meses cada peso que entra es tuyo.' },
@@ -65,6 +67,7 @@ export default function SociosPage({ onNavigate }) {
   const [err, setErr] = useState('');
   const [faq, setFaq] = useState(0);
   const [docs, setDocs] = useState(true);
+  const [tryOpen, setTry] = useState(false);
 
   useEffect(() => {
     document.title = 'Pedidos Listo para tu negocio | 90 días sin costo | Listo Patrón';
@@ -118,8 +121,22 @@ export default function SociosPage({ onNavigate }) {
               <p>Órdenes a domicilio, caja con comprobante fiscal y mensajeros a pocos minutos. Una sola pantalla pensada para el comercio dominicano.</p>
               <div className="sx-hero-cta">
                 <button id="sx-hero-cta" className="sx-btn light big" onClick={goForm}>Quiero unirme →</button>
-                <a className="sx-btn ghost big" href={APP_URL} target="_blank" rel="noreferrer">Probar la plataforma</a>
+                <button id="sx-probar" className="sx-btn ghost big" onClick={() => setTry(!tryOpen)}>Probar la plataforma {tryOpen ? '▴' : '▾'}</button>
               </div>
+              {tryOpen && (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, margin: '4px 0 18px', animation: 'fadeIn .3s' }}>
+                  {[
+                    { id: 'sx-try-web', ic: '🌐', s: 'Úsala ahora en', t: 'Versión Web', href: APP_URL },
+                    { id: 'sx-try-ios', ic: '🍎', s: 'Descárgala en', t: 'App Store', href: IOS_URL },
+                    { id: 'sx-try-android', ic: '▶', s: 'Disponible en', t: 'Google Play', href: ANDROID_URL },
+                  ].map(b => (
+                    <a key={b.id} id={b.id} href={b.href} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', gap: 10, background: '#111', color: '#fff', padding: '9px 16px', borderRadius: 12, textDecoration: 'none', border: '1px solid rgba(255,255,255,.35)', boxShadow: '0 6px 18px rgba(0,0,0,.18)', transition: 'transform .2s' }} onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'} onMouseLeave={e => e.currentTarget.style.transform = 'none'}>
+                      <span style={{ fontSize: 22, lineHeight: 1 }}>{b.ic}</span>
+                      <span style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.1 }}><small style={{ fontSize: 10, opacity: .8 }}>{b.s}</small><b style={{ fontSize: 15 }}>{b.t}</b></span>
+                    </a>
+                  ))}
+                </div>
+              )}
               <ul className="sx-checks"><li>✓ Sin porcentaje por 90 días</li><li>✓ Sin ataduras</li><li>✓ Sin aparatos que comprar</li></ul>
             </div>
             <div className="sx-hero-art">
