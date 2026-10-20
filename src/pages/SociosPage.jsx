@@ -1,4 +1,4 @@
-// src/pages/SociosPage.jsx — Pedidos Listo para Comercios (listopatron.com.do/socios)
+// src/pages/SociosPage.jsx — Únete a Pedidos Listo (listopatron.com.do/unete)
 import React, { useEffect, useState } from 'react';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../firebase';
@@ -18,17 +18,42 @@ const BENEFITS = [
 ];
 
 const STEPS = [
-  { n: 1, t: 'Cuéntanos de ti', d: 'Deja tus datos, toma menos de un minuto.' },
-  { n: 2, t: 'Te acompañamos', d: 'Nuestro equipo monta tu catálogo y tus fotos contigo.' },
-  { n: 3, t: 'A facturar', d: 'Desde el primer día despachas órdenes y cobras en mostrador.' },
+  { ic: '✍️', t: 'Cuéntanos de tu negocio' },
+  { ic: '🤝', t: 'Aprueba el acuerdo en línea' },
+  { ic: '🔍', t: 'Verificamos tus datos' },
+  { ic: '📸', t: 'Monta catálogo, horas y marca' },
+  { ic: '🖥️', t: 'Enciende tu pantalla de órdenes' },
+  { ic: '🎉', t: '¡Abre tus puertas digitales!' },
 ];
+
+const TIPS = [
+  { img: '/unete/plato1.jpg', t: '¿Qué papeles debo preparar?', d: 'La lista completa para que tu cocina o restaurante quede activo sin vueltas ni demoras.' },
+  { img: '/unete/plato2.jpg', t: 'Fotos que abren el apetito', d: 'Un plato bien fotografiado vende el doble. Te damos trucos sencillos con tu celular.' },
+  { img: '/unete/plato3.jpg', t: 'Un tablero para todo el local', d: 'Órdenes, caja, mesas y reportes conviven en una sola pantalla para que operes sin enredos.' },
+  { img: '/pedidos_listo_hero.png', t: 'Gana clientes desde la semana uno', d: 'Aprovecha a la comunidad de Listo Patrón y las promociones para llenar tu cocina.' },
+];
+
+const SOLUTIONS = [
+  { tag: 'Destaca', t: 'Vitrina preferencial', d: 'Los locales con buen servicio suben en la lista y aparecen primero ante los clientes de su zona.' },
+  { tag: 'Delivery', t: 'Red de motoristas Listo', d: 'Pide un mensajero cercano con un toque y sigue el trayecto en el mapa hasta la puerta del cliente.' },
+  { tag: 'Caja', t: 'Punto de venta fiscal', d: 'Facturas con comprobante, cuadre de turno y reportes listos para tu contador, sin pagar otro sistema.' },
+];
+
+const BUSINESS = ['🍔 Comida rápida', '🍕 Pizzerías', '🥗 Saludable', '☕ Cafeterías', '🥖 Panaderías', '🛒 Colmados', '💊 Farmacias', '🍰 Reposterías', '🍗 Pica pollo', '🌮 Comida mexicana', '🍣 Sushi', '🧃 Jugos'];
 
 const FAQ = [
   ['¿Los 3 meses sin costo son reales?', 'Sí. En tus primeros 90 días no pagas porcentaje por tus órdenes ni por usar la caja.'],
   ['¿Qué me piden para empezar?', 'El nombre del local, un número de contacto y lo que vendes. El RNC lo puedes agregar después.'],
-  ['¿Tengo que comprar algún equipo?', 'No. Basta con un celular, tablet o computadora con conexión a internet.'],
+  ['¿Tengo que comprar algún equipo?', 'No. Basta con un celular, tablet o computadora con conexión a internet. La impresora térmica es opcional.'],
   ['¿Puedo despachar con mis mensajeros?', 'Claro. Trabaja con tu gente, llama a un motorista cercano de la red Listo, o combina ambos.'],
   ['¿Qué negocios pueden unirse?', 'Restaurantes, cafeterías, colmados, supermercados, farmacias, tiendas, ferreterías y mucho más.'],
+  ['¿En qué momento me llega el dinero?', 'Lo cobrado en efectivo queda en tu caja al instante; lo pagado en línea se transfiere a tu cuenta bancaria.'],
+  ['¿Dónde actualizo precios, fotos y horarios?', 'En las secciones Menú y Local del programa. Los cambios se ven al momento.'],
+  ['Si algo falla, ¿quién me ayuda?', 'Nuestro equipo por WhatsApp, directo desde el programa o desde esta web.'],
+  ['¿Cómo luce una jornada normal?', 'Abres caja, suena una orden, la aceptas con su tiempo, la marcas lista, se entrega y al final cuadras el turno.'],
+  ['¿Cuánto dura la verificación?', 'Por lo general de 1 a 3 días hábiles después de tener tus documentos completos.'],
+  ['¿Sirve si cocino desde casa?', 'Sí. Cocinas caseras y negocios solo de delivery pueden sumarse si cumplen los requisitos.'],
+  ['¿Hasta qué distancia reparto?', 'Tú defines tu zona. El mapa te muestra motoristas en un radio de 3 km de tu local.'],
 ];
 
 const TYPES = ['Restaurante', 'Cafetería / Panadería', 'Comida rápida', 'Colmado / Supermercado', 'Farmacia', 'Tienda / Ropa', 'Ferretería', 'Otro'];
@@ -39,6 +64,7 @@ export default function SociosPage({ onNavigate }) {
   const [done, setDone] = useState(false);
   const [err, setErr] = useState('');
   const [faq, setFaq] = useState(0);
+  const [docs, setDocs] = useState(true);
 
   useEffect(() => {
     document.title = 'Pedidos Listo para tu negocio | 90 días sin costo | Listo Patrón';
@@ -53,16 +79,13 @@ export default function SociosPage({ onNavigate }) {
     if (!f.negocio.trim() || !f.telefono.trim()) { setErr('Escribe el nombre del negocio y un teléfono.'); return; }
     setErr(''); setSending(true);
     try {
-      await addDoc(collection(db, 'solicitudes_socios'), { ...f, promo: '3_meses_gratis', origen: 'web_socios', estado: 'nuevo', createdAt: serverTimestamp() });
-      setDone(true);
+      await addDoc(collection(db, 'solicitudes_socios'), { ...f, promo: '3_meses_gratis', origen: 'web_unete', estado: 'nuevo', createdAt: serverTimestamp() });
     } catch (ex) {
       console.warn('solicitudes_socios:', ex);
-      // Respaldo: abrir WhatsApp con los datos
-      const txt = encodeURIComponent(`Hola, quiero registrar mi negocio en Pedidos Listo (3 meses gratis).\nNegocio: ${f.negocio}\nTipo: ${f.tipo}\nCiudad: ${f.ciudad}\nContacto: ${f.nombre} ${f.telefono}`);
+      const txt = encodeURIComponent(`Hola, quiero sumar mi negocio a Pedidos Listo (90 días sin costo).\nNegocio: ${f.negocio}\nTipo: ${f.tipo}\nCiudad: ${f.ciudad}\nContacto: ${f.nombre} ${f.telefono}`);
       window.open(`https://wa.me/?text=${txt}`, '_blank');
-      setDone(true);
     }
-    setSending(false);
+    setDone(true); setSending(false);
   };
 
   const goForm = () => document.getElementById('registro')?.scrollIntoView({ behavior: 'smooth' });
@@ -72,9 +95,10 @@ export default function SociosPage({ onNavigate }) {
       <header className="sx-nav">
         <div className="sx-wrap sx-nav-in">
           <button className="sx-logo" onClick={() => onNavigate?.('home')} aria-label="Inicio">
-            <img src="/pedidos-listo-blanco.png" alt="Pedidos Listo" />
+            <img src="/unete/logo-pill.png" alt="Pedidos Listo" />
           </button>
           <nav className="sx-links">
+            <a href="#pasos">¿Cómo trabajamos?</a>
             <a href="#beneficios">Ventajas</a>
             <a href="#comparar">El cambio</a>
             <a href="#faq">Dudas</a>
@@ -85,6 +109,7 @@ export default function SociosPage({ onNavigate }) {
       </header>
 
       <main>
+        {/* PORTADA */}
         <section className="sx-hero">
           <div className="sx-wrap sx-hero-in">
             <div className="sx-hero-txt">
@@ -121,6 +146,49 @@ export default function SociosPage({ onNavigate }) {
           </div>
         </section>
 
+        {/* 6 PASOS + PAPELES */}
+        <section id="pasos" className="sx-sec">
+          <div className="sx-wrap">
+            <h2>De cero a vendiendo en 6 pasos</h2>
+            <p className="sx-sub">Te acompañamos en cada uno, sin filas ni papeleo complicado.</p>
+            <div className="sx-steps6">
+              {STEPS.map((s, i) => (
+                <div key={s.t} className="sx-step6">
+                  <small>Paso {i + 1}</small>
+                  <div className="sx-step6-ic">{s.ic}</div>
+                  <p>{s.t}</p>
+                </div>
+              ))}
+            </div>
+            <div className={`sx-docs ${docs ? 'open' : ''}`}>
+              <button onClick={() => setDocs(!docs)}><span>📋 Lo que debes tener a mano</span><span>{docs ? '−' : '+'}</span></button>
+              <div className="sx-docs-body">
+                <div>
+                  <b>Negocio a tu nombre</b>
+                  <ul><li>Tu cédula.</li><li>Una foto de tu carta o menú.</li><li>Datos de tu cuenta de banco.</li><li>El acuerdo de Pedidos Listo (lo apruebas en línea).</li></ul>
+                </div>
+                <div>
+                  <b>Empresa registrada</b>
+                  <ul><li>RNC vigente en la DGII.</li><li>Cédula de quien representa la empresa.</li><li>Foto de la carta o menú.</li></ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* BANDA CON VIDEO */}
+        <section className="sx-band">
+          <div className="sx-wrap sx-band-in">
+            <div className="sx-band-txt">
+              <h2>¡Tu cocina merece más clientes!</h2>
+              <p>Mientras lo piensas, otros ya están despachando. Empieza hoy y paga en 90 días.</p>
+              <button className="sx-btn light" onClick={goForm}>Sumar mi negocio</button>
+            </div>
+            <div className="sx-video"><video src="/unete/entrega.mp4" autoPlay muted loop playsInline /></div>
+          </div>
+        </section>
+
+        {/* VENTAJAS */}
         <section id="beneficios" className="sx-sec">
           <div className="sx-wrap">
             <h2>Una sola herramienta para todo tu local</h2>
@@ -133,7 +201,38 @@ export default function SociosPage({ onNavigate }) {
           </div>
         </section>
 
-        <section id="comparar" className="sx-sec alt">
+        {/* GUÍA */}
+        <section className="sx-sec alt">
+          <div className="sx-wrap">
+            <h2>Ideas para arrancar con el pie derecho</h2>
+            <p className="sx-sub">Consejos cortos para que tu local brille desde el primer día.</p>
+            <div className="sx-tips">
+              {TIPS.map((t) => (
+                <article key={t.t} className="sx-tip">
+                  <div className="sx-tip-img" style={{ backgroundImage: `url('${t.img}')` }} />
+                  <div className="sx-tip-b"><h3>{t.t}</h3><p>{t.d}</p><button className="sx-btn sm" onClick={goForm}>Ver más</button></div>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* DESTACADOS CON FOTOS */}
+        <section className="sx-band tall">
+          <div className="sx-wrap sx-feat">
+            <div className="sx-feat-row">
+              <div className="sx-feat-txt"><h3>Tu plato, tu mejor anuncio</h3><p>Sube fotos reales de tu comida y deja que hablen por ti. Los clientes compran con los ojos, y en Pedidos Listo tu menú luce grande y apetitoso.</p></div>
+              <div className="sx-feat-img" style={{ backgroundImage: "url('/unete/plato3.jpg')" }} />
+            </div>
+            <div className="sx-feat-row rev">
+              <div className="sx-feat-img" style={{ backgroundImage: "url('/unete/plato1.jpg')" }} />
+              <div className="sx-feat-txt"><h3>Rapidez que se nota</h3><p>La alarma te avisa al segundo, la comanda sale a cocina y el cliente ve el tiempo estimado. Menos llamadas, más órdenes despachadas.</p></div>
+            </div>
+          </div>
+        </section>
+
+        {/* EL CAMBIO */}
+        <section id="comparar" className="sx-sec">
           <div className="sx-wrap">
             <h2>El cambio que nota tu negocio</h2>
             <p className="sx-sub">Así se trabaja hoy y así se trabaja con Pedidos Listo.</p>
@@ -154,15 +253,40 @@ export default function SociosPage({ onNavigate }) {
           </div>
         </section>
 
-        <section className="sx-sec">
+        {/* MOTORISTAS */}
+        <section className="sx-sec alt">
+          <div className="sx-wrap sx-fleet">
+            <div>
+              <h2>Mensajeros a la vuelta de la esquina</h2>
+              <p>Concéntrate en cocinar rico; del traslado se encarga la red Listo. Mira en el mapa quién está cerca, pide con un toque o usa tus propios motoristas.</p>
+              <button className="sx-btn" onClick={goForm}>Empezar ahora</button>
+            </div>
+            <div className="sx-video"><video src="/unete/moto.mp4" autoPlay muted loop playsInline /></div>
+          </div>
+        </section>
+
+        {/* HERRAMIENTAS */}
+        <section className="sx-band">
           <div className="sx-wrap">
-            <h2>Únete en 3 pasos</h2>
-            <div className="sx-steps">
-              {STEPS.map((s) => (<div key={s.n} className="sx-step"><span>{s.n}</span><h3>{s.t}</h3><p>{s.d}</p></div>))}
+            <h2 className="light">Extras que hacen la diferencia</h2>
+            <div className="sx-sols">
+              {SOLUTIONS.map((s) => (
+                <article key={s.t} className="sx-sol"><span>Pedidos Listo · {s.tag}</span><h3>{s.t}</h3><p>{s.d}</p></article>
+              ))}
             </div>
           </div>
         </section>
 
+        {/* TIPOS DE NEGOCIO */}
+        <section className="sx-sec">
+          <div className="sx-wrap">
+            <h2>Hecho para todo tipo de negocio</h2>
+            <p className="sx-sub">Si vendes algo que se pueda llevar a una puerta, aquí tienes espacio.</p>
+            <div className="sx-chips">{BUSINESS.map((b) => <span key={b}>{b}</span>)}</div>
+          </div>
+        </section>
+
+        {/* 3 PASOS + FORMULARIO */}
         <section id="registro" className="sx-sec sx-reg">
           <div className="sx-wrap sx-reg-in">
             <div className="sx-reg-txt">
@@ -202,6 +326,7 @@ export default function SociosPage({ onNavigate }) {
           </div>
         </section>
 
+        {/* DUDAS */}
         <section id="faq" className="sx-sec">
           <div className="sx-wrap sx-faq">
             <h2>Lo que más nos preguntan</h2>
