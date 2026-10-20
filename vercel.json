@@ -1,6 +1,8 @@
 {
   "cleanUrls": true,
   "rewrites": [
+    { "source": "/unete", "destination": "/index.html" },
+    { "source": "/socios", "destination": "/index.html" },
     {
       "source": "/merchant",
       "destination": "/merchant.html"
