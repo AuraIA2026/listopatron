@@ -69,11 +69,21 @@ export default function SociosPage({ onNavigate }) {
   const [faq, setFaq] = useState(0);
   const [docs, setDocs] = useState(true);
   const [tryOpen, setTry] = useState(false);
+  const [venta, setVenta] = useState(150000);
+  const [showBar, setShowBar] = useState(false);
+
+  useEffect(() => {
+    const onS = () => setShowBar(window.scrollY > 600);
+    window.addEventListener('scroll', onS, { passive: true });
+    return () => window.removeEventListener('scroll', onS);
+  }, []);
 
   useEffect(() => {
     document.title = 'Pedidos Listo para tu negocio | 90 días sin costo | Listo Patrón';
     const m = document.querySelector('meta[name="description"]');
     if (m) m.setAttribute('content', 'Únete a Pedidos Listo y opera tu local desde una sola pantalla: caja con comprobantes fiscales, órdenes a domicilio y motoristas cercanos. 90 días sin costo.');
+    const og = { 'og:title': 'Pedidos Listo · 90 días gratis para tu negocio', 'og:description': 'Caja con NCF, órdenes a domicilio y motoristas cercanos en una sola pantalla. Únete sin costo por 3 meses.', 'og:image': 'https://listopatron.com.do/pedidos_listo_hero.png', 'og:url': 'https://listopatron.com.do/unete', 'og:type': 'website' };
+    Object.entries(og).forEach(([k, v]) => { let t = document.querySelector(`meta[property="${k}"]`); if (!t) { t = document.createElement('meta'); t.setAttribute('property', k); document.head.appendChild(t); } t.setAttribute('content', v); });
   }, []);
 
   const set = (k) => (e) => setF({ ...f, [k]: e.target.value });
@@ -295,6 +305,57 @@ export default function SociosPage({ onNavigate }) {
           </div>
         </section>
 
+        {/* CALCULADORA */}
+        <section id="ahorro" className="sx-sec alt">
+          <div className="sx-wrap sx-calc">
+            <div>
+              <h2>¿Cuánto te quedas en 90 días?</h2>
+              <p className="sx-calc-p">Mueve la barra con lo que vendes a domicilio cada mes y mira lo que no pagas durante la promoción.</p>
+              <label htmlFor="sx-venta" className="sx-calc-l">Ventas a domicilio al mes: <b>RD$ {venta.toLocaleString('es-DO')}</b></label>
+              <input id="sx-venta" type="range" min="20000" max="1000000" step="10000" value={venta} onChange={(e) => setVenta(+e.target.value)} />
+            </div>
+            <div className="sx-calc-card">
+              <small>Te ahorras en 3 meses</small>
+              <b>RD$ {Math.round(venta * 0.15 * 3).toLocaleString('es-DO')}</b>
+              <span>Sin contar caja, NCF y equipos que tampoco pagas.</span>
+              <button className="sx-btn big block" onClick={goForm}>Quiero ese ahorro</button>
+            </div>
+          </div>
+        </section>
+
+        {/* PRECIOS */}
+        <section id="precios" className="sx-sec">
+          <div className="sx-wrap">
+            <h2>Claro desde el primer día</h2>
+            <p className="sx-sub">Sin letras pequeñas: así funciona el costo.</p>
+            <div className="sx-plans">
+              <article className="sx-plan hot">
+                <span>Promoción de apertura</span>
+                <h3>Meses 1 a 3</h3>
+                <b>RD$ 0</b>
+                <ul><li>✓ 0% por orden</li><li>✓ Caja y comprobantes fiscales</li><li>✓ Motoristas cercanos</li><li>✓ Entrenamiento y montaje del menú</li></ul>
+                <button className="sx-btn light block" onClick={goForm}>Empezar gratis</button>
+              </article>
+              <article className="sx-plan">
+                <span>Después de la promo</span>
+                <h3>Desde el mes 4</h3>
+                <b>15% <small>por orden a domicilio</small></b>
+                <ul><li>✓ Solo pagas cuando vendes</li><li>✓ La caja del salón sigue sin costo</li><li>✓ Sin mensualidad fija ni contrato</li><li>✓ Te vas cuando quieras</li></ul>
+                <button className="sx-btn block" onClick={goForm}>Reservar mis 90 días</button>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        {/* ZONAS */}
+        <section className="sx-sec alt">
+          <div className="sx-wrap">
+            <h2>Llegamos a donde está tu negocio</h2>
+            <p className="sx-sub">Arrancamos por las ciudades con más movimiento y seguimos sumando.</p>
+            <div className="sx-chips">{['📍 Santo Domingo', '📍 Santo Domingo Este', '📍 Santiago', '📍 Punta Cana', '📍 La Romana', '📍 San Francisco de Macorís', '📍 Puerto Plata', '📍 La Vega', '🚀 ¡Pronto en tu ciudad!'].map((z) => <span key={z}>{z}</span>)}</div>
+          </div>
+        </section>
+
         {/* TIPOS DE NEGOCIO */}
         <section className="sx-sec">
           <div className="sx-wrap">
@@ -357,6 +418,11 @@ export default function SociosPage({ onNavigate }) {
           </div>
         </section>
       </main>
+
+      <div className={`sx-mbar ${showBar ? 'on' : ''}`}>
+        <span><b>90 días gratis</b> para tu local</span>
+        <button id="sx-mbar-cta" className="sx-btn light" onClick={goForm}>Unirme</button>
+      </div>
 
       <footer className="sx-foot">
         <div className="sx-wrap sx-foot-grid">
