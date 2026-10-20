@@ -1027,7 +1027,7 @@ export default function LandingPage({ navigate, lang }) {
       <img src="./assets/logo_esquina.png" style={{"position": "absolute", "top": "4%", "right": "3.5%", "width": "clamp(40px, 7vw, 85px)", "height": "auto", "objectFit": "contain", "zIndex": "2", "filter": "drop-shadow(0 4px 6px rgba(0,0,0,0.2))"}} alt="Logo Listo" />
 
       {/* Botones de App Store y Google Play en la portada del video */}
-      <div style={{"position": "absolute", "bottom": "clamp(10px, 3.5vw, 24px)", "right": "3.5%", "display": "flex", "flexDirection": "column", "gap": "clamp(4px, 1.5vw, 7px)", "zIndex": "10", "width": "clamp(88px, 15vw, 150px)"}}>
+      <div style={{"position": "absolute", "top": "calc(4% + clamp(44px, 8vw, 95px))", "right": "3.5%", "display": "flex", "flexDirection": "column", "gap": "clamp(4px, 1.5vw, 7px)", "zIndex": "10", "width": "clamp(88px, 15vw, 150px)"}}>
          <a 
            href="https://play.google.com/store/apps/details?id=com.listopatron.app&pcampaignid=web_share" 
            target="_blank" 
