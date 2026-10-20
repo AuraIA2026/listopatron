@@ -7,6 +7,7 @@ import './socios.css';
 const APP_URL = 'https://pedidoslisto.vercel.app';
 const IOS_URL = 'https://apps.apple.com/search?term=pedidos%20listo';
 const ANDROID_URL = 'https://play.google.com/store/search?q=pedidos%20listo&c=apps';
+const WA = '18099090455';
 
 const BENEFITS = [
   { ic: '🎁', t: '90 días sin pagar', d: 'Arranca sin costo: durante tus primeros 3 meses cada peso que entra es tuyo.' },
@@ -29,9 +30,9 @@ const STEPS = [
 ];
 
 const TIPS = [
-  { img: '/unete/plato1.jpg', t: '¿Qué papeles debo preparar?', d: 'La lista completa para que tu cocina o restaurante quede activo sin vueltas ni demoras.' },
-  { img: '/unete/plato2.jpg', t: 'Fotos que abren el apetito', d: 'Un plato bien fotografiado vende el doble. Te damos trucos sencillos con tu celular.' },
-  { img: '/unete/plato3.jpg', t: 'Un tablero para todo el local', d: 'Órdenes, caja, mesas y reportes conviven en una sola pantalla para que operes sin enredos.' },
+  { img: '/unete/colmado.png', t: '¿Qué papeles debo preparar?', d: 'La lista completa para que tu colmado, cocina o restaurante quede activo sin vueltas ni demoras.' },
+  { img: '/unete/pizza.png', t: 'Fotos que abren el apetito', d: 'Un plato bien fotografiado vende el doble. Te damos trucos sencillos con tu celular.' },
+  { img: '/unete/cafe.png', t: 'Un tablero para todo el local', d: 'Órdenes, caja, mesas y reportes conviven en una sola pantalla para que operes sin enredos.' },
   { img: '/pedidos_listo_hero.png', t: 'Gana clientes desde la semana uno', d: 'Aprovecha a la comunidad de Listo Patrón y las promociones para llenar tu cocina.' },
 ];
 
@@ -86,7 +87,7 @@ export default function SociosPage({ onNavigate }) {
     } catch (ex) {
       console.warn('solicitudes_socios:', ex);
       const txt = encodeURIComponent(`Hola, quiero sumar mi negocio a Pedidos Listo (90 días sin costo).\nNegocio: ${f.negocio}\nTipo: ${f.tipo}\nCiudad: ${f.ciudad}\nContacto: ${f.nombre} ${f.telefono}`);
-      window.open(`https://wa.me/?text=${txt}`, '_blank');
+      window.open(`https://wa.me/${WA}?text=${txt}`, '_blank');
     }
     setDone(true); setSending(false);
   };
@@ -224,10 +225,10 @@ export default function SociosPage({ onNavigate }) {
             <h2>Ideas para arrancar con el pie derecho</h2>
             <p className="sx-sub">Consejos cortos para que tu local brille desde el primer día.</p>
             <div className="sx-tips">
-              {TIPS.map((t) => (
+              {TIPS.map((t, i) => (
                 <article key={t.t} className="sx-tip">
                   <div className="sx-tip-img" style={{ backgroundImage: `url('${t.img}')` }} />
-                  <div className="sx-tip-b"><h3>{t.t}</h3><p>{t.d}</p><button className="sx-btn sm" onClick={goForm}>Ver más</button></div>
+                  <div className="sx-tip-b"><h3>{t.t}</h3><p>{t.d}</p><button className="sx-btn sm" onClick={i === 0 ? () => { setDocs(true); document.getElementById('pasos')?.scrollIntoView({ behavior: 'smooth' }); } : goForm}>{i === 0 ? 'Ver la lista' : 'Quiero ayuda con esto'}</button></div>
                 </article>
               ))}
             </div>
@@ -358,10 +359,36 @@ export default function SociosPage({ onNavigate }) {
       </main>
 
       <footer className="sx-foot">
-        <div className="sx-wrap sx-foot-in">
-          <img src="/pedidos-listo-blanco.png" alt="Pedidos Listo" />
+        <div className="sx-wrap sx-foot-grid">
+          <div>
+            <img src="/pedidos-listo-blanco.png" alt="Pedidos Listo" />
+            <p>Caja, órdenes y motoristas para el comercio dominicano. 90 días sin costo.</p>
+            <button className="sx-btn light" onClick={goForm}>Unirme sin costo</button>
+          </div>
+          <div>
+            <h4>Plataforma</h4>
+            <a href="#pasos">¿Cómo trabajamos?</a>
+            <a href="#beneficios">Ventajas</a>
+            <a href="#faq">Dudas</a>
+            <a href={APP_URL} target="_blank" rel="noreferrer">Entrar a mi local</a>
+          </div>
+          <div>
+            <h4>Comunidad</h4>
+            <a href="/" onClick={(e) => { e.preventDefault(); onNavigate?.('home'); }}>Listo Patrón</a>
+            <a href={`https://wa.me/${WA}?text=${encodeURIComponent('Hola, quiero ser motorista de Pedidos Listo')}`} target="_blank" rel="noreferrer">Soy motorista 🛵</a>
+            <a href={IOS_URL} target="_blank" rel="noreferrer">App Store</a>
+            <a href={ANDROID_URL} target="_blank" rel="noreferrer">Google Play</a>
+          </div>
+          <div>
+            <h4>Contacto</h4>
+            <a href={`https://wa.me/${WA}`} target="_blank" rel="noreferrer">💬 WhatsApp 809-909-0455</a>
+            <a href="mailto:info@listopatron.com.do">✉️ info@listopatron.com.do</a>
+            <span>📍 República Dominicana</span>
+          </div>
+        </div>
+        <div className="sx-wrap sx-foot-bottom">
           <span>© {new Date().getFullYear()} Listo Patrón · Hecho en República Dominicana 🇩🇴</span>
-          <button className="sx-btn light" onClick={goForm}>Unirme sin costo</button>
+          <span>Pagas en 90 días · Sin ataduras</span>
         </div>
       </footer>
     </div>
