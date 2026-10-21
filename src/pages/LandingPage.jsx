@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import './LandingPage.css';
 import useLandingLogic from '../useLandingLogic';
 import PlanSelectionModal from '../components/PlanSelectionModal';
-import HalloweenIntro from '../components/HalloweenIntro';
 import { collection, addDoc, doc, onSnapshot } from 'firebase/firestore';
 import { db, auth } from '../firebase';
 import ad15 from '../assets/landing/extracted_15.png';
@@ -721,7 +720,6 @@ const DOMINICAN_CITIES = [
 
 export default function LandingPage({ navigate, lang }) {
   useLandingLogic();
-  const [showHalloween, setShowHalloween] = useState(() => typeof window !== 'undefined' && !sessionStorage.getItem('hw_intro_2026'));
   const [showPlanModal, setShowPlanModal] = useState(false);
   const [selectedPlanInitial, setSelectedPlanInitial] = useState(null);
   const [showDeliveryModal, setShowDeliveryModal] = useState(false);
@@ -902,7 +900,6 @@ export default function LandingPage({ navigate, lang }) {
 
   return (
     <div className="landing-page-container">
-  {showHalloween && <HalloweenIntro onFinish={() => { sessionStorage.setItem('hw_intro_2026', '1'); setShowHalloween(false); }} />}
 
   {/*  INTRO VIDEO SPLASH MOVED TO PORTADA HEADER  */}
 
