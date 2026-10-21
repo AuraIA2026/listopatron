@@ -1072,18 +1072,18 @@ export default function LandingPage({ navigate, lang }) {
 <div id="intro-portada-container" style={{"width": "100%", "background": "#F26000", "paddingTop": "70px", "display": "flex", "justifyContent": "center", "position": "relative"}}>
     <div style={{"position": "relative", "width": "100%", "maxWidth": "1000px", "boxShadow": "0 0 40px rgba(0,0,0,0.3)", "overflow": "hidden", "background": "#000", "borderRadius": "16px", "margin": "0 15px", "aspectRatio": "250 / 111", "minHeight": "175px"}}>
       
-      {/* Video 1: Murciélagos (sale primero) */}
+      {/* Video 1: Murciélagos (sale primero - sin loop, al terminar pasa al siguiente) */}
       <video
         ref={batsVideoRef}
         src="./assets/bats_intro.mp4"
         autoPlay
         muted={isHeroMuted}
-        loop
         playsInline
+        onEnded={() => switchToVideo(1)}
         style={{"width": "100%", "height": "100%", "objectFit": "cover", "objectPosition": "center center", "display": activeVideoIdx === 0 ? 'block' : 'none', "position": activeVideoIdx === 0 ? 'relative' : 'absolute', "inset": 0}}
       />
 
-      {/* Video 2: Todos los Profesionales */}
+      {/* Video 2: Todos los Profesionales (loop infinito luego del primero) */}
       <video
         ref={heroVideoRef}
         src="./assets/todos_los_profesionales.mp4"
@@ -1091,6 +1091,7 @@ export default function LandingPage({ navigate, lang }) {
         muted={isHeroMuted}
         loop
         playsInline
+        autoPlay={activeVideoIdx === 1}
         style={{"width": "100%", "height": "100%", "objectFit": "cover", "objectPosition": "center 20%", "display": activeVideoIdx === 1 ? 'block' : 'none', "position": activeVideoIdx === 1 ? 'relative' : 'absolute', "inset": 0, "transform": "scale(1.18)", "transformOrigin": "center 15%"}}
       />
 
