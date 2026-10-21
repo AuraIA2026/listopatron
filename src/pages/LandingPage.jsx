@@ -725,6 +725,12 @@ export default function LandingPage({ navigate, lang }) {
   const [showDeliveryModal, setShowDeliveryModal] = useState(false);
   const [isHeroMuted, setIsHeroMuted] = useState(true);
   const heroVideoRef = useRef(null);
+  const batsVideoRef = useRef(null);
+  const [activeVideoIdx, setActiveVideoIdx] = useState(0); // 0 = bats (primero), 1 = profesionales
+  const heroVideos = [
+    { ref: batsVideoRef,  src: './assets/bats_intro.mp4',            loop: true  },
+    { ref: heroVideoRef,  src: './assets/todos_los_profesionales.mp4', poster: './assets/todos_los_profesionales_poster.jpg', loop: true },
+  ];
   const [showDownloadDropdown, setShowDownloadDropdown] = useState(false);
   const [selectedMapRegion, setSelectedMapRegion] = useState('all');
   const [activeCityId, setActiveCityId] = useState(null);
@@ -758,11 +764,27 @@ export default function LandingPage({ navigate, lang }) {
 
   const toggleHeroSound = (e) => {
     e.stopPropagation();
-    if (heroVideoRef.current) {
-      const nextMuted = !heroVideoRef.current.muted;
-      heroVideoRef.current.muted = nextMuted;
+    const activeRef = heroVideos[activeVideoIdx].ref;
+    if (activeRef.current) {
+      const nextMuted = !activeRef.current.muted;
+      activeRef.current.muted = nextMuted;
       setIsHeroMuted(nextMuted);
     }
+  };
+
+  const switchToVideo = (idx) => {
+    // Pausar video actual
+    const curRef = heroVideos[activeVideoIdx].ref;
+    if (curRef.current) { curRef.current.pause(); curRef.current.currentTime = 0; }
+    setActiveVideoIdx(idx);
+    // Reproducir el nuevo
+    setTimeout(() => {
+      const newRef = heroVideos[idx].ref;
+      if (newRef.current) {
+        newRef.current.muted = isHeroMuted;
+        newRef.current.play().catch(() => {});
+      }
+    }, 50);
   };
 
   const openPlanModalWithPlan = (planId) => {
@@ -1050,17 +1072,39 @@ export default function LandingPage({ navigate, lang }) {
 <div id="intro-portada-container" style={{"width": "100%", "background": "#F26000", "paddingTop": "70px", "display": "flex", "justifyContent": "center", "position": "relative"}}>
     <div style={{"position": "relative", "width": "100%", "maxWidth": "1000px", "boxShadow": "0 0 40px rgba(0,0,0,0.3)", "overflow": "hidden", "background": "#000", "borderRadius": "16px", "margin": "0 15px", "aspectRatio": "250 / 111", "minHeight": "175px"}}>
       
-      {/* Video Oficial Listo Patrón en la Portada */}
+      {/* Video 1: Murciélagos (sale primero) */}
       <video
-        ref={heroVideoRef}
-        src="./assets/todos_los_profesionales.mp4"
-        poster="./assets/todos_los_profesionales_poster.jpg"
+        ref={batsVideoRef}
+        src="./assets/bats_intro.mp4"
         autoPlay
         muted={isHeroMuted}
         loop
         playsInline
-        style={{"width": "100%", "height": "100%", "objectFit": "cover", "objectPosition": "center 20%", "display": "block", "transform": "scale(1.18)", "transformOrigin": "center 15%"}}
+        style={{"width": "100%", "height": "100%", "objectFit": "cover", "objectPosition": "center center", "display": activeVideoIdx === 0 ? 'block' : 'none', "position": activeVideoIdx === 0 ? 'relative' : 'absolute', "inset": 0}}
       />
+
+      {/* Video 2: Todos los Profesionales */}
+      <video
+        ref={heroVideoRef}
+        src="./assets/todos_los_profesionales.mp4"
+        poster="./assets/todos_los_profesionales_poster.jpg"
+        muted={isHeroMuted}
+        loop
+        playsInline
+        style={{"width": "100%", "height": "100%", "objectFit": "cover", "objectPosition": "center 20%", "display": activeVideoIdx === 1 ? 'block' : 'none', "position": activeVideoIdx === 1 ? 'relative' : 'absolute', "inset": 0, "transform": "scale(1.18)", "transformOrigin": "center 15%"}}
+      />
+
+      {/* Indicadores de video (puntos) */}
+      <div style={{position:'absolute', bottom:'clamp(10px,2.5vw,16px)', left:'50%', transform:'translateX(-50%)', display:'flex', gap:'8px', zIndex:10}}>
+        {heroVideos.map((_, i) => (
+          <button
+            key={i}
+            onClick={() => switchToVideo(i)}
+            title={i === 0 ? 'Video intro' : 'Video profesionales'}
+            style={{width: activeVideoIdx===i ? '28px' : '10px', height:'10px', borderRadius:'50px', background: activeVideoIdx===i ? '#FF6B00' : 'rgba(255,255,255,0.5)', border:'none', cursor:'pointer', transition:'all 0.3s ease', padding:0}}
+          />
+        ))}
+      </div>
 
       {/* Botón flotante para activar / desactivar sonido */}
       <button
