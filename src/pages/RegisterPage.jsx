@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react'
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile, sendPasswordResetEmail } from 'firebase/auth'
-import { doc, setDoc, serverTimestamp, addDoc, collection } from 'firebase/firestore'
+import { doc, setDoc, serverTimestamp, addDoc, collection, query, where, getDocs } from 'firebase/firestore'
 import { auth, db } from '../firebase'
 import { useFaceAuth } from '../useFaceAuth'
 import './AuthPage.css'
@@ -30,10 +30,13 @@ const txt = {
     errName: 'Ingresa tu nombre completo',
     errEmail: 'Ingresa un correo válido',
     errPhone: 'Ingresa un teléfono válido',
+    errCedula: 'Ingresa una cédula válida (11 dígitos)',
     errPass: 'La contraseña debe tener al menos 6 caracteres',
     errConfirm: 'Las contraseñas no coinciden',
     errCategory: 'Selecciona una categoría',
     errGeneral: 'Error al crear cuenta. Intenta de nuevo.',
+    errPhoneTaken: 'Este número de teléfono ya tiene una cuenta registrada.',
+    errCedulaTaken: 'Esta cédula ya tiene una cuenta registrada.',
   },
   en: {
     title: 'Create account',
@@ -57,17 +60,20 @@ const txt = {
     errName: 'Enter your full name',
     errEmail: 'Enter a valid email',
     errPhone: 'Enter a valid phone number',
+    errCedula: 'Enter a valid ID number (11 digits)',
     errPass: 'Password must be at least 6 characters',
     errConfirm: 'Passwords do not match',
     errCategory: 'Select a category',
     errGeneral: 'Error creating account. Please try again.',
+    errPhoneTaken: 'This phone number already has a registered account.',
+    errCedulaTaken: 'This ID number already has a registered account.',
   }
 }
 
 export default function RegisterPage({ lang, navigate }) {
   const T = txt[lang]
   const [userType, setUserType] = useState('client')
-  const [form, setForm] = useState({ name: '', email: '', phone: '', password: '', confirm: '', category: '' })
+  const [form, setForm] = useState({ name: '', email: '', phone: '', cedula: '', password: '', confirm: '', category: '' })
   const [errors, setErrors] = useState({})
   const [loading, setLoading] = useState(false)
   const [step, setStep] = useState('form') // 'form' | 'face'
@@ -84,10 +90,12 @@ export default function RegisterPage({ lang, navigate }) {
     const e = {}
     const cleanEmail = (form.email || '').trim().toLowerCase()
     const cleanPhone = (form.phone || '').replace(/\D/g, '')
+    const cleanCedula = (form.cedula || '').replace(/\D/g, '')
 
     if ((form.name || '').trim().length < 3) e.name = T.errName
     if (!cleanEmail.includes('@') || !cleanEmail.includes('.')) e.email = T.errEmail
     if (cleanPhone.length < 8) e.phone = T.errPhone
+    if (cleanCedula.length !== 11) e.cedula = T.errCedula
     if ((form.password || '').length < 6) e.password = T.errPass
     if (form.password !== form.confirm) e.confirm = T.errConfirm
     setErrors(e)
@@ -102,9 +110,36 @@ export default function RegisterPage({ lang, navigate }) {
     setLoading(true)
     setErrors({})
 
-    const cleanEmail = form.email.trim().toLowerCase()
-    const cleanName  = form.name.trim()
-    const cleanPhone = form.phone.trim()
+    const cleanEmail  = form.email.trim().toLowerCase()
+    const cleanName   = form.name.trim()
+    const cleanPhone  = form.phone.replace(/\D/g, '')
+    const cleanCedula = form.cedula.replace(/\D/g, '')
+
+    // ── VERIFICAR DUPLICADOS EN FIRESTORE ──
+    try {
+      const usersRef = collection(db, 'users')
+
+      // Verificar teléfono
+      const phoneSnap = await getDocs(query(usersRef, where('phone', '==', cleanPhone)))
+      if (!phoneSnap.empty) {
+        setErrors({ general: T.errPhoneTaken })
+        isRegisteringRef.current = false
+        setLoading(false)
+        return
+      }
+
+      // Verificar cédula
+      const cedulaSnap = await getDocs(query(usersRef, where('cedula', '==', cleanCedula)))
+      if (!cedulaSnap.empty) {
+        setErrors({ general: T.errCedulaTaken })
+        isRegisteringRef.current = false
+        setLoading(false)
+        return
+      }
+    } catch (checkErr) {
+      console.warn('Error verificando duplicados:', checkErr)
+      // Si falla la verificación continuamos (no bloqueamos al usuario por error de red)
+    }
 
     let resultUser = null
 
@@ -155,7 +190,8 @@ export default function RegisterPage({ lang, navigate }) {
         name: cleanName,
         email: cleanEmail,
         phone: cleanPhone,
-        type: userType, // 'client' o 'pro'
+        cedula: cleanCedula,
+        type: userType,
         role: userType === 'pro' ? 'professional' : 'client',
         createdAt: serverTimestamp(),
       }
@@ -358,7 +394,24 @@ export default function RegisterPage({ lang, navigate }) {
               {errors.phone && <span className="error-msg">{errors.phone}</span>}
             </div>
 
-
+            <div className="field">
+              <label>{lang === 'es' ? 'Cédula de Identidad' : 'National ID (Cédula)'}</label>
+              <input
+                type="text"
+                value={form.cedula}
+                onChange={e => set('cedula', e.target.value.replace(/\D/g, '').slice(0, 11))}
+                placeholder="00000000000"
+                className={errors.cedula ? 'input-error' : ''}
+                maxLength={11}
+                inputMode="numeric"
+              />
+              {errors.cedula
+                ? <span className="error-msg">{errors.cedula}</span>
+                : <span style={{fontSize:'11px',color:'#888',marginTop:'2px',display:'block'}}>
+                    {lang === 'es' ? 'Solo números, sin guiones (11 dígitos)' : 'Numbers only, no dashes (11 digits)'}
+                  </span>
+              }
+            </div>
 
             <div className="field">
               <label>{T.password}</label>
