@@ -5,6 +5,7 @@ import { db, storage } from '../firebase'
 import listoLogo from '../assets/logo-blanco.png'
 import ReciboDigitalModal from '../components/ReciboDigitalModal'
 import PhotoNoticeModal from '../components/PhotoNoticeModal'
+import LuckyWheelModal from '../components/LuckyWheelModal'
 
 const compressImage = (file) => new Promise((resolve, reject) => {
   const reader = new FileReader()
@@ -68,6 +69,8 @@ export default function WorkDonePage({ lang = 'es', navigate, professional, user
   const [pendingRequests, setPendingRequests] = useState([])
   const [showPhotoNotice, setShowPhotoNotice] = useState(false)
   const [photoNoticeTarget, setPhotoNoticeTarget] = useState(null)
+  const [showWheel, setShowWheel] = useState(false)
+  const [wheelData, setWheelData] = useState({ wheelProgress: 0, completedContracts: 0, wheelSpinCount: 0 })
   const evidenceFileRef = useRef(null)
 
   const handleRequestPhotoNotice = (target) => {
@@ -610,7 +613,30 @@ export default function WorkDonePage({ lang = 'es', navigate, professional, user
         localStorage.removeItem('hideUpgrade_Listo_' + finalUserData.uid)
         localStorage.setItem('showUpgradeOverride_Listo_' + finalUserData.uid, 'true')
       }
-      
+
+      // ── ABRIR TÓMBOLA SI EL PROFESIONAL TIENE GIROS DISPONIBLES ──
+      try {
+        const proUid = latestOrder?.proId || finalUserData?.uid
+        if (proUid) {
+          const proRef = doc(db, 'users', proUid)
+          const proSnap = await getDoc(proRef)
+          if (proSnap.exists()) {
+            const proData = proSnap.data()
+            const spins = proData.spinsAvailable || 0
+            setWheelData({
+              wheelProgress: proData.wheelProgress || 0,
+              completedContracts: proData.completedContracts || 0,
+              wheelSpinCount: proData.wheelSpinCount || 0
+            })
+            if (spins > 0) {
+              setTimeout(() => setShowWheel(true), 800)
+            }
+          }
+        }
+      } catch (wheelErr) {
+        console.warn('Error verificando giros de tómbola:', wheelErr)
+      }
+
       setSubmitted(true)
     } catch (err) {
       console.error("Upload error:", err)
@@ -663,6 +689,40 @@ export default function WorkDonePage({ lang = 'es', navigate, professional, user
             orderData={latestOrder || { proName, clientName: finalUserData?.name, montoFinal: formData.montoFinal || formData.montoAcordado }} 
           />
         )}
+
+        {/* TÓMBOLA: aparece automáticamente al terminar contrato */}
+        <LuckyWheelModal
+          isOpen={showWheel}
+          onClose={() => setShowWheel(false)}
+          lang={lang}
+          wheelProgress={wheelData.wheelProgress}
+          completedContracts={wheelData.completedContracts}
+          wheelSpinCount={wheelData.wheelSpinCount}
+          onClaimReward={async (prize, remainingProgress, earnedContract) => {
+            try {
+              const proUid = latestOrder?.proId || finalUserData?.uid
+              if (!proUid) return
+              const proRef = doc(db, 'users', proUid)
+              const proSnap = await getDoc(proRef)
+              if (!proSnap.exists()) return
+              const proData = proSnap.data()
+              const update = {
+                spinsAvailable: Math.max((proData.spinsAvailable || 1) - 1, 0),
+                wheelProgress: remainingProgress,
+                wheelSpinCount: (proData.wheelSpinCount || 0) + 1
+              }
+              if (earnedContract) {
+                update.contracts = (proData.contracts || 0) + 1
+              }
+              if (prize?.isStory) {
+                update.freeStories = (proData.freeStories || 0) + 1
+              }
+              await updateDoc(proRef, update)
+            } catch (err) {
+              console.error('Error al reclamar premio de tómbola:', err)
+            }
+          }}
+        />
       </div>
     )
   }
