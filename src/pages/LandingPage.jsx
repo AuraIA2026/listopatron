@@ -15,6 +15,7 @@ import pro23 from '../assets/landing/extracted_23.jpeg';
 import pro24 from '../assets/landing/extracted_24.jpeg';
 import pro25 from '../assets/landing/extracted_25.jpeg';
 import logoMarcador from '../assets/logo_marcador.png';
+import ShopCarouselRow from '../components/ShopCarouselRow';
 
 function DeliveryPartnerModal({ onClose, navigate }) {
   const [activeTab, setActiveTab] = useState('registro'); // 'registro' | 'programa' | 'pasos' | 'documentos' | 'soluciones' | 'testimonios' | 'dudas'
@@ -1176,7 +1177,28 @@ export default function LandingPage({ navigate, lang }) {
     </div>
 </div>
 
-{/*  CINTA OFICIAL TIENDA LISTO PATRÓN (PORTADA)  */}
+
+{/* CARRUSEL TIENDA — bolsas + ropa de trabajo, debajo del video */}
+<div
+  style={{ width: '100%', background: '#F26000', paddingBottom: '4px', cursor: 'pointer' }}
+  onClick={() => navigate ? navigate('shop') : (window.location.href = '/?page=shop')}
+  title="Ver tienda completa de Listo Patrón"
+>
+  <ShopCarouselRow
+    products={[
+      { id: 101, name: 'Pantalón Alta Visibilidad', price: 4260, rating: 4.3, reviews: 52, description: '', image: '/tienda/ropa/pantalon_amarillo.jpg', category: 'pantalones' },
+      { id: 102, name: 'Pantalón Cargo Reflectante', price: 3950, rating: 4.5, reviews: 214, description: '', image: '/tienda/ropa/pantalon_negro_naranja.jpg', category: 'pantalones' },
+      { id: 103, name: 'Pantalón Multibolsillos', price: 2890, rating: 4.4, reviews: 167, description: '', image: '/tienda/ropa/pantalon_gris.jpg', category: 'pantalones' },
+      { id: 104, name: 'Chaqueta Softshell Hi-Vis', price: 4750, rating: 4.6, reviews: 98, description: '', image: '/tienda/ropa/chaqueta_frente.jpg', category: 'proteccion' },
+      { id: 105, name: 'Chaqueta Reflectante Trasera', price: 4750, rating: 4.6, reviews: 98, description: '', image: '/tienda/ropa/chaqueta_espalda.jpg', category: 'proteccion' },
+      { id: 107, name: 'Overol Naranja Reflectivo', price: 3600, rating: 4.5, reviews: 132, description: '', image: '/tienda/ropa/overol_reflectivo.jpg', category: 'proteccion' },
+      { id: 110, name: 'Chaleco Seguridad Multibolsillos', price: 890, rating: 4.7, reviews: 412, description: '', image: '/tienda/ropa/chaleco.jpg', category: 'seguridad' },
+      { id: 111, name: 'Cinturón Porta Herramientas', price: 3250, rating: 4.6, reviews: 189, description: '', image: '/tienda/ropa/cinturon.jpg', category: 'seguridad' },
+    ]}
+    onPick={() => navigate ? navigate('shop') : (window.location.href = '/?page=shop')}
+  />
+</div>
+
 <div style={{ width: '100%', background: '#F26000', padding: '0 15px 18px', display: 'flex', justifyContent: 'center' }}>
   <div style={{ width: '100%', maxWidth: '1000px' }}>
     <div 
