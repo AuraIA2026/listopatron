@@ -1,0 +1,221 @@
+@import url('https://fonts.googleapis.com/css2?family=Creepster&family=Outfit:wght@400;700;900&display=swap');
+
+.hw-intro {
+  --mamey: #ff8243;
+  --mamey-hot: #ffb07a;
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: radial-gradient(ellipse at 50% 35%, #2a1206 0%, #0b0503 55%, #000 100%);
+  overflow: hidden;
+  font-family: 'Outfit', sans-serif;
+  transition: opacity 0.9s ease;
+}
+.hw-intro.hw-closing { opacity: 0; pointer-events: none; }
+
+/* Estrellas */
+.hw-stars {
+  position: absolute; inset: 0;
+  background-image:
+    radial-gradient(1px 1px at 12% 18%, #fff8 50%, transparent),
+    radial-gradient(1px 1px at 78% 12%, #fff9 50%, transparent),
+    radial-gradient(1.5px 1.5px at 35% 8%, #fffa 50%, transparent),
+    radial-gradient(1px 1px at 88% 40%, #fff7 50%, transparent),
+    radial-gradient(1px 1px at 6% 52%, #fff6 50%, transparent),
+    radial-gradient(1.5px 1.5px at 62% 22%, #ffd9b8 50%, transparent),
+    radial-gradient(1px 1px at 25% 35%, #fff6 50%, transparent),
+    radial-gradient(1px 1px at 92% 70%, #fff5 50%, transparent);
+  opacity: 0;
+  animation: hwFadeIn 2s ease 0.3s forwards, hwTwinkle 3s ease-in-out 2.3s infinite alternate;
+}
+
+/* Niebla */
+.hw-fog {
+  position: absolute; left: -20%; right: -20%; bottom: 0; height: 45%;
+  background: radial-gradient(ellipse at 50% 100%, rgba(255,130,67,0.18), transparent 70%);
+  filter: blur(20px);
+  animation: hwFog 8s ease-in-out infinite alternate;
+}
+
+/* Luna */
+.hw-moon-wrap {
+  position: absolute; left: 50%; top: 42%;
+  width: min(62vw, 52vh, 460px);
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%) scale(0.85);
+  opacity: 0;
+  animation: hwMoonIn 2.6s cubic-bezier(.2,.7,.2,1) 0.2s forwards;
+}
+.hw-moon {
+  position: relative; width: 100%; height: 100%; border-radius: 50%;
+  background: radial-gradient(circle at 38% 35%, #ffc58f 0%, #ff8a3d 35%, #d9530f 70%, #8a2a04 100%);
+  box-shadow:
+    0 0 60px 10px rgba(255,130,67,0.55),
+    0 0 160px 50px rgba(255,100,30,0.3),
+    inset -30px -30px 60px rgba(90,20,0,0.55);
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+  animation: hwMoonPulse 4s ease-in-out infinite;
+}
+.hw-moon-craters {
+  position: absolute; inset: 0; border-radius: 50%;
+  background:
+    radial-gradient(circle at 25% 30%, rgba(120,40,0,0.35) 0 7%, transparent 8%),
+    radial-gradient(circle at 70% 25%, rgba(120,40,0,0.28) 0 5%, transparent 6%),
+    radial-gradient(circle at 72% 70%, rgba(120,40,0,0.32) 0 9%, transparent 10%),
+    radial-gradient(circle at 30% 75%, rgba(120,40,0,0.25) 0 6%, transparent 7%),
+    radial-gradient(circle at 50% 55%, rgba(255,220,180,0.15) 0 20%, transparent 40%);
+  mix-blend-mode: multiply;
+}
+.hw-moon-logo {
+  position: relative; width: 62%; height: auto; object-fit: contain;
+  filter: drop-shadow(0 0 12px rgba(90,20,0,0.8)) brightness(1.05);
+  opacity: 0.92;
+}
+
+/* Siluetas */
+.hw-ground {
+  position: absolute; left: 0; right: 0; bottom: 0; width: 100%; height: 32vh;
+  fill: #050201;
+  z-index: 2;
+}
+.hw-pumpkins {
+  position: absolute; left: 0; right: 0; bottom: 2vh; z-index: 3;
+  display: flex; justify-content: center; gap: clamp(8px, 4vw, 40px);
+  font-size: clamp(30px, 7vw, 64px);
+  filter: drop-shadow(0 0 18px rgba(255,130,67,0.85));
+  opacity: 0; animation: hwFadeIn 1.5s ease 1s forwards;
+}
+.hw-pumpkins span:nth-child(odd) { transform: scale(0.8) translateY(6px); }
+
+/* Murciélagos */
+.hw-bats { position: absolute; inset: 0; z-index: 4; pointer-events: none; }
+.hw-bat {
+  position: absolute; width: clamp(28px, 5vw, 60px); height: auto;
+  fill: #000;
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.1);
+  animation-name: hwBatFly;
+  animation-timing-function: cubic-bezier(.45,0,.9,.6);
+  animation-fill-mode: forwards;
+  filter: drop-shadow(0 0 2px rgba(255,130,67,0.5));
+}
+.hw-bat-body path:not(.hw-wing) { fill: none; stroke: #000; stroke-width: 2; }
+.hw-wing { transform-origin: 60px 30px; animation: hwFlap 0.18s ease-in-out infinite alternate; }
+.hw-wing-r { animation-delay: 0.09s; }
+
+/* Negro + rayos */
+.hw-blackout {
+  position: absolute; inset: 0; z-index: 5; background: #000;
+  opacity: 0;
+  animation: hwBlackout 7s linear 4s forwards;
+}
+.hw-flash {
+  position: absolute; inset: 0; z-index: 6; pointer-events: none;
+  background: radial-gradient(ellipse at 50% 20%, rgba(255,176,122,0.55), rgba(255,130,67,0.15) 50%, transparent 80%);
+  opacity: 0;
+  animation: hwFlash 7s linear 4s forwards;
+}
+.hw-bolt {
+  position: absolute; top: 0; height: 75%; width: 40%; z-index: 7; pointer-events: none;
+  opacity: 0;
+  filter: drop-shadow(0 0 6px var(--mamey)) drop-shadow(0 0 18px var(--mamey));
+}
+.hw-bolt polyline {
+  fill: none; stroke: var(--mamey-hot); stroke-width: 0.9;
+  stroke-linejoin: round; vector-effect: non-scaling-stroke;
+}
+.hw-bolt polyline { stroke-width: 3; }
+.hw-bolt .hw-branch { stroke-width: 1.6; opacity: 0.8; }
+.hw-bolt-0 { left: 2%;  animation: hwBolt 7s linear 4s forwards; }
+.hw-bolt-1 { left: 55%; animation: hwBolt 7s linear 4.65s forwards; }
+.hw-bolt-2 { left: 28%; animation: hwBolt 7s linear 5.4s forwards; }
+
+/* Texto */
+.hw-text {
+  position: absolute; inset: 0; z-index: 8;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; padding: 0 6vw; pointer-events: none;
+}
+.hw-title {
+  margin: 0;
+  font-family: 'Creepster', 'Outfit', cursive;
+  font-weight: 400;
+  font-size: clamp(34px, 8vw, 96px);
+  line-height: 1.05;
+  letter-spacing: 2px;
+  color: #fff3e8;
+  text-shadow: 0 0 10px rgba(255,130,67,0.8), 0 0 40px rgba(255,100,30,0.6);
+  opacity: 0; transform: scale(0.85); filter: blur(10px);
+  animation: hwTextIn 1.4s cubic-bezier(.2,.8,.2,1) 7.4s forwards;
+}
+.hw-title span { color: var(--mamey); display: inline-block; }
+.hw-sub {
+  margin: 18px 0 0;
+  font-weight: 900; text-transform: uppercase;
+  font-size: clamp(16px, 3.6vw, 34px);
+  letter-spacing: clamp(3px, 1vw, 10px);
+  color: var(--mamey);
+  text-shadow: 0 0 18px rgba(255,130,67,0.7);
+  opacity: 0; transform: translateY(20px);
+  animation: hwSubIn 1s ease 8.4s forwards, hwFlicker 2.4s linear 9.4s infinite;
+}
+
+.hw-skip {
+  position: absolute; z-index: 9;
+  right: max(16px, env(safe-area-inset-right)); bottom: max(18px, env(safe-area-inset-bottom));
+  background: rgba(255,130,67,0.12); color: #ffd2b3;
+  border: 1px solid rgba(255,130,67,0.5); border-radius: 999px;
+  padding: 9px 18px; font: 700 14px 'Outfit', sans-serif;
+  backdrop-filter: blur(8px); cursor: pointer;
+  transition: background .2s, transform .2s;
+}
+.hw-skip:hover { background: rgba(255,130,67,0.35); transform: scale(1.05); }
+
+/* Keyframes */
+@keyframes hwFadeIn { to { opacity: 1; } }
+@keyframes hwTwinkle { from { opacity: 1; } to { opacity: 0.55; } }
+@keyframes hwFog { from { transform: translateX(-4%); } to { transform: translateX(4%); } }
+@keyframes hwMoonIn { to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
+@keyframes hwMoonPulse {
+  0%,100% { box-shadow: 0 0 60px 10px rgba(255,130,67,.55), 0 0 160px 50px rgba(255,100,30,.3), inset -30px -30px 60px rgba(90,20,0,.55); }
+  50%     { box-shadow: 0 0 80px 18px rgba(255,130,67,.7), 0 0 200px 70px rgba(255,100,30,.38), inset -30px -30px 60px rgba(90,20,0,.55); }
+}
+@keyframes hwFlap { from { transform: scaleY(1); } to { transform: scaleY(0.25); } }
+@keyframes hwBatFly {
+  0%   { opacity: 0; transform: translate(-50%, -50%) scale(0.1) rotate(0); }
+  15%  { opacity: 1; }
+  100% { opacity: 1; transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty))) scale(14) rotate(var(--rot)); }
+}
+/* El negro cubre todo, y en cada rayo se abre un poco para ver la luna */
+@keyframes hwBlackout {
+  0%   { opacity: 0; }
+  6%   { opacity: 1; }
+  13%  { opacity: 1; }  14% { opacity: .55; } 16% { opacity: .9; } 17% { opacity: .6; } 20% { opacity: 1; }
+  23%  { opacity: 1; }  24% { opacity: .5; }  27% { opacity: 1; }
+  34%  { opacity: 1; }  35% { opacity: .45; } 37% { opacity: .8; } 38% { opacity: .55; } 42% { opacity: 1; }
+  100% { opacity: 1; }
+}
+@keyframes hwFlash {
+  0%,13% { opacity: 0; } 14% { opacity: 1; } 16% { opacity: .2; } 17% { opacity: .9; } 20% { opacity: 0; }
+  23% { opacity: 0; } 24% { opacity: 1; } 27% { opacity: 0; }
+  34% { opacity: 0; } 35% { opacity: 1; } 37% { opacity: .3; } 38% { opacity: .9; } 42%,100% { opacity: 0; }
+}
+@keyframes hwBolt {
+  0%,13% { opacity: 0; } 14% { opacity: 1; } 15.5% { opacity: .3; } 16.5% { opacity: 1; } 19%,100% { opacity: 0; }
+}
+@keyframes hwTextIn { to { opacity: 1; transform: scale(1); filter: blur(0); } }
+@keyframes hwSubIn { to { opacity: 1; transform: translateY(0); } }
+@keyframes hwFlicker {
+  0%,92%,100% { opacity: 1; } 93% { opacity: .4; } 95% { opacity: 1; } 97% { opacity: .6; }
+}
+
+@media (max-width: 600px) {
+  .hw-moon-wrap { top: 38%; width: min(78vw, 46vh); }
+  .hw-bolt { width: 60%; }
+  .hw-bolt-1 { left: 38%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hw-bats, .hw-bolt, .hw-flash { display: none; }
+}
