@@ -1,7 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import BolsasCarousel from '../components/BolsasCarousel';
+import ShopCarouselRow from '../components/ShopCarouselRow';
 
+const R = '/tienda/ropa/';
 const products = [
+  { id: 101, name: 'Pantalón de Trabajo Alta Visibilidad (Amarillo)', price: 4260, rating: 4.3, reviews: 52, description: 'Pantalón reflectante, impermeable y elástico tipo cargo Ripstop, con bolsillos porta herramientas. Ideal para exteriores y construcción.', image: R + 'pantalon_amarillo.jpg', badge: 'Más vendido', category: 'pantalones' },
+  { id: 102, name: 'Pantalón Cargo Reflectante (Negro / Naranja)', price: 3950, rating: 4.5, reviews: 214, description: 'Bolsillos colgantes para herramientas, rodillas reforzadas y bandas reflectivas para trabajar seguro de día y de noche.', image: R + 'pantalon_negro_naranja.jpg', badge: 'Popular', category: 'pantalones' },
+  { id: 103, name: 'Pantalón de Trabajo Multibolsillos (Gris)', price: 2890, rating: 4.4, reviews: 167, description: 'Tela resistente con costuras dobles, rodilleras y múltiples bolsillos. Perfecto para carpintería, mecánica y albañilería.', image: R + 'pantalon_gris.jpg', badge: null, category: 'pantalones' },
+  { id: 104, name: 'Chaqueta Softshell Alta Visibilidad (Naranja)', price: 4750, rating: 4.6, reviews: 98, description: 'Chaqueta impermeable y cortaviento con bandas reflectivas, cuello alto y bolsillo con cremallera. Protección y visibilidad total.', image: R + 'chaqueta_frente.jpg', badge: 'Nuevo', category: 'proteccion' },
+  { id: 105, name: 'Chaqueta Reflectante de Trabajo (Vista Trasera)', price: 4750, rating: 4.6, reviews: 98, description: 'Doble banda reflectiva en espalda y mangas para máxima visibilidad en carreteras, almacenes y obras.', image: R + 'chaqueta_espalda.jpg', badge: null, category: 'proteccion' },
+  { id: 106, name: 'Chaqueta Hi-Vis para Turnos Nocturnos', price: 4750, rating: 4.7, reviews: 61, description: 'Las bandas reflectivas brillan con cualquier luz: ideal para trabajos nocturnos y repartidores.', image: R + 'chaqueta_detalle.jpg', badge: 'Premium', category: 'proteccion' },
+  { id: 107, name: 'Overol Naranja con Bandas Reflectivas', price: 3600, rating: 4.5, reviews: 132, description: 'Overol de algodón resistente con cintas reflectivas en pecho, brazos y piernas. Bolsillos en pecho y laterales.', image: R + 'overol_reflectivo.jpg', badge: 'Certificado', category: 'proteccion' },
+  { id: 108, name: 'Overol Industrial Reflectivo (Uso en Campo)', price: 3600, rating: 4.4, reviews: 77, description: 'Pensado para petróleo, minería y construcción. Cómodo para jornadas largas bajo el sol.', image: R + 'overol_uso.jpg', badge: null, category: 'proteccion' },
+  { id: 109, name: 'Overol Clásico de Trabajo (Naranja)', price: 2950, rating: 4.3, reviews: 205, description: 'Overol de manga larga en tela gruesa, cierre frontal y bolsillos funcionales. Un clásico para todo oficio.', image: R + 'overol_naranja.jpg', badge: 'Esencial', category: 'proteccion' },
+  { id: 110, name: 'Chaleco de Seguridad Reflectante Multibolsillos', price: 890, rating: 4.7, reviews: 412, description: 'Chaleco de alta visibilidad con 9 bolsillos, porta carnet transparente y cierre frontal. Tela transpirable.', image: R + 'chaleco.jpg', badge: 'Oferta', category: 'seguridad' },
+  { id: 111, name: 'Cinturón Porta Herramientas con Tirantes', price: 3250, rating: 4.6, reviews: 189, description: 'Tirantes acolchados, cinturón ajustable y bolsas múltiples para taladro, martillo, destornilladores y más.', image: R + 'cinturon.jpg', badge: 'Profesional', category: 'seguridad' },
+  { id: 112, name: 'Kit Cinturón y Tirantes para Técnicos', price: 3250, rating: 4.6, reviews: 189, description: 'Reparte el peso de tus herramientas en los hombros y trabaja con las manos libres todo el día.', image: R + 'cinturon_uso.jpg', badge: null, category: 'seguridad' },
+];
+
+const oldProducts = [
   // Categoría Original: Equipos de Seguridad
   {
     id: 1,
@@ -384,7 +400,7 @@ export default function ShopPage({ onNavigate, navigate }) {
       </nav>
 
       {/* CARRUSEL PRINCIPAL: BOLSAS Y EMPAQUES */}
-      <BolsasCarousel />
+      <ShopCarouselRow products={products} onPick={addToCart} />
 
       {/* SHOP HERO HEADER */}
       <header className="shop-hero">
@@ -406,6 +422,7 @@ export default function ShopPage({ onNavigate, navigate }) {
       {/* PRODUCT CATALOG CATALOG */}
       <main className="shop-main">
         <div className="shop-container">
+          <img src="/tienda/ropa/banner_pantalones.png" alt="Pantalones de trabajo flexibles, cómodos y elásticos" style={{ width: '100%', maxHeight: '420px', objectFit: 'cover', borderRadius: '22px', marginBottom: '40px', boxShadow: '0 14px 34px rgba(0,0,0,.15)' }} />
           <h2 className="shop-section-title">Productos <span>Disponibles</span></h2>
           <p className="shop-section-sub">Insumos y equipos con los mejores estándares para tus servicios diarios.</p>
           
