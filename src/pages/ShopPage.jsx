@@ -409,11 +409,14 @@ export default function ShopPage({ onNavigate, navigate }) {
           <span className="shop-tag">INSUMOS PROFESIONALES</span>
           <h1 className="shop-hero-heading">
             <span className="shop-hero-subtitle">Equípate con</span>
-            <img 
-              src="./assets/logo_listo_patron_blanco_nuevo.png" 
-              alt="Listo Patrón" 
-              className="shop-hero-brand-logo"
-            />
+            <div className="shop-hero-brand-row">
+              <img 
+                src="./assets/logo_listo_patron_nuevo.png" 
+                alt="Listo Patrón" 
+                className="shop-hero-brand-logo"
+              />
+              <span className="shop-hero-brand-name">Listo<span className="shop-hero-brand-accent">Patrón</span></span>
+            </div>
           </h1>
           <p className="shop-hero-desc">Herramientas y accesorios de seguridad industrial con envíos rápidos a todo el país. Especialmente seleccionados para los profesionales de Listo Patrón.</p>
         </div>
