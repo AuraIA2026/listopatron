@@ -364,7 +364,7 @@ export default function ShopPage({ onNavigate, navigate }) {
         <div className="shop-nav-brand" onClick={handleBackToWeb} title="Ir a la portada de Listo Patrón">
           <img 
             className="shop-brand-logo" 
-            src="./assets/logo_listo_patron.png" 
+            src="./assets/logo_listo_patron_nuevo.png" 
             alt="Listo Patrón" 
           />
           <span className="shop-nav-badge">
@@ -410,7 +410,7 @@ export default function ShopPage({ onNavigate, navigate }) {
           <h1 className="shop-hero-heading">
             <span className="shop-hero-subtitle">Equípate con</span>
             <img 
-              src="./assets/texto_listo_patron_blanco.png" 
+              src="./assets/logo_listo_patron_blanco_nuevo.png" 
               alt="Listo Patrón" 
               className="shop-hero-brand-logo"
             />
