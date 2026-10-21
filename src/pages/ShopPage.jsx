@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import BolsasCarousel from '../components/BolsasCarousel';
 
 const products = [
   // Categoría Original: Equipos de Seguridad
@@ -381,6 +382,9 @@ export default function ShopPage({ onNavigate, navigate }) {
           </button>
         </div>
       </nav>
+
+      {/* CARRUSEL PRINCIPAL: BOLSAS Y EMPAQUES */}
+      <BolsasCarousel />
 
       {/* SHOP HERO HEADER */}
       <header className="shop-hero">
