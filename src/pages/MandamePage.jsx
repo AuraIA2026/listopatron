@@ -2253,49 +2253,6 @@ export default function MandamePage({ navigate, userData, userRole, lang }) {
         </div>
       )}
 
-      {/* Mode Switcher Pill Header - Visible si el usuario tiene comercio registrado */}
-      {isMerchantUser && (
-        <div style={{ background: '#0a0e1a', color: 'white', padding: '10px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid #ff6b00', fontSize: 11, fontWeight: 800 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span style={{ fontSize: 16 }}>🍔</span>
-            <span style={{ color: '#ff6b00', fontWeight: 900, letterSpacing: '0.5px' }}>{viewMode === 'merchant' && (merchantState.storeName || userData?.storeName || userData?.commerceName) ? `🏪 ${(merchantState.storeName || userData?.storeName || userData?.commerceName).toUpperCase()}` : 'PEDIDOS LISTO'}</span>
-          </div>
-          <div style={{ display: 'flex', gap: 8 }}>
-            <button 
-              onClick={() => handleSetViewMode('client')} 
-              style={{ 
-                background: viewMode === 'client' ? '#ff6b00' : 'rgba(255,255,255,0.12)', 
-                color: 'white', 
-                border: viewMode === 'client' ? '1px solid #ff8533' : '1px solid rgba(255,255,255,0.2)', 
-                padding: '6px 14px', 
-                borderRadius: 20, 
-                fontSize: 11, 
-                fontWeight: 900, 
-                cursor: 'pointer',
-                boxShadow: viewMode === 'client' ? '0 4px 12px rgba(255,107,0,0.4)' : 'none'
-              }}
-            >
-              📱 App Cliente
-            </button>
-            <button 
-              onClick={() => handleSetViewMode('merchant')} 
-              style={{ 
-                background: viewMode === 'merchant' ? '#ff6b00' : 'rgba(255,255,255,0.12)', 
-                color: 'white', 
-                border: viewMode === 'merchant' ? '1px solid #ff8533' : '1px solid rgba(255,255,255,0.2)', 
-                padding: '6px 14px', 
-                borderRadius: 20, 
-                fontSize: 11, 
-                fontWeight: 900, 
-                cursor: 'pointer',
-                boxShadow: viewMode === 'merchant' ? '0 4px 12px rgba(255,107,0,0.4)' : 'none'
-              }}
-            >
-              🏪 Mi Comercio Partner
-            </button>
-          </div>
-        </div>
-      )}
 
 
       {/* =========================================================================
@@ -2389,12 +2346,6 @@ export default function MandamePage({ navigate, userData, userRole, lang }) {
                 style={{ background: activeTab === 'pedidos' ? '#ff6b00' : 'rgba(255,255,255,0.08)', color: 'white', border: activeTab === 'pedidos' ? '1px solid #ff8533' : '1px solid rgba(255,255,255,0.15)', padding: '6px 14px', borderRadius: 20, fontSize: 12, fontWeight: 900, whiteSpace: 'nowrap', cursor: 'pointer', boxShadow: activeTab === 'pedidos' ? '0 4px 14px rgba(255,107,0,0.4)' : 'none' }}
               >
                 📄 Mis Comandas
-              </button>
-              <button 
-                onClick={() => handleSetViewMode('merchant')}
-                style={{ background: 'linear-gradient(135deg, #10b981, #059669)', color: 'white', border: 'none', padding: '6px 14px', borderRadius: 20, fontSize: 12, fontWeight: 900, whiteSpace: 'nowrap', cursor: 'pointer', boxShadow: '0 4px 14px rgba(16,185,129,0.4)' }}
-              >
-                🔔 Comandera Cocina & POS
               </button>
             </div>
           </header>
