@@ -171,16 +171,27 @@ exports.azulWebHook = functions.https.onRequest(async (req, res) => {
       if (parts.length >= 3) {
         const planId = parts[1].toLowerCase();
         const userId = parts[2];
-        const validPlans = ["basico", "gold", "platinum", "vip"];
-        const actualPlan = validPlans.includes(planId) ? planId : null;
+        const validPlans = ["standard", "basico", "gold", "platinum", "vip"];
+        const actualPlan = validPlans.includes(planId) ? (planId === "basico" ? "standard" : planId) : null;
+        const planContractsMap = { standard: 3, basico: 3, gold: 8, platinum: 12, vip: 999 };
+        const addedContracts = planContractsMap[planId] || 3;
 
         if (actualPlan) {
           const userDoc = await db.collection("users").doc(userId).get();
           const userData = userDoc.exists ? userDoc.data() : null;
           const userName = userData ? (userData.name || 'Profesional') : 'Profesional';
+          const currentContracts = userData ? (Number(userData.contracts) || 0) : 0;
+          const expDate = new Date();
+          expDate.setDate(expDate.getDate() + 30);
 
           await db.collection("users").doc(userId).update({
             plan: actualPlan,
+            currentPlan: actualPlan,
+            planStatus: "active",
+            available: true,
+            contracts: currentContracts + addedContracts,
+            planActivatedAt: new Date().toISOString(),
+            planExpirationDate: expDate.toISOString(),
             planUpdatedAt: admin.firestore.FieldValue.serverTimestamp(),
           });
 

@@ -116,10 +116,20 @@ export default function PlanSelectionModal({
   const [voucherPreview, setVoucherPreview] = useState(null);
   const [copiedIdx, setCopiedIdx] = useState(null);
 
+  // Links oficiales de pago AZUL (Comercio: Listo Patron - 39666400001)
+  const AZUL_PLAN_LINKS = {
+    standard: 'https://pagos.azul.com.do/19b49e0e',
+    basico: 'https://pagos.azul.com.do/19b49e0e',
+    gold: 'https://pagos.azul.com.do/c3c95573',
+    platinum: 'https://pagos.azul.com.do/58c2d25f',
+    vip: 'https://pagos.azul.com.do/9e926de9'
+  };
+
   const plans = [
     {
       num: 1,
       id: 'standard',
+      azulLink: 'https://pagos.azul.com.do/19b49e0e',
       badge: 'BÁSICO',
       name: 'Plan Estándar',
       stars: '⭐ 0-3.9',
@@ -143,6 +153,7 @@ export default function PlanSelectionModal({
     {
       num: 2,
       id: 'gold',
+      azulLink: 'https://pagos.azul.com.do/c3c95573',
       badge: 'POPULAR',
       name: 'Plan Gold',
       stars: '⭐ 4.0-4.7',
@@ -166,6 +177,7 @@ export default function PlanSelectionModal({
     {
       num: 3,
       id: 'platinum',
+      azulLink: 'https://pagos.azul.com.do/58c2d25f',
       badge: 'ACTIVO',
       name: 'Plan Platinum',
       stars: '⭐ 4.5-4.7',
@@ -189,6 +201,7 @@ export default function PlanSelectionModal({
     {
       num: 4,
       id: 'vip',
+      azulLink: 'https://pagos.azul.com.do/9e926de9',
       badge: 'ÉLITE',
       name: 'Plan VIP',
       stars: '⭐ 4.8-5.0',
@@ -287,18 +300,35 @@ export default function PlanSelectionModal({
     setStep('checkout');
   };
 
+  const handleOpenAzulLink = (planObj = selectedPlan) => {
+    if (!planObj) return;
+    const url = planObj.azulLink || AZUL_PLAN_LINKS[planObj.id] || AZUL_PLAN_LINKS.standard;
+    window.open(url, '_blank', 'noopener,noreferrer');
+  };
+
   const handleGoToTransfer = () => {
     setActiveTab('transfer');
     setStep('checkout');
   };
 
   const handleConfirmAzulPayment = async () => {
-    if (!proName.trim() || !cardNumber.trim()) {
-      alert('⚠️ Por favor completa los datos de la tarjeta.');
+    if (!proName.trim()) {
+      alert('⚠️ Por favor ingresa tu nombre en Listo Patrón.');
       return;
     }
     setSubmitting(true);
     try {
+      let receiptBase64 = null;
+      if (voucherFile) {
+        try {
+          receiptBase64 = await compressImage(voucherFile);
+        } catch (errImg) {
+          console.warn('Error comprimiendo comprobante AZUL:', errImg);
+        }
+      }
+
+      const azulUrl = selectedPlan.azulLink || AZUL_PLAN_LINKS[selectedPlan.id] || '';
+
       await addDoc(collection(db, 'payments'), {
         proId: proUid || '',
         cedula: proCedula || '',
@@ -309,8 +339,10 @@ export default function PlanSelectionModal({
         planId: selectedPlan.id,
         planName: selectedPlan.name,
         planPriceVal: selectedPlan.priceNum,
+        planContracts: selectedPlan.numContracts,
         paymentMethod: 'azul_card',
-        last4: cardNumber.replace(/\s+/g, '').slice(-4) || '1234',
+        azulPaymentLink: azulUrl,
+        receiptUrl: receiptBase64 || null,
         cardHolder: cardHolder.trim() || proName.trim(),
         status: 'approved',
         gateway: 'AZUL Banco Popular',
@@ -331,7 +363,7 @@ export default function PlanSelectionModal({
       setStep('success');
     } catch (e) {
       console.error(e);
-      alert('Ocurrió un error al procesar el pago con AZUL.');
+      alert('Ocurrió un error al registrar el pago con AZUL.');
     }
     setSubmitting(false);
   };
@@ -687,138 +719,129 @@ export default function PlanSelectionModal({
             {/* TAB: TARJETA DE CRÉDITO (PASARELA AZUL) */}
             {activeTab === 'card' && (
               <div>
-                {/* WIDGET INTERACTIVO DE TARJETA DE CRÉDITO */}
+                {/* TARJETA OFICIAL PASARELA AZUL */}
                 <div style={{
                   background: selectedPlan.cardGradient,
                   borderRadius: '20px', padding: '18px 20px', color: '#FFFFFF',
                   boxShadow: '0 12px 25px rgba(0,0,0,0.25)', position: 'relative',
-                  marginBottom: '16px', overflow: 'hidden'
+                  marginBottom: '14px', overflow: 'hidden'
                 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '22px' }}>
-                    {/* Chip de Tarjeta */}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
                     <div style={{
-                      width: '42px', height: '30px', borderRadius: '6px',
-                      background: 'linear-gradient(135deg, #FFE082 0%, #FFB300 100%)',
-                      border: '1px solid #FFD54F', position: 'relative'
+                      background: 'rgba(255,255,255,0.18)', padding: '5px 12px', borderRadius: '999px',
+                      fontSize: '11px', fontWeight: '900', letterSpacing: '0.5px'
                     }}>
-                      <div style={{ position: 'absolute', inset: '4px', border: '1px solid rgba(0,0,0,0.15)', borderRadius: '3px' }}></div>
+                      🔒 PASARELA OFICIAL AZUL
                     </div>
-                    {/* Logo Listo en Tarjeta */}
-                    <div style={{ fontWeight: '900', fontStyle: 'italic', fontSize: '20px', letterSpacing: '-0.5px' }}>
-                      Listo
+                    <div style={{ fontWeight: '900', fontStyle: 'italic', fontSize: '18px', letterSpacing: '-0.5px' }}>
+                      Listo Patrón
                     </div>
                   </div>
 
-                  {/* Número en Tarjeta */}
+                  <div style={{ marginBottom: '12px' }}>
+                    <div style={{ fontSize: '11px', opacity: 0.85, fontWeight: '700' }}>
+                      Comercio Afiliado: LISTO PATRON (39666400001)
+                    </div>
+                    <div style={{ fontSize: '20px', fontWeight: '900', marginTop: '2px' }}>
+                      {selectedPlan.name} — {selectedPlan.price}.00
+                    </div>
+                  </div>
+
                   <div style={{
-                    fontSize: '17px', letterSpacing: '2.5px', fontFamily: 'monospace',
-                    fontWeight: '700', marginBottom: '18px', textAlign: 'center'
+                    background: 'rgba(0,0,0,0.22)', borderRadius: '12px', padding: '8px 12px',
+                    display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '12px'
                   }}>
-                    {cardNumber.trim() ? cardNumber : '••••  ••••  ••••  ••••'}
-                  </div>
-
-                  {/* Titular y Expiración */}
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-                    <div>
-                      <div style={{ fontSize: '8px', opacity: 0.75, letterSpacing: '1px', textTransform: 'uppercase' }}>TITULAR</div>
-                      <div style={{ fontSize: '12px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                        {cardHolder || proName || 'JUAN CARLOS P'}
-                      </div>
-                    </div>
-
-                    <div style={{ textAlign: 'right' }}>
-                      <div style={{ fontSize: '8px', opacity: 0.75, letterSpacing: '1px', textTransform: 'uppercase' }}>EXPIRA</div>
-                      <div style={{ fontSize: '12px', fontWeight: '800', letterSpacing: '0.5px' }}>
-                        {cardExp || 'MM/YY'}
-                      </div>
-                    </div>
+                    <span style={{ fontFamily: 'monospace', fontWeight: '700', opacity: 0.95 }}>
+                      {selectedPlan.azulLink || AZUL_PLAN_LINKS[selectedPlan.id]}
+                    </span>
+                    <span style={{ fontWeight: '800', fontSize: '11px', color: '#A7F3D0' }}>
+                      SSL 256-Bit
+                    </span>
                   </div>
                 </div>
 
-                {/* Campos de la Tarjeta */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '16px' }}>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '11px', fontWeight: '800', color: '#475569', marginBottom: '4px' }}>
-                      Nombre en la Tarjeta
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="JUAN CARLOS P"
-                      value={cardHolder}
-                      onChange={e => setCardHolder(e.target.value.toUpperCase())}
-                      style={{ width: '100%', padding: '9px 12px', borderRadius: '12px', border: '1.5px solid #CBD5E1', fontSize: '13px' }}
-                    />
-                  </div>
+                {/* PASO 1: Botón para abrir el Link Oficial de Pago AZUL */}
+                <button
+                  type="button"
+                  onClick={() => handleOpenAzulLink(selectedPlan)}
+                  style={{
+                    width: '100%', background: 'linear-gradient(135deg, #0052D4 0%, #4364F7 50%, #6FB1FC 100%)',
+                    color: '#FFFFFF', border: 'none', borderRadius: '16px', padding: '15px 16px',
+                    fontSize: '15px', fontWeight: '900', cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+                    boxShadow: '0 6px 18px rgba(0, 82, 212, 0.35)', marginBottom: '14px'
+                  }}
+                >
+                  <span>💳</span> Pagar {selectedPlan.price} en Pasarela Oficial AZUL ↗
+                </button>
 
-                  <div>
-                    <label style={{ display: 'block', fontSize: '11px', fontWeight: '800', color: '#475569', marginBottom: '4px' }}>
-                      Número de Tarjeta
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="4000 1234 5678 9010"
-                      maxLength={19}
-                      value={cardNumber}
-                      onChange={e => {
-                        const v = e.target.value.replace(/\D/g, '').slice(0, 16);
-                        const parts = v.match(/[\s\S]{1,4}/g) || [];
-                        setCardNumber(parts.join(' '));
-                      }}
-                      style={{ width: '100%', padding: '9px 12px', borderRadius: '12px', border: '1.5px solid #CBD5E1', fontSize: '13px', fontFamily: 'monospace' }}
-                    />
-                  </div>
-
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                    <div>
-                      <label style={{ display: 'block', fontSize: '11px', fontWeight: '800', color: '#475569', marginBottom: '4px' }}>
-                        Expiración (MM/AA)
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="12/28"
-                        maxLength={5}
-                        value={cardExp}
-                        onChange={e => {
-                          let v = e.target.value.replace(/\D/g, '').slice(0, 4);
-                          if (v.length >= 3) v = `${v.slice(0, 2)}/${v.slice(2)}`;
-                          setCardExp(v);
-                        }}
-                        style={{ width: '100%', padding: '9px 12px', borderRadius: '12px', border: '1.5px solid #CBD5E1', fontSize: '13px', textAlign: 'center' }}
+                {/* Subir comprobante de AZUL (Opcional) */}
+                <div style={{
+                  border: voucherPreview ? '2px solid #10B981' : '2px dashed #CBD5E1',
+                  borderRadius: '16px', padding: '12px',
+                  textAlign: 'center', marginBottom: '12px',
+                  background: voucherPreview ? '#F0FDF4' : '#F8FAFC',
+                  transition: 'all 0.2s'
+                }}>
+                  {voucherPreview && voucherPreview !== 'pdf' ? (
+                    <div style={{ marginBottom: '6px' }}>
+                      <img
+                        src={voucherPreview}
+                        alt="Comprobante AZUL"
+                        style={{ maxHeight: '120px', maxWidth: '100%', borderRadius: '10px', border: '1px solid #86EFAC', objectFit: 'contain' }}
                       />
+                      <div style={{ fontSize: '11px', color: '#15803D', fontWeight: '800', marginTop: '4px' }}>
+                        ✓ Comprobante AZUL cargado ({voucherFile?.name})
+                      </div>
                     </div>
-
-                    <div>
-                      <label style={{ display: 'block', fontSize: '11px', fontWeight: '800', color: '#475569', marginBottom: '4px' }}>
-                        CVV / CVC
-                      </label>
-                      <input
-                        type="password"
-                        placeholder="•••"
-                        maxLength={4}
-                        value={cardCvv}
-                        onChange={e => setCardCvv(e.target.value.replace(/\D/g, '').slice(0, 4))}
-                        style={{ width: '100%', padding: '9px 12px', borderRadius: '12px', border: '1.5px solid #CBD5E1', fontSize: '13px', textAlign: 'center' }}
-                      />
+                  ) : voucherPreview === 'pdf' ? (
+                    <div style={{ marginBottom: '6px', color: '#2563EB', fontWeight: '800', fontSize: '12px' }}>
+                      📑 Archivo PDF cargado ({voucherFile?.name})
                     </div>
-                  </div>
+                  ) : (
+                    <>
+                      <div style={{ fontSize: '20px', marginBottom: '2px' }}>📎</div>
+                      <div style={{ fontSize: '11.5px', fontWeight: '700', color: '#475569' }}>
+                        (Opcional) Sube captura de tu comprobante de pago AZUL
+                      </div>
+                    </>
+                  )}
+                  <input
+                    type="file"
+                    accept="image/*,.pdf"
+                    onChange={e => {
+                      const f = e.target.files[0];
+                      if (f) {
+                        setVoucherFile(f);
+                        if (f.type.startsWith('image/')) {
+                          const reader = new FileReader();
+                          reader.onload = ev => setVoucherPreview(ev.target.result);
+                          reader.readAsDataURL(f);
+                        } else {
+                          setVoucherPreview('pdf');
+                        }
+                      }
+                    }}
+                    style={{ marginTop: '6px', fontSize: '11px' }}
+                  />
                 </div>
 
-                {/* Botón Pagar con AZUL */}
+                {/* PASO 2: Confirmar pago y activar plan */}
                 <button
                   onClick={handleConfirmAzulPayment}
                   disabled={submitting}
                   style={{
                     width: '100%', background: '#059669', color: '#FFFFFF', border: 'none',
-                    borderRadius: '16px', padding: '14px', fontSize: '15px', fontWeight: '900',
+                    borderRadius: '16px', padding: '14px', fontSize: '14.5px', fontWeight: '900',
                     cursor: submitting ? 'wait' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
                     boxShadow: '0 4px 14px rgba(5, 150, 105, 0.35)'
                   }}
                 >
-                  {submitting ? 'Procesando pago con AZUL...' : '✓ Pagar con Tarjeta (AZUL)'}
+                  {submitting ? 'Procesando pago con AZUL...' : '✓ Ya realicé el pago en AZUL — Activar Plan'}
                 </button>
 
                 <div style={{ textAlign: 'center', marginTop: '10px', fontSize: '11px', color: '#64748B' }}>
-                  🔒 Pago 100% Seguro cifrado SSL 256-Bit · Pasarela Oficial AZUL Banco Popular
+                  🔒 Pago 100% Seguro cifrado SSL 256-Bit · Pasarela Oficial AZUL (Visa y MasterCard)
                 </div>
               </div>
             )}
