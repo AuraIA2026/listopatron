@@ -192,7 +192,7 @@ export default function PedidosListoHub({ lang = 'es', navigate }) {
   const [dbStores, setDbStores] = useState([]);
 
   useEffect(() => {
-    let unsub = () => {};
+    let unsub = () => { };
     try {
       const q = query(collection(db, 'locales'));
       unsub = onSnapshot(q, (snap) => {
@@ -221,20 +221,20 @@ export default function PedidosListoHub({ lang = 'es', navigate }) {
             bannerTag: '👑 Local VIP Partner',
             menu: (d.servicios && d.servicios.length > 0)
               ? d.servicios.map((s, idx) => ({
-                  id: `db_${doc.id}_${idx}`,
-                  name: s.nombre,
-                  price: parseFloat(String(s.precio).replace(/[^0-9.]/g, '')) || 250,
-                  desc: s.descripcion || 'Especialidad de la casa preparada al momento.',
-                  img: s.fotoURL || 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=200&q=80'
-                }))
+                id: `db_${doc.id}_${idx}`,
+                name: s.nombre,
+                price: parseFloat(String(s.precio).replace(/[^0-9.]/g, '')) || 250,
+                desc: s.descripcion || 'Especialidad de la casa preparada al momento.',
+                img: s.fotoURL || 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=200&q=80'
+              }))
               : [
-                  { id: `db_combo_${doc.id}`, name: 'Combo Especial de la Casa', price: 350, desc: 'Plato principal con guarnición y bebida fría.', img: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=200&q=80' }
-                ]
+                { id: `db_combo_${doc.id}`, name: 'Combo Especial de la Casa', price: 350, desc: 'Plato principal con guarnición y bebida fría.', img: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=200&q=80' }
+              ]
           };
         }).filter(st => st.activo !== false);
         setDbStores(loaded);
-      }, () => {});
-    } catch(e) {}
+      }, () => { });
+    } catch (e) { }
     return () => unsub();
   }, []);
 
@@ -250,7 +250,7 @@ export default function PedidosListoHub({ lang = 'es', navigate }) {
   const filteredStores = allAvailableStores.filter(st => {
     const matchesCat = selectedCat === 'todos' || st.cat === selectedCat;
     const matchesSearch = st.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          st.sub.toLowerCase().includes(searchQuery.toLowerCase());
+      st.sub.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCat && matchesSearch;
   });
 
@@ -357,7 +357,7 @@ export default function PedidosListoHub({ lang = 'es', navigate }) {
           pinOTP: pin,
           createdAt: serverTimestamp()
         });
-      } catch (eM) {}
+      } catch (eM) { }
 
       const confirmed = { ...orderData, id: docRef.id };
       setActiveTrackingOrder(confirmed);
@@ -707,7 +707,7 @@ export default function PedidosListoHub({ lang = 'es', navigate }) {
       {cartItems.length > 0 && (
         <div className="pl-floating-cart" onClick={() => setShowCartDrawer(true)}>
           <div style={{ display: 'flex', alignItems: 'center' }}>
-            <span className="pl-cart-badge">{cartItems.reduce((a,b) => a + b.qty, 0)}</span>
+            <span className="pl-cart-badge">{cartItems.reduce((a, b) => a + b.qty, 0)}</span>
             <span className="pl-cart-text">Ver Mi Pedido Listo</span>
           </div>
           <span className="pl-cart-total">RD$ {total.toLocaleString()} →</span>
@@ -716,8 +716,8 @@ export default function PedidosListoHub({ lang = 'es', navigate }) {
 
       {/* 9. MODAL DETALLE DE TIENDA / MENÚ CON PORTADA, LOGO, DIRECCIÓN, TELÉFONO Y REDES SOCIALES */}
       {selectedStore && (
-        <div 
-          className="pl-modal-overlay" 
+        <div
+          className="pl-modal-overlay"
           onClick={() => setSelectedStore(null)}
           style={{
             position: 'fixed',
@@ -734,15 +734,15 @@ export default function PedidosListoHub({ lang = 'es', navigate }) {
             overflowY: 'auto'
           }}
         >
-          <div 
-            className="pl-store-modal-card" 
-            onClick={(e) => e.stopPropagation()} 
-            style={{ 
+          <div
+            className="pl-store-modal-card"
+            onClick={(e) => e.stopPropagation()}
+            style={{
               display: 'block',
-              borderRadius: '24px', 
-              maxHeight: '92vh', 
-              overflowY: 'auto', 
-              overflowX: 'hidden', 
+              borderRadius: '24px',
+              maxHeight: '92vh',
+              overflowY: 'auto',
+              overflowX: 'hidden',
               padding: 0,
               width: '100%',
               maxWidth: 480,
@@ -753,7 +753,7 @@ export default function PedidosListoHub({ lang = 'es', navigate }) {
               boxSizing: 'border-box'
             }}
           >
-            
+
             {/* 1. PORTADA DEL RESTAURANTE (COMPLETA Y ESPACIOSA SIN CORTAR) */}
             <div style={{
               position: 'relative',
@@ -824,7 +824,7 @@ export default function PedidosListoHub({ lang = 'es', navigate }) {
 
             {/* CONTENIDO INTERNO */}
             <div style={{ padding: '0 16px 24px', boxSizing: 'border-box', width: '100%' }}>
-              
+
               {/* 2. FILA DE PERFIL: LOGO FLOTANTE + NOMBRE + BOTÓN CONFIGURAR */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: -38, marginBottom: 14, position: 'relative', zIndex: 3, flexWrap: 'wrap', gap: 10 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0, flex: '1 1 200px' }}>
@@ -873,7 +873,7 @@ export default function PedidosListoHub({ lang = 'es', navigate }) {
                   ⚙️ Configurar Local
                 </button>
               </div>
-              
+
               {/* BADGES METADATA */}
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginBottom: 12 }}>
                 <span style={{ fontSize: 11.5, fontWeight: 900, background: '#FFF7ED', color: '#EA580C', padding: '4px 8px', borderRadius: 10, border: '1px solid #FFEDD5' }}>
