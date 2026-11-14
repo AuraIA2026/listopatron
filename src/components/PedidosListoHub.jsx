@@ -4,6 +4,8 @@ import { collection, addDoc, serverTimestamp, query, onSnapshot } from 'firebase
 import { db, auth } from '../firebase';
 import './PedidosListoHub.css';
 import ConfigurarRestauranteModal from './ConfigurarRestauranteModal';
+import CreditCardCheckoutForm, { validateCardDetails, saveCardTokenIfRequested } from './CreditCardCheckoutForm';
+import BankTransferCheckoutBox from './BankTransferCheckoutBox';
 
 const HERO_BANNERS = [
   {
@@ -146,6 +148,9 @@ export default function PedidosListoHub({ lang = 'es', navigate }) {
   const [activeTrackingOrder, setActiveTrackingOrder] = useState(null);
   const [deliveryAddress, setDeliveryAddress] = useState('Villa Olga, Calle 5 #12, Santiago');
   const [paymentMethod, setPaymentMethod] = useState('efectivo');
+  const [cardData, setCardData] = useState({ mode: 'inapp', number: '', holder: '', expiry: '', cvv: '', saveForLater: true });
+  const [transferReceiptImage, setTransferReceiptImage] = useState(null);
+  const [transferReference, setTransferReference] = useState('');
   const [tipAmount, setTipAmount] = useState(50);
 
   // REAL LIVE COUNTDOWN TIMER (39 MIN 47 SEC = 2387 SECONDS)
@@ -279,6 +284,20 @@ export default function PedidosListoHub({ lang = 'es', navigate }) {
 
   const handleConfirmOrder = async () => {
     if (cartItems.length === 0) return;
+    let finalPaymentLabel = paymentMethod;
+    if (paymentMethod === 'tarjeta') {
+      if (cardData?.mode === 'azul') {
+        finalPaymentLabel = '💳 Pasarela Oficial AZUL (Listo Patrón)';
+      } else {
+        const cardVal = validateCardDetails(cardData);
+        if (!cardVal.valid) {
+          alert('⚠️ ' + cardVal.error);
+          return;
+        }
+        saveCardTokenIfRequested(cardData, cardVal);
+        finalPaymentLabel = `💳 Tarjeta ${cardVal.brand} •••• ${cardVal.last4} (Pagado)`;
+      }
+    }
     const pin = Math.floor(1000 + Math.random() * 9000).toString();
     const orderData = {
       orderId: 'PL-' + Math.floor(100000 + Math.random() * 900000),
@@ -295,7 +314,9 @@ export default function PedidosListoHub({ lang = 'es', navigate }) {
       total: total,
       deliveryAddress: deliveryAddress,
       address: deliveryAddress,
-      paymentMethod: paymentMethod,
+      paymentMethod: finalPaymentLabel,
+      transferReceiptImage: paymentMethod === 'transferencia' ? (transferReceiptImage || null) : null,
+      transferReference: paymentMethod === 'transferencia' ? (transferReference || '').trim() : '',
       pinOTP: pin,
       storeName: 'La Fiera Hot Dog',
       status: 'pending',
@@ -1188,6 +1209,83 @@ export default function PedidosListoHub({ lang = 'es', navigate }) {
                 <span>Tarifa de servicio</span>
                 <span>RD$ {serviceFee}</span>
               </div>
+              <div style={{ marginTop: 10, marginBottom: 8 }}>
+                <span style={{ display: 'block', fontSize: 11, fontWeight: 900, color: '#475569', textTransform: 'uppercase', marginBottom: 6 }}>
+                  💳 Método de Pago
+                </span>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                  <button
+                    type="button"
+                    onClick={() => setPaymentMethod('efectivo')}
+                    style={{
+                      padding: '10px 8px',
+                      borderRadius: 12,
+                      border: paymentMethod === 'efectivo' ? '2px solid #F26000' : '1.5px solid #E2E8F0',
+                      background: paymentMethod === 'efectivo' ? '#FFF4EE' : '#FFFFFF',
+                      color: paymentMethod === 'efectivo' ? '#C2410C' : '#334155',
+                      fontWeight: 800,
+                      fontSize: 12,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: 6
+                    }}
+                  >
+                    💵 Efectivo
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPaymentMethod('transferencia')}
+                    style={{
+                      padding: '10px 8px',
+                      borderRadius: 12,
+                      border: paymentMethod === 'transferencia' ? '2px solid #F26000' : '1.5px solid #E2E8F0',
+                      background: paymentMethod === 'transferencia' ? '#FFF4EE' : '#FFFFFF',
+                      color: paymentMethod === 'transferencia' ? '#C2410C' : '#334155',
+                      fontWeight: 800,
+                      fontSize: 12,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: 6
+                    }}
+                  >
+                    🏦 Transferencia
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPaymentMethod('tarjeta')}
+                    style={{
+                      gridColumn: '1 / -1',
+                      padding: '10px 8px',
+                      borderRadius: 12,
+                      border: paymentMethod === 'tarjeta' ? '2px solid #F26000' : '1.5px solid #E2E8F0',
+                      background: paymentMethod === 'tarjeta' ? '#FFF4EE' : '#FFFFFF',
+                      color: paymentMethod === 'tarjeta' ? '#C2410C' : '#334155',
+                      fontWeight: 800,
+                      fontSize: 12,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: 6
+                    }}
+                  >
+                    💳 Tarjeta de Crédito / Débito
+                    <span style={{ fontSize: 9.5, fontWeight: 900, background: '#1e3a8a', color: '#fff', padding: '2px 6px', borderRadius: 5 }}>VISA</span>
+                    <span style={{ fontSize: 9.5, fontWeight: 900, background: '#ea580c', color: '#fff', padding: '2px 6px', borderRadius: 5 }}>MC</span>
+                    <span style={{ fontSize: 9.5, fontWeight: 900, background: '#0284c7', color: '#fff', padding: '2px 6px', borderRadius: 5 }}>AZUL</span>
+                  </button>
+                </div>
+              </div>
+              {paymentMethod === 'tarjeta' && (
+                <CreditCardCheckoutForm totalAmount={total} cardData={cardData} onChangeCardData={setCardData} allowAzulGateway={true} />
+              )}
+              {paymentMethod === 'transferencia' && (
+                <BankTransferCheckoutBox totalAmount={total} receiptImage={transferReceiptImage} onChangeReceiptImage={setTransferReceiptImage} referenceNumber={transferReference} onChangeReferenceNumber={setTransferReference} storeName="Restaurante" />
+              )}
               <div className="pl-sum-row total">
                 <span>Total a Pagar</span>
                 <span style={{ color: 'var(--mamey-primary)' }}>RD$ {total.toLocaleString()}</span>

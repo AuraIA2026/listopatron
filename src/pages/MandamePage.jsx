@@ -6,6 +6,8 @@ import './HomePage.css';
 import PedidosListoHub from '../components/PedidosListoHub';
 import HistoriasCarrusel from '../components/HistoriasCarrusel';
 import ConfigurarRestauranteModal from '../components/ConfigurarRestauranteModal';
+import CreditCardCheckoutForm, { validateCardDetails, saveCardTokenIfRequested } from '../components/CreditCardCheckoutForm';
+import BankTransferCheckoutBox from '../components/BankTransferCheckoutBox';
 import { BUSINESS_TYPES, RENTAL_PERIODS } from '../data/businessTypes';
 
 // Initial Mock State
@@ -553,7 +555,10 @@ export default function MandamePage({ navigate, userData, userRole, lang }) {
   const [deliveryNotes, setDeliveryNotes] = useState('');
   const [checkoutPhone, setCheckoutPhone] = useState(userData?.phone || userData?.telefono || '');
   const [checkoutName, setCheckoutName] = useState(userData?.name || userData?.displayName || 'Cliente');
-  const [checkoutPaymentMethod, setCheckoutPaymentMethod] = useState('efectivo'); // 'efectivo' | 'transferencia'
+  const [checkoutPaymentMethod, setCheckoutPaymentMethod] = useState('efectivo'); // 'efectivo' | 'transferencia' | 'tarjeta'
+  const [checkoutCardData, setCheckoutCardData] = useState({ mode: 'inapp', number: '', holder: '', expiry: '', cvv: '', saveForLater: true });
+  const [transferReceiptImage, setTransferReceiptImage] = useState(null);
+  const [transferReference, setTransferReference] = useState('');
   const [cashChangeAmount, setCashChangeAmount] = useState('exacto'); // 'exacto' | '500' | '1000' | '2000'
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
   const [deliveryFulfillmentType, setDeliveryFulfillmentType] = useState('delivery'); // 'delivery' | 'pickup'
@@ -2077,6 +2082,15 @@ export default function MandamePage({ navigate, userData, userRole, lang }) {
     let phoneToUse = (checkoutPhone || userData?.phone || userData?.telefono || '809-583-2020').trim();
     if (phoneToUse.length < 7) {
       phoneToUse = '809-583-2020';
+    }
+
+    if (checkoutPaymentMethod === 'tarjeta' && checkoutCardData.mode !== 'azul') {
+      const cardVal = validateCardDetails(checkoutCardData);
+      if (!cardVal.valid) {
+        alert('⚠️ ' + cardVal.error);
+        return;
+      }
+      saveCardTokenIfRequested(checkoutCardData, cardVal);
     }
 
     setIsPlacingOrder(true);
@@ -6411,7 +6425,39 @@ export default function MandamePage({ navigate, userData, userRole, lang }) {
                       >
                         🏦 Transferencia
                       </button>
+                      <button
+                        type="button"
+                        id="pay-method-card"
+                        onClick={() => setCheckoutPaymentMethod('tarjeta')}
+                        style={{
+                          gridColumn: '1 / -1',
+                          padding: '10px 8px',
+                          borderRadius: 12,
+                          border: checkoutPaymentMethod === 'tarjeta' ? '2px solid #ff6b00' : '1.5px solid #E2E8F0',
+                          background: checkoutPaymentMethod === 'tarjeta' ? '#FFF4EE' : '#FFFFFF',
+                          color: checkoutPaymentMethod === 'tarjeta' ? '#C2410C' : '#334155',
+                          fontWeight: 800,
+                          fontSize: 12,
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: 6
+                        }}
+                      >
+                        💳 Tarjeta de Crédito / Débito
+                        <span style={{ fontSize: 9.5, fontWeight: 900, background: '#1e3a8a', color: '#fff', padding: '2px 6px', borderRadius: 5 }}>VISA</span>
+                        <span style={{ fontSize: 9.5, fontWeight: 900, background: '#ea580c', color: '#fff', padding: '2px 6px', borderRadius: 5 }}>MC</span>
+                        <span style={{ fontSize: 9.5, fontWeight: 900, background: '#0284c7', color: '#fff', padding: '2px 6px', borderRadius: 5 }}>AZUL</span>
+                      </button>
                     </div>
+
+                    {checkoutPaymentMethod === 'tarjeta' && (
+                      <CreditCardCheckoutForm totalAmount={cartTotal} cardData={checkoutCardData} onChangeCardData={setCheckoutCardData} allowAzulGateway={true} />
+                    )}
+                    {checkoutPaymentMethod === 'transferencia' && (
+                      <BankTransferCheckoutBox totalAmount={cartTotal} receiptImage={transferReceiptImage} onChangeReceiptImage={setTransferReceiptImage} referenceNumber={transferReference} onChangeReferenceNumber={setTransferReference} storeName={activeStoreModal?.name || 'Comercio'} />
+                    )}
 
                     {checkoutPaymentMethod === 'efectivo' && (
                       <div style={{ marginTop: 8, padding: '8px 10px', background: '#F8FAFC', borderRadius: 10, border: '1px solid #E2E8F0' }}>

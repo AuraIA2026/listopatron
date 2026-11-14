@@ -158,7 +158,7 @@ export default function HistoriasCarrusel({ userData, isPro, onHirePro, navigate
         const data = doc.data()
         const isRejected = data.status === 'rejected' || data.moderated === 'rejected' || data.approved === false || data.rejected === true
         const isApproved = (data.status === 'approved' || data.approved === true || (data.moderated === true && data.status !== 'rejected')) && !isRejected
-        
+
         // Calcular tiempo exacto de expiración (24 horas)
         let expiresTime = 0
         if (data.expiresAt) {
@@ -250,7 +250,7 @@ export default function HistoriasCarrusel({ userData, isPro, onHirePro, navigate
         <div className="cinta-pedidos-listo-container">
           {/* Mano animada presionando la cinta con texto alternante (Solo dura 7s al abrir la app) */}
           {showHandPointer && (
-            <div 
+            <div
               className="animated-hand-pointer"
               onClick={handleRibbonClick}
               title={isMandameView ? "¡Haz clic para volver a Listo Patrón!" : "¡Haz clic para entrar a Pedidos Listo!"}
@@ -262,7 +262,7 @@ export default function HistoriasCarrusel({ userData, isPro, onHirePro, navigate
             </div>
           )}
 
-          <div 
+          <div
             className="cinta-pedidos-listo-wrapper"
             onClick={handleRibbonClick}
           >
@@ -343,7 +343,7 @@ export default function HistoriasCarrusel({ userData, isPro, onHirePro, navigate
                 const firstWord = words.length >= 1 && words[0].length >= 3 ? words[0] : ''
 
                 const livePlan = (proUidKey && usersPlanMap[proUidKey]) ||
-                                 (proNameClean && usersPlanMap[proNameClean])
+                  (proNameClean && usersPlanMap[proNameClean])
 
                 const finalPlan = livePlan || story.proPlan || story.plan || story.currentPlan || story.planId || story.membership || story.subscription || story.userPlan || story.planName
 
@@ -400,7 +400,7 @@ export default function HistoriasCarrusel({ userData, isPro, onHirePro, navigate
                     </div>
                     {/* STICKER CIRCULAR ANIMADO % OFF CUANDO EL USUARIO TIENE OFERTA */}
                     {pro.hasOffer && (
-                      <div 
+                      <div
                         className="historia-offer-badge-circle"
                         title={pro.rawSticker || '¡Este usuario tiene una oferta activa!'}
                       >
@@ -408,10 +408,10 @@ export default function HistoriasCarrusel({ userData, isPro, onHirePro, navigate
                       </div>
                     )}
                     {/* El distintivo de plan (GOLD, PLATINUM, VIP, BÁSICO) SIEMPRE permanece visible */}
-                    <span 
-                      className="historia-plan-badge-tag" 
-                      style={{ 
-                        background: theme.badgeBg, 
+                    <span
+                      className="historia-plan-badge-tag"
+                      style={{
+                        background: theme.badgeBg,
                         color: theme.badgeColor,
                         opacity: isAllSeen ? 0.85 : 1
                       }}
@@ -461,12 +461,12 @@ export default function HistoriasCarrusel({ userData, isPro, onHirePro, navigate
       {/* Exotic Floating Lock Notice Modal for Professionals needing 4-5 stars */}
       {showLockNotice && createPortal(
         <div className="subir-historia-modal-overlay" onClick={() => setShowLockNotice(false)}>
-          <div 
-            className="subir-historia-modal-card" 
-            onClick={e => e.stopPropagation()} 
-            style={{ 
-              textAlign: 'center', 
-              padding: '28px 22px', 
+          <div
+            className="subir-historia-modal-card"
+            onClick={e => e.stopPropagation()}
+            style={{
+              textAlign: 'center',
+              padding: '28px 22px',
               background: 'linear-gradient(145deg, #0F172A 0%, #1E1B4B 50%, #0F172A 100%)',
               border: '1.5px solid rgba(245, 158, 11, 0.4)',
               boxShadow: '0 25px 60px rgba(0, 0, 0, 0.85), 0 0 35px rgba(245, 158, 11, 0.25)',
@@ -522,12 +522,12 @@ export default function HistoriasCarrusel({ userData, isPro, onHirePro, navigate
       {/* Exotic Floating Lock Notice Modal for Incomplete Profile */}
       {showIncompleteProfileNotice && createPortal(
         <div className="subir-historia-modal-overlay" onClick={() => setShowIncompleteProfileNotice(false)}>
-          <div 
-            className="subir-historia-modal-card" 
-            onClick={e => e.stopPropagation()} 
-            style={{ 
-              textAlign: 'center', 
-              padding: '28px 22px', 
+          <div
+            className="subir-historia-modal-card"
+            onClick={e => e.stopPropagation()}
+            style={{
+              textAlign: 'center',
+              padding: '28px 22px',
               background: 'linear-gradient(145deg, #0F172A 0%, #1E1B4B 50%, #0F172A 100%)',
               border: '1.5px solid rgba(239, 68, 68, 0.5)',
               boxShadow: '0 25px 60px rgba(0, 0, 0, 0.85), 0 0 35px rgba(239, 68, 68, 0.25)',
