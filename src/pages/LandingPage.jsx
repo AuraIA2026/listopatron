@@ -738,21 +738,34 @@ export default function LandingPage({ navigate, lang }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchCity, setSearchCity] = useState('all');
 
+  const VERCEL_APP_URL = 'https://listopatron.vercel.app';
+
+  const goToVercel = (queryOrCategory = '', city = '') => {
+    let url = VERCEL_APP_URL;
+    const params = new URLSearchParams();
+    if (queryOrCategory && queryOrCategory.trim()) {
+      params.append('search', queryOrCategory.trim());
+    }
+    const effectiveCity = (city && city !== 'all') ? city : (searchCity !== 'all' ? searchCity : '');
+    if (effectiveCity && effectiveCity.trim()) {
+      params.append('city', effectiveCity.trim());
+    }
+    const qs = params.toString();
+    if (qs) {
+      url = `${VERCEL_APP_URL}/?${qs}`;
+    }
+    window.location.href = url;
+  };
+
   const handleSearchSubmit = (e) => {
     if (e) e.preventDefault();
-    const targetEl = document.getElementById('servicios');
-    if (targetEl) {
-      targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
+    goToVercel(searchQuery, searchCity);
   };
 
   const handleQuickTagClick = (tag) => {
     const cleanTag = tag.replace(/^[^\wáéíóúÁÉÍÓÚñÑ]+/, '').trim();
     setSearchQuery(cleanTag);
-    const targetEl = document.getElementById('servicios');
-    if (targetEl) {
-      targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
+    goToVercel(cleanTag, searchCity);
   };
 
   // Escuchar parámetros de la URL para abrir el modal de planes automáticamente cuando viene de la app
@@ -1078,12 +1091,13 @@ export default function LandingPage({ navigate, lang }) {
       <a href="#como-funciona">Cómo funciona</a>
       <a href="#profesionales">Para profesionales</a>
       <a href="#faq">FAQ</a>
-      <a onClick={() => navigate('login')} className="nav-btn nav-btn-inside-menu" style={{ cursor: "pointer", color: "#FFFFFF", fontWeight: "bold" }}>Abrir app →</a>
+      <a href="https://listopatron.vercel.app" onClick={(e) => { e.preventDefault(); goToVercel(); }} className="nav-btn nav-btn-inside-menu" style={{ cursor: "pointer", color: "#FFFFFF", fontWeight: "bold" }}>Abrir app →</a>
     </div>
 
     {/* BOTÓN ABRIR APP SIEMPRE VISIBLE EN PANTALLAS GRANDES */}
     <a 
-      onClick={() => navigate('login')} 
+      href="https://listopatron.vercel.app"
+      onClick={(e) => { e.preventDefault(); goToVercel(); }} 
       className="nav-btn nav-btn-direct" 
       style={{ cursor: "pointer", color: "#FFFFFF", fontWeight: "bold", whiteSpace: "nowrap" }}
     >
@@ -1580,39 +1594,39 @@ export default function LandingPage({ navigate, lang }) {
       <button onClick={() => { shiftSlider(-1) }} aria-label="Anterior" style={{"position": "absolute", "left": "-20px", "top": "50%", "transform": "translateY(-50%)", "width": "44px", "height": "44px", "borderRadius": "50%", "border": "none", "cursor": "pointer", "background": "#F26000", "color": "#fff", "fontSize": "22px", "zIndex": "10", "boxShadow": "0 4px 16px rgba(242,96,0,0.4)", "display": "flex", "alignItems": "center", "justifyContent": "center"}}>‹</button>
 
       <div id="proSliderTrack" style={{"display": "flex", "transition": "transform 0.5s ease-out", "gap": "20px"}}>
-        <div className="pro-slide" style={{"flex": "0 0 calc(100% / 4 - 15px)", "minWidth": "220px"}}>
+        <div className="pro-slide" onClick={() => goToVercel('Mecánico')} title="Ver profesionales de Mecánica en Vercel" style={{"flex": "0 0 calc(100% / 4 - 15px)", "minWidth": "220px", "cursor": "pointer"}}>
           <img src="./assets/extracted_6.png" alt="Mecánico" />
           <div className="pro-slide-label">🔧 Mecánico</div>
         </div>
-        <div className="pro-slide" style={{"flex": "0 0 calc(100% / 4 - 15px)", "minWidth": "220px"}}>
+        <div className="pro-slide" onClick={() => goToVercel('Limpieza')} title="Ver profesionales de Limpieza en Vercel" style={{"flex": "0 0 calc(100% / 4 - 15px)", "minWidth": "220px", "cursor": "pointer"}}>
           <img src="./assets/extracted_7.png" alt="Limpieza" />
           <div className="pro-slide-label">🧹 Limpieza</div>
         </div>
-        <div className="pro-slide" style={{"flex": "0 0 calc(100% / 4 - 15px)", "minWidth": "220px"}}>
+        <div className="pro-slide" onClick={() => goToVercel('Limpieza')} title="Ver profesionales de Limpieza en Vercel" style={{"flex": "0 0 calc(100% / 4 - 15px)", "minWidth": "220px", "cursor": "pointer"}}>
           <img src="./assets/extracted_8.png" alt="Limpieza 2" />
           <div className="pro-slide-label">🧹 Limpieza</div>
         </div>
-        <div className="pro-slide" style={{"flex": "0 0 calc(100% / 4 - 15px)", "minWidth": "220px"}}>
+        <div className="pro-slide" onClick={() => goToVercel('Jardinero')} title="Ver profesionales de Jardinería en Vercel" style={{"flex": "0 0 calc(100% / 4 - 15px)", "minWidth": "220px", "cursor": "pointer"}}>
           <img src="./assets/extracted_9.png" alt="Jardinero" />
           <div className="pro-slide-label">🌿 Jardinero</div>
         </div>
-        <div className="pro-slide" style={{"flex": "0 0 calc(100% / 4 - 15px)", "minWidth": "220px"}}>
+        <div className="pro-slide" onClick={() => goToVercel('Jardinero')} title="Ver profesionales de Jardinería en Vercel" style={{"flex": "0 0 calc(100% / 4 - 15px)", "minWidth": "220px", "cursor": "pointer"}}>
           <img src="./assets/extracted_10.png" alt="Jardinero 2" />
           <div className="pro-slide-label">🌿 Jardinero</div>
         </div>
-        <div className="pro-slide" style={{"flex": "0 0 calc(100% / 4 - 15px)", "minWidth": "220px"}}>
+        <div className="pro-slide" onClick={() => goToVercel('Plomero')} title="Ver profesionales de Plomería en Vercel" style={{"flex": "0 0 calc(100% / 4 - 15px)", "minWidth": "220px", "cursor": "pointer"}}>
           <img src="./assets/extracted_11.png" alt="Plomero" />
           <div className="pro-slide-label">🔩 Plomero</div>
         </div>
-        <div className="pro-slide" style={{"flex": "0 0 calc(100% / 4 - 15px)", "minWidth": "220px"}}>
+        <div className="pro-slide" onClick={() => goToVercel('Enfermería')} title="Ver profesionales de Enfermería en Vercel" style={{"flex": "0 0 calc(100% / 4 - 15px)", "minWidth": "220px", "cursor": "pointer"}}>
           <img src="./assets/extracted_12.png" alt="Enfermería" />
           <div className="pro-slide-label">🏥 Enfermería</div>
         </div>
-        <div className="pro-slide" style={{"flex": "0 0 calc(100% / 4 - 15px)", "minWidth": "220px"}}>
+        <div className="pro-slide" onClick={() => goToVercel('Masajes')} title="Ver profesionales de Masajes en Vercel" style={{"flex": "0 0 calc(100% / 4 - 15px)", "minWidth": "220px", "cursor": "pointer"}}>
           <img src="./assets/extracted_13.png" alt="Masajes" />
           <div className="pro-slide-label">💆 Masajes</div>
         </div>
-        <div className="pro-slide" style={{"flex": "0 0 calc(100% / 4 - 15px)", "minWidth": "220px"}}>
+        <div className="pro-slide" onClick={() => goToVercel('Pintor')} title="Ver profesionales de Pintura en Vercel" style={{"flex": "0 0 calc(100% / 4 - 15px)", "minWidth": "220px", "cursor": "pointer"}}>
           <img src="./assets/extracted_14.jpeg" alt="Pintor" />
           <div className="pro-slide-label">🎨 Pintor</div>
         </div>
@@ -1681,8 +1695,8 @@ export default function LandingPage({ navigate, lang }) {
         <h1>El servicio que<br/>necesitas,<br/><span>cuando lo necesitas</span></h1>
         <p className="hero-sub">Conectamos clientes con los mejores profesionales independientes de RD. Sin esperas, sin complicaciones.</p>
         <div className="hero-btns">
-          <a onClick={() => navigate('login')} style={{cursor: "pointer"}} className="btn-white">🔍 Buscar profesional</a>
-          <a href="#profesionales" className="btn-ghost">🔧 Soy profesional</a>
+          <a href="https://listopatron.vercel.app" onClick={(e) => { e.preventDefault(); goToVercel(''); }} style={{cursor: "pointer"}} className="btn-white">🔍 Buscar profesional</a>
+          <a href="https://listopatron.vercel.app" onClick={(e) => { e.preventDefault(); goToVercel('pro'); }} className="btn-ghost">🔧 Soy profesional</a>
         </div>
       </div>
       <div className="hero-phone">
@@ -1698,15 +1712,15 @@ export default function LandingPage({ navigate, lang }) {
                 <img src="./assets/extracted_19.png" alt="Listo Patrón" style={{"height": "28px", "width": "auto", "objectFit": "contain", "filter": "brightness(0) invert(1)"}}/>
                 <span style={{"color": "rgba(255,255,255,0.9)", "fontSize": "10px", "fontWeight": "700", "letterSpacing": ".5px"}}>🇩🇴 República Dominicana</span>
               </div>
-              <div className="phone-search">🔍 ¿Qué servicio necesitas?</div>
+              <div className="phone-search" onClick={() => goToVercel('')} style={{ cursor: "pointer" }} title="Buscar en Vercel">🔍 ¿Qué servicio necesitas?</div>
               <div className="phone-cats">
-                <div className="phone-cat"><span className="phone-cat-icon">🔧</span>Mantenimiento</div>
-                <div className="phone-cat"><span className="phone-cat-icon">🧹</span>Limpieza</div>
-                <div className="phone-cat"><span className="phone-cat-icon">✂️</span>Cuidado personal</div>
-                <div className="phone-cat"><span className="phone-cat-icon">🎉</span>Eventos</div>
+                <div className="phone-cat" onClick={() => goToVercel('Mantenimiento')} style={{ cursor: "pointer" }}><span className="phone-cat-icon">🔧</span>Mantenimiento</div>
+                <div className="phone-cat" onClick={() => goToVercel('Limpieza')} style={{ cursor: "pointer" }}><span className="phone-cat-icon">🧹</span>Limpieza</div>
+                <div className="phone-cat" onClick={() => goToVercel('Cuidado personal')} style={{ cursor: "pointer" }}><span className="phone-cat-icon">✂️</span>Cuidado personal</div>
+                <div className="phone-cat" onClick={() => goToVercel('Eventos')} style={{ cursor: "pointer" }}><span className="phone-cat-icon">🎉</span>Eventos</div>
               </div>
               <div style={{"fontSize": "11px", "fontWeight": "800", "color": "#888"}}>Profesionales cerca de ti</div>
-              <div className="phone-card">
+              <div className="phone-card" onClick={() => goToVercel('Electricista')} style={{ cursor: "pointer" }} title="Ver Electricistas en Vercel">
                 <div className="phone-card-avatar">👨‍🔧</div>
                 <div className="phone-card-info">
                   <div className="phone-card-name">Carlos Méndez</div>
@@ -1715,7 +1729,7 @@ export default function LandingPage({ navigate, lang }) {
                 </div>
                 <div className="phone-card-btn">Contratar</div>
               </div>
-              <div className="phone-card" style={{"background": "var(--orange-dark)"}}>
+              <div className="phone-card" onClick={() => goToVercel('Plomero')} style={{"background": "var(--orange-dark)", cursor: "pointer"}} title="Ver Plomeros en Vercel">
                 <div className="phone-card-avatar">👩‍🔧</div>
                 <div className="phone-card-info">
                   <div className="phone-card-name">Ana Rodríguez</div>
@@ -1843,27 +1857,27 @@ export default function LandingPage({ navigate, lang }) {
     <h2 className="section-title sr sr-delay-1">Todo lo que necesitas<br/><span>en un solo lugar</span></h2>
     <p className="section-sub">Desde plomería hasta niñeras — el profesional que buscas está a minutos de ti.</p>
     <div className="cats-grid">
-      <a onClick={() => navigate('login')} style={{cursor: "pointer"}} className="cat-card"><span className="cat-icon"><img src="./assets/profesionales/MECANICO.png" alt="Mantenimiento" style={{"width": "48px", "height": "48px", "objectFit": "contain"}}/></span><span className="cat-name">Mantenimiento</span></a>
-      <a onClick={() => navigate('login')} style={{cursor: "pointer"}} className="cat-card"><span className="cat-icon"><img src="./assets/profesionales/limpiesa.png" alt="Limpieza" style={{"width": "48px", "height": "48px", "objectFit": "contain"}}/></span><span className="cat-name">Limpieza</span></a>
-      <a onClick={() => navigate('login')} style={{cursor: "pointer"}} className="cat-card"><span className="cat-icon"><img src="./assets/profesionales/masajes.png" alt="Cuidado personal" style={{"width": "48px", "height": "48px", "objectFit": "contain"}}/></span><span className="cat-name">Cuidado personal</span></a>
-      <a onClick={() => navigate('login')} style={{cursor: "pointer"}} className="cat-card"><span className="cat-icon"><img src="./assets/profesionales/organisadora de boda.png" alt="Eventos" style={{"width": "48px", "height": "48px", "objectFit": "contain"}}/></span><span className="cat-name">Eventos</span></a>
-      <a onClick={() => navigate('login')} style={{cursor: "pointer"}} className="cat-card"><span className="cat-icon"><img src="./assets/profesionales/Pintor.png" alt="Personalizado" style={{"width": "48px", "height": "48px", "objectFit": "contain"}}/></span><span className="cat-name">Personalizado</span></a>
-      <a onClick={() => navigate('login')} style={{cursor: "pointer"}} className="cat-card"><span className="cat-icon"><img src="./assets/profesionales/electricista.png" alt="Electricista" style={{"width": "48px", "height": "48px", "objectFit": "contain"}}/></span><span className="cat-name">Electricista</span></a>
-      <a onClick={() => navigate('login')} style={{cursor: "pointer"}} className="cat-card"><span className="cat-icon"><img src="./assets/profesionales/Plomero.png" alt="Plomero" style={{"width": "48px", "height": "48px", "objectFit": "contain"}}/></span><span className="cat-name">Plomero</span></a>
-      <a onClick={() => navigate('login')} style={{cursor: "pointer"}} className="cat-card"><span className="cat-icon"><img src="./assets/profesionales/MECANICO.png" alt="Mec. Motos" style={{"width": "48px", "height": "48px", "objectFit": "contain"}}/></span><span className="cat-name">Mec. Motos</span></a>
-      <a onClick={() => navigate('login')} style={{cursor: "pointer"}} className="cat-card"><span className="cat-icon"><img src="./assets/profesionales/niñera.png" alt="Niñera" style={{"width": "48px", "height": "48px", "objectFit": "contain"}}/></span><span className="cat-name">Niñera</span></a>
-      <a onClick={() => navigate('login')} style={{cursor: "pointer"}} className="cat-card cta-cat"><span className="cat-icon" style={{"color": "#fff", "display": "flex", "alignItems": "center", "justifyContent": "center", "width": "48px", "height": "48px", "fontSize": "24px"}}>✦</span><span className="cat-name">Ver todos</span></a>
+      <a href="https://listopatron.vercel.app/?search=Mantenimiento" onClick={(e) => { e.preventDefault(); goToVercel('Mantenimiento'); }} style={{cursor: "pointer"}} className="cat-card"><span className="cat-icon"><img src="./assets/profesionales/MECANICO.png" alt="Mantenimiento" style={{"width": "48px", "height": "48px", "objectFit": "contain"}}/></span><span className="cat-name">Mantenimiento</span></a>
+      <a href="https://listopatron.vercel.app/?search=Limpieza" onClick={(e) => { e.preventDefault(); goToVercel('Limpieza'); }} style={{cursor: "pointer"}} className="cat-card"><span className="cat-icon"><img src="./assets/profesionales/limpiesa.png" alt="Limpieza" style={{"width": "48px", "height": "48px", "objectFit": "contain"}}/></span><span className="cat-name">Limpieza</span></a>
+      <a href="https://listopatron.vercel.app/?search=Cuidado%20personal" onClick={(e) => { e.preventDefault(); goToVercel('Cuidado personal'); }} style={{cursor: "pointer"}} className="cat-card"><span className="cat-icon"><img src="./assets/profesionales/masajes.png" alt="Cuidado personal" style={{"width": "48px", "height": "48px", "objectFit": "contain"}}/></span><span className="cat-name">Cuidado personal</span></a>
+      <a href="https://listopatron.vercel.app/?search=Eventos" onClick={(e) => { e.preventDefault(); goToVercel('Eventos'); }} style={{cursor: "pointer"}} className="cat-card"><span className="cat-icon"><img src="./assets/profesionales/organisadora de boda.png" alt="Eventos" style={{"width": "48px", "height": "48px", "objectFit": "contain"}}/></span><span className="cat-name">Eventos</span></a>
+      <a href="https://listopatron.vercel.app/?search=Personalizado" onClick={(e) => { e.preventDefault(); goToVercel('Personalizado'); }} style={{cursor: "pointer"}} className="cat-card"><span className="cat-icon"><img src="./assets/profesionales/Pintor.png" alt="Personalizado" style={{"width": "48px", "height": "48px", "objectFit": "contain"}}/></span><span className="cat-name">Personalizado</span></a>
+      <a href="https://listopatron.vercel.app/?search=Electricista" onClick={(e) => { e.preventDefault(); goToVercel('Electricista'); }} style={{cursor: "pointer"}} className="cat-card"><span className="cat-icon"><img src="./assets/profesionales/electricista.png" alt="Electricista" style={{"width": "48px", "height": "48px", "objectFit": "contain"}}/></span><span className="cat-name">Electricista</span></a>
+      <a href="https://listopatron.vercel.app/?search=Plomero" onClick={(e) => { e.preventDefault(); goToVercel('Plomero'); }} style={{cursor: "pointer"}} className="cat-card"><span className="cat-icon"><img src="./assets/profesionales/Plomero.png" alt="Plomero" style={{"width": "48px", "height": "48px", "objectFit": "contain"}}/></span><span className="cat-name">Plomero</span></a>
+      <a href="https://listopatron.vercel.app/?search=Mecánica" onClick={(e) => { e.preventDefault(); goToVercel('Mecánica'); }} style={{cursor: "pointer"}} className="cat-card"><span className="cat-icon"><img src="./assets/profesionales/MECANICO.png" alt="Mec. Motos" style={{"width": "48px", "height": "48px", "objectFit": "contain"}}/></span><span className="cat-name">Mec. Motos</span></a>
+      <a href="https://listopatron.vercel.app/?search=Niñera" onClick={(e) => { e.preventDefault(); goToVercel('Niñera'); }} style={{cursor: "pointer"}} className="cat-card"><span className="cat-icon"><img src="./assets/profesionales/niñera.png" alt="Niñera" style={{"width": "48px", "height": "48px", "objectFit": "contain"}}/></span><span className="cat-name">Niñera</span></a>
+      <a href="https://listopatron.vercel.app" onClick={(e) => { e.preventDefault(); goToVercel(''); }} style={{cursor: "pointer"}} className="cat-card cta-cat"><span className="cat-icon" style={{"color": "#fff", "display": "flex", "alignItems": "center", "justifyContent": "center", "width": "48px", "height": "48px", "fontSize": "24px"}}>✦</span><span className="cat-name">Ver todos</span></a>
     </div>
 
     {/*  Profesionales destacados  */}
     <div style={{"marginTop": "64px"}}>
       <div style={{"display": "flex", "alignItems": "center", "justifyContent": "space-between", "marginBottom": "10px", "flexWrap": "wrap", "gap": "12px"}}>
         <h3 style={{"fontFamily": "'Fredoka One',cursive", "fontSize": "28px", "color": "var(--orange)"}}>Profesionales destacados</h3>
-        <a onClick={() => navigate('login')} style={{cursor: "pointer", "color": "var(--orange)", "fontWeight": "700", "fontSize": "14px", "textDecoration": "none"}}>Ver todos →</a>
+        <a href="https://listopatron.vercel.app" onClick={(e) => { e.preventDefault(); goToVercel(''); }} style={{cursor: "pointer", "color": "var(--orange)", "fontWeight": "700", "fontSize": "14px", "textDecoration": "none"}}>Ver todos →</a>
       </div>
       <div style={{"display": "grid", "gridTemplateColumns": "repeat(auto-fill,minmax(240px,1fr))", "gap": "16px"}}>
 
-        <a onClick={() => navigate('login')} style={{cursor: "pointer", "textDecoration": "none", "background": "#fff", "borderRadius": "20px", "padding": "20px", "display": "flex", "alignItems": "center", "gap": "14px", "border": "2px solid transparent", "transition": "all .25s", "boxShadow": "0 2px 12px rgba(0,0,0,0.06)"}} className="pro-row-card">
+        <a href="https://listopatron.vercel.app/?search=Electricista" onClick={(e) => { e.preventDefault(); goToVercel('Electricista'); }} style={{cursor: "pointer", "textDecoration": "none", "background": "#fff", "borderRadius": "20px", "padding": "20px", "display": "flex", "alignItems": "center", "gap": "14px", "border": "2px solid transparent", "transition": "all .25s", "boxShadow": "0 2px 12px rgba(0,0,0,0.06)"}} className="pro-row-card">
           <div style={{"width": "52px", "height": "52px", "borderRadius": "50%", "background": "var(--orange)", "overflow": "hidden", "flexShrink": "0"}}><img src={pro20} style={{"width": "100%", "height": "100%", "objectFit": "cover"}} loading="lazy"/></div>
           <div style={{"flex": "1"}}>
             <div style={{"fontWeight": "800", "fontSize": "15px", "color": "#222"}}>Carlos Méndez</div>
@@ -1873,7 +1887,7 @@ export default function LandingPage({ navigate, lang }) {
           <div style={{"background": "var(--orange-pale)", "color": "var(--orange)", "fontSize": "11px", "fontWeight": "800", "padding": "6px 12px", "borderRadius": "50px", "whiteSpace": "nowrap"}}>Disponible</div>
         </a>
 
-        <a onClick={() => navigate('login')} style={{cursor: "pointer", "textDecoration": "none", "background": "#fff", "borderRadius": "20px", "padding": "20px", "display": "flex", "alignItems": "center", "gap": "14px", "border": "2px solid transparent", "transition": "all .25s", "boxShadow": "0 2px 12px rgba(0,0,0,0.06)"}} className="pro-row-card">
+        <a href="https://listopatron.vercel.app/?search=Plomero" onClick={(e) => { e.preventDefault(); goToVercel('Plomero'); }} style={{cursor: "pointer", "textDecoration": "none", "background": "#fff", "borderRadius": "20px", "padding": "20px", "display": "flex", "alignItems": "center", "gap": "14px", "border": "2px solid transparent", "transition": "all .25s", "boxShadow": "0 2px 12px rgba(0,0,0,0.06)"}} className="pro-row-card">
           <div style={{"width": "52px", "height": "52px", "borderRadius": "50%", "background": "var(--orange)", "overflow": "hidden", "flexShrink": "0"}}><img src={pro21} style={{"width": "100%", "height": "100%", "objectFit": "cover"}} loading="lazy"/></div>
           <div style={{"flex": "1"}}>
             <div style={{"fontWeight": "800", "fontSize": "15px", "color": "#222"}}>Ana Rodríguez</div>
@@ -1883,7 +1897,7 @@ export default function LandingPage({ navigate, lang }) {
           <div style={{"background": "var(--orange-pale)", "color": "var(--orange)", "fontSize": "11px", "fontWeight": "800", "padding": "6px 12px", "borderRadius": "50px", "whiteSpace": "nowrap"}}>Disponible</div>
         </a>
 
-        <a onClick={() => navigate('login')} style={{cursor: "pointer", "textDecoration": "none", "background": "#fff", "borderRadius": "20px", "padding": "20px", "display": "flex", "alignItems": "center", "gap": "14px", "border": "2px solid transparent", "transition": "all .25s", "boxShadow": "0 2px 12px rgba(0,0,0,0.06)"}} className="pro-row-card">
+        <a href="https://listopatron.vercel.app/?search=Mecánico" onClick={(e) => { e.preventDefault(); goToVercel('Mecánico'); }} style={{cursor: "pointer", "textDecoration": "none", "background": "#fff", "borderRadius": "20px", "padding": "20px", "display": "flex", "alignItems": "center", "gap": "14px", "border": "2px solid transparent", "transition": "all .25s", "boxShadow": "0 2px 12px rgba(0,0,0,0.06)"}} className="pro-row-card">
           <div style={{"width": "52px", "height": "52px", "borderRadius": "50%", "background": "var(--orange)", "overflow": "hidden", "flexShrink": "0"}}><img src={pro22} style={{"width": "100%", "height": "100%", "objectFit": "cover"}} loading="lazy"/></div>
           <div style={{"flex": "1"}}>
             <div style={{"fontWeight": "800", "fontSize": "15px", "color": "#222"}}>José Fernández</div>
@@ -1893,7 +1907,7 @@ export default function LandingPage({ navigate, lang }) {
           <div style={{"background": "var(--orange-pale)", "color": "var(--orange)", "fontSize": "11px", "fontWeight": "800", "padding": "6px 12px", "borderRadius": "50px", "whiteSpace": "nowrap"}}>Disponible</div>
         </a>
 
-        <a onClick={() => navigate('login')} style={{cursor: "pointer", "textDecoration": "none", "background": "#fff", "borderRadius": "20px", "padding": "20px", "display": "flex", "alignItems": "center", "gap": "14px", "border": "2px solid transparent", "transition": "all .25s", "boxShadow": "0 2px 12px rgba(0,0,0,0.06)"}} className="pro-row-card">
+        <a href="https://listopatron.vercel.app/?search=Limpieza" onClick={(e) => { e.preventDefault(); goToVercel('Limpieza'); }} style={{cursor: "pointer", "textDecoration": "none", "background": "#fff", "borderRadius": "20px", "padding": "20px", "display": "flex", "alignItems": "center", "gap": "14px", "border": "2px solid transparent", "transition": "all .25s", "boxShadow": "0 2px 12px rgba(0,0,0,0.06)"}} className="pro-row-card">
           <div style={{"width": "52px", "height": "52px", "borderRadius": "50%", "background": "var(--orange)", "overflow": "hidden", "flexShrink": "0"}}><img src={pro23} style={{"width": "100%", "height": "100%", "objectFit": "cover"}} loading="lazy"/></div>
           <div style={{"flex": "1"}}>
             <div style={{"fontWeight": "800", "fontSize": "15px", "color": "#222"}}>María Concepción</div>
@@ -1903,7 +1917,7 @@ export default function LandingPage({ navigate, lang }) {
           <div style={{"background": "var(--orange-pale)", "color": "var(--orange)", "fontSize": "11px", "fontWeight": "800", "padding": "6px 12px", "borderRadius": "50px", "whiteSpace": "nowrap"}}>Disponible</div>
         </a>
 
-        <a onClick={() => navigate('login')} style={{cursor: "pointer", "textDecoration": "none", "background": "#fff", "borderRadius": "20px", "padding": "20px", "display": "flex", "alignItems": "center", "gap": "14px", "border": "2px solid transparent", "transition": "all .25s", "boxShadow": "0 2px 12px rgba(0,0,0,0.06)"}} className="pro-row-card">
+        <a href="https://listopatron.vercel.app/?search=Pintor" onClick={(e) => { e.preventDefault(); goToVercel('Pintor'); }} style={{cursor: "pointer", "textDecoration": "none", "background": "#fff", "borderRadius": "20px", "padding": "20px", "display": "flex", "alignItems": "center", "gap": "14px", "border": "2px solid transparent", "transition": "all .25s", "boxShadow": "0 2px 12px rgba(0,0,0,0.06)"}} className="pro-row-card">
           <div style={{"width": "52px", "height": "52px", "borderRadius": "50%", "background": "var(--orange)", "overflow": "hidden", "flexShrink": "0"}}><img src={pro24} style={{"width": "100%", "height": "100%", "objectFit": "cover"}} loading="lazy"/></div>
           <div style={{"flex": "1"}}>
             <div style={{"fontWeight": "800", "fontSize": "15px", "color": "#222"}}>Rafael Guzmán</div>
@@ -1913,7 +1927,7 @@ export default function LandingPage({ navigate, lang }) {
           <div style={{"background": "#E8F5E9", "color": "#2E7D32", "fontSize": "11px", "fontWeight": "800", "padding": "6px 12px", "borderRadius": "50px", "whiteSpace": "nowrap"}}>En servicio</div>
         </a>
 
-        <a onClick={() => navigate('login')} style={{cursor: "pointer", "textDecoration": "none", "background": "#fff", "borderRadius": "20px", "padding": "20px", "display": "flex", "alignItems": "center", "gap": "14px", "border": "2px solid transparent", "transition": "all .25s", "boxShadow": "0 2px 12px rgba(0,0,0,0.06)"}} className="pro-row-card">
+        <a href="https://listopatron.vercel.app/?search=Jardinero" onClick={(e) => { e.preventDefault(); goToVercel('Jardinero'); }} style={{cursor: "pointer", "textDecoration": "none", "background": "#fff", "borderRadius": "20px", "padding": "20px", "display": "flex", "alignItems": "center", "gap": "14px", "border": "2px solid transparent", "transition": "all .25s", "boxShadow": "0 2px 12px rgba(0,0,0,0.06)"}} className="pro-row-card">
           <div style={{"width": "52px", "height": "52px", "borderRadius": "50%", "background": "var(--orange)", "overflow": "hidden", "flexShrink": "0"}}><img src={pro25} style={{"width": "100%", "height": "100%", "objectFit": "cover"}} loading="lazy"/></div>
           <div style={{"flex": "1"}}>
             <div style={{"fontWeight": "800", "fontSize": "15px", "color": "#222"}}>Pedro Santos</div>
@@ -2400,10 +2414,10 @@ export default function LandingPage({ navigate, lang }) {
           <div className="perk"><span className="perk-icon">💳</span><p><strong>Cobros seguros</strong> — efectivo o transferencia</p></div>
           <div className="perk"><span className="perk-icon">⭐</span><p><strong>Reputación verificada</strong> — tus reseñas te abren puertas</p></div>
         </div>
-        <a onClick={() => navigate('login')} className="btn-white" style={{cursor: "pointer", "display": "inline-flex"}}>🚀 Postularme ahora — Es gratis</a>
+        <a href="https://listopatron.vercel.app" onClick={(e) => { e.preventDefault(); goToVercel('pro'); }} className="btn-white" style={{cursor: "pointer", "display": "inline-flex"}}>🚀 Postularme ahora — Es gratis</a>
       </div>
       <div className="pro-visual">
-        <div className="pro-card">
+        <div className="pro-card" onClick={() => goToVercel('Electricista')} style={{ cursor: "pointer" }} title="Ver perfil de Carlos Méndez en Vercel">
           <div className="pro-card-av" style={{"overflow": "hidden"}}><img src="./assets/extracted_26.jpeg" style={{"width": "100%", "height": "100%", "objectFit": "cover", "borderRadius": "50%"}} loading="lazy"/></div>
           <div className="pro-card-info">
             <div className="pro-card-name">Carlos Méndez</div>
@@ -2412,7 +2426,7 @@ export default function LandingPage({ navigate, lang }) {
           </div>
           <div className="pro-card-earn">+RD$45k</div>
         </div>
-        <div className="pro-card">
+        <div className="pro-card" onClick={() => goToVercel('Plomero')} style={{ cursor: "pointer" }} title="Ver perfil de Ana Rodríguez en Vercel">
           <div className="pro-card-av" style={{"overflow": "hidden"}}><img src="./assets/extracted_27.jpeg" style={{"width": "100%", "height": "100%", "objectFit": "cover", "borderRadius": "50%"}} loading="lazy"/></div>
           <div className="pro-card-info">
             <div className="pro-card-name">Ana Rodríguez</div>
@@ -2421,7 +2435,7 @@ export default function LandingPage({ navigate, lang }) {
           </div>
           <div className="pro-card-earn">+RD$38k</div>
         </div>
-        <div className="pro-card">
+        <div className="pro-card" onClick={() => goToVercel('Mecánico')} style={{ cursor: "pointer" }} title="Ver perfil de José Fernández en Vercel">
           <div className="pro-card-av" style={{"overflow": "hidden"}}><img src="./assets/extracted_28.jpeg" style={{"width": "100%", "height": "100%", "objectFit": "cover", "borderRadius": "50%"}} loading="lazy"/></div>
           <div className="pro-card-info">
             <div className="pro-card-name">José Fernández</div>
@@ -2430,7 +2444,7 @@ export default function LandingPage({ navigate, lang }) {
           </div>
           <div className="pro-card-earn">+RD$62k</div>
         </div>
-        <div style={{"background": "#fff", "border": "1px solid rgba(255,255,255,0.9)", "borderRadius": "16px", "padding": "18px 20px", "display": "flex", "alignItems": "center", "gap": "14px"}}>
+        <div onClick={() => goToVercel('')} style={{"background": "#fff", "border": "1px solid rgba(255,255,255,0.9)", "borderRadius": "16px", "padding": "18px 20px", "display": "flex", "alignItems": "center", "gap": "14px", cursor: "pointer"}} title="Ver top profesionales en Vercel">
           <span style={{"fontSize": "28px"}}>🏆</span>
           <div>
             <div style={{"fontWeight": "800", "color": "#222", "fontSize": "14px"}}>Top profesionales del mes</div>
@@ -2822,7 +2836,7 @@ export default function LandingPage({ navigate, lang }) {
       </a>
 
       {/*  Web App  */}
-      <a onClick={() => navigate('login')} style={{cursor: "pointer"}} className="app-store-btn web">
+      <a href="https://listopatron.vercel.app" onClick={(e) => { e.preventDefault(); goToVercel(''); }} style={{cursor: "pointer"}} className="app-store-btn web" title="Abrir Listo Patrón en la Web (Vercel)">
         <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#F26000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <circle cx="12" cy="12" r="10"/>
           <line x1="2" y1="12" x2="22" y2="12"/>
@@ -2837,11 +2851,11 @@ export default function LandingPage({ navigate, lang }) {
     </div>
     <div className="app-banner-phones">
       <div className="app-mini-phone">
-        <div style={{"background": "var(--orange)", "padding": "8px 10px", "borderRadius": "10px", "display": "flex", "alignItems": "center", "gap": "6px", "marginBottom": "6px"}}>
+        <div onClick={() => goToVercel('')} style={{"background": "var(--orange)", "padding": "8px 10px", "borderRadius": "10px", "display": "flex", "alignItems": "center", "gap": "6px", "marginBottom": "6px", cursor: "pointer"}} title="Buscar servicios en Vercel">
           <span style={{"fontSize": "14px"}}>🔍</span>
           <span style={{"color": "#fff", "fontSize": "10px", "fontWeight": "700"}}>Buscar servicio</span>
         </div>
-        <div style={{"background": "#fff", "padding": "8px 10px", "borderRadius": "10px", "display": "flex", "alignItems": "center", "gap": "6px"}}>
+        <div onClick={() => goToVercel('Electricista')} style={{"background": "#fff", "padding": "8px 10px", "borderRadius": "10px", "display": "flex", "alignItems": "center", "gap": "6px", cursor: "pointer"}} title="Contratar Electricista en Vercel">
           <span style={{"fontSize": "14px"}}>👨‍🔧</span>
           <div><div style={{"fontSize": "9px", "fontWeight": "800"}}>Carlos M.</div><div style={{"fontSize": "8px", "color": "#888"}}>Electricista ⭐4.9</div></div>
           <div style={{"marginLeft": "auto", "background": "var(--orange)", "color": "#fff", "fontSize": "8px", "fontWeight": "800", "padding": "3px 8px", "borderRadius": "20px"}}>Contratar</div>
@@ -2870,8 +2884,8 @@ export default function LandingPage({ navigate, lang }) {
     <p style={{"fontSize": "18px", "marginBottom": "10px", "maxWidth": "520px", "marginLeft": "auto", "marginRight": "auto", "marginTop": "0"}}>Únete a la plataforma que está transformando los servicios a domicilio en República Dominicana.</p>
 
     <div className="cta-btns" style={{"marginBottom": "10px"}}>
-      <a onClick={() => navigate('login')} style={{cursor: "pointer"}} className="btn-white">🔍 Buscar profesional</a>
-      <a onClick={() => navigate('login')} style={{cursor: "pointer"}} className="btn-ghost">🔧 Postularme como pro</a>
+      <a href="https://listopatron.vercel.app" onClick={(e) => { e.preventDefault(); goToVercel(''); }} style={{cursor: "pointer"}} className="btn-white">🔍 Buscar profesional</a>
+      <a href="https://listopatron.vercel.app" onClick={(e) => { e.preventDefault(); goToVercel('pro'); }} style={{cursor: "pointer"}} className="btn-ghost">🔧 Postularme como pro</a>
     </div>
 
     {/*  Social proof mini  */}

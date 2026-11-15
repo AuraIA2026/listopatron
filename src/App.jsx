@@ -17,6 +17,10 @@ export default function App() {
 
   const handleNavigate = (page) => {
     if (typeof window !== 'undefined') {
+      if (page === 'login' || page === 'app' || page === 'pro' || page === 'search' || page === 'mandame' || page === 'booking') {
+        window.location.href = 'https://listopatron.vercel.app';
+        return;
+      }
       if (page === 'home' || page === 'landing') {
         try {
           if (window.history && window.history.pushState) {
