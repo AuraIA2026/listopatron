@@ -735,6 +735,25 @@ export default function LandingPage({ navigate, lang }) {
   const [showDownloadDropdown, setShowDownloadDropdown] = useState(false);
   const [selectedMapRegion, setSelectedMapRegion] = useState('all');
   const [activeCityId, setActiveCityId] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchCity, setSearchCity] = useState('all');
+
+  const handleSearchSubmit = (e) => {
+    if (e) e.preventDefault();
+    const targetEl = document.getElementById('servicios');
+    if (targetEl) {
+      targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  const handleQuickTagClick = (tag) => {
+    const cleanTag = tag.replace(/^[^\wáéíóúÁÉÍÓÚñÑ]+/, '').trim();
+    setSearchQuery(cleanTag);
+    const targetEl = document.getElementById('servicios');
+    if (targetEl) {
+      targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
 
   // Escuchar parámetros de la URL para abrir el modal de planes automáticamente cuando viene de la app
   useEffect(() => {
@@ -950,12 +969,22 @@ export default function LandingPage({ navigate, lang }) {
   {/*  SKIP LINK PARA ACCESIBILIDAD  */}
   <a href="#main-content" className="skip-link">Saltar al contenido principal</a>
 
-  {/*  BOTÓN FLOTANTE WHATSAPP  */}
-  <a href="https://wa.me/18099090455" className="whatsapp-float" target="_blank" rel="noopener noreferrer" aria-label="Contactar por WhatsApp">
-    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+  {/*  BOTÓN FLOTANTE WHATSAPP OFICIAL CON TEXTO DESTACADO  */}
+  <a 
+    href="https://wa.me/18099090455?text=Hola%20Listo%20Patr%C3%B3n%2C%20necesito%20asistencia%20en%20la%20plataforma" 
+    className="whatsapp-float-chip" 
+    target="_blank" 
+    rel="noopener noreferrer" 
+    aria-label="Contactar por WhatsApp con soporte oficial"
+    title="Chatear con soporte Listo Patrón en WhatsApp"
+  >
+    <svg className="whatsapp-icon-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
       <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
     </svg>
-    <span className="whatsapp-tooltip">¿Necesitas ayuda? Escríbenos</span>
+    <div className="whatsapp-chip-text">
+      <span className="whatsapp-chip-sub">Soporte Directo</span>
+      <span className="whatsapp-chip-title">WhatsApp 24/7</span>
+    </div>
   </a>
 
   {/*  BOTÓN SCROLL TO TOP  */}
@@ -1070,9 +1099,36 @@ export default function LandingPage({ navigate, lang }) {
 
 
 {/*  PORTADA PRINCIPAL / VIDEO OFICIAL PROFESIONALES  */}
-<div id="intro-portada-container" style={{"width": "100%", "background": "#F26000", "paddingTop": "70px", "display": "flex", "justifyContent": "center", "position": "relative"}}>
+<div id="intro-portada-container" style={{"width": "100%", "background": "#F26000", "paddingTop": "70px", "display": "flex", "flexDirection": "column", "alignItems": "center", "position": "relative"}}>
+
+    {/* CINTILLO FESTIVO NAVIDEÑO SUPERIOR */}
+    <div className="navidad-hero-banner">
+      <div className="navidad-banner-content">
+        <span className="navidad-tree-icon">🎄</span>
+        <div className="navidad-banner-texts">
+          <span className="navidad-banner-tag">¡Especial Navideño Dominicano!</span>
+          <span className="navidad-banner-headline">
+            Santa sobrevuela el Monumento: En esta Navidad, los mejores profesionales de RD llegan directo a tu hogar o negocio. 🎅✨
+          </span>
+        </div>
+        <a href="#buscar-servicios" className="navidad-banner-action">
+          🔍 Buscar Servicios
+        </a>
+      </div>
+    </div>
+
     <div style={{"position": "relative", "width": "100%", "maxWidth": "1000px", "boxShadow": "0 0 40px rgba(0,0,0,0.3)", "overflow": "hidden", "background": "#000", "borderRadius": "16px", "margin": "0 15px", "aspectRatio": "250 / 111", "minHeight": "175px"}}>
       
+      {/* Copos de nieve decorativos sutiles cayendo sobre el video */}
+      <div className="snow-overlay" aria-hidden="true">
+        <span className="snowflake" style={{ left: '10%', animationDelay: '0s', animationDuration: '6s' }}>❄</span>
+        <span className="snowflake" style={{ left: '26%', animationDelay: '2.5s', animationDuration: '8s' }}>❅</span>
+        <span className="snowflake" style={{ left: '48%', animationDelay: '1s', animationDuration: '7s' }}>❄</span>
+        <span className="snowflake" style={{ left: '68%', animationDelay: '3.2s', animationDuration: '9s' }}>❆</span>
+        <span className="snowflake" style={{ left: '84%', animationDelay: '0.8s', animationDuration: '6.5s' }}>❄</span>
+        <span className="snowflake" style={{ left: '94%', animationDelay: '2s', animationDuration: '8.5s' }}>❅</span>
+      </div>
+
       {/* Video 1: Navidad Santa sobre el Monumento (sale primero - sin loop, al terminar pasa al siguiente) */}
       <video
         ref={navidadVideoRef}
@@ -1179,6 +1235,73 @@ export default function LandingPage({ navigate, lang }) {
 
 
 {/* CARRUSEL TIENDA — bolsas + ropa de trabajo, debajo del video */}
+{/*  BARRA DE BÚSQUEDA RÁPIDA DE SERVICIOS EN PORTADA  */}
+<div id="buscar-servicios" className="hero-search-wrapper">
+  <div className="hero-search-card">
+    <div className="hero-search-header">
+      <div className="hero-search-badge">⚡ Búsqueda Rápida en RD</div>
+      <h3 className="hero-search-title">¿Qué servicio necesitas en tu hogar o negocio?</h3>
+      <p className="hero-search-subtitle">Más de 500 expertos verificados con respuesta promedio en 15 minutos.</p>
+    </div>
+    
+    <form className="hero-search-form" onSubmit={handleSearchSubmit}>
+      <div className="hero-search-input-group">
+        <span className="hero-search-icon">🔍</span>
+        <input 
+          type="text" 
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Ej: Plomero, Electricista, Limpieza, Pintor, Mecánico..."
+          className="hero-search-input"
+          aria-label="Buscar servicio o profesional"
+        />
+        {searchQuery && (
+          <button type="button" onClick={() => setSearchQuery('')} className="hero-search-clear">✕</button>
+        )}
+      </div>
+
+      <div className="hero-search-city-group">
+        <span className="hero-search-icon">📍</span>
+        <select 
+          value={searchCity} 
+          onChange={(e) => setSearchCity(e.target.value)}
+          className="hero-search-select"
+          aria-label="Seleccionar ciudad"
+        >
+          <option value="all">🇩🇴 Toda República Dominicana</option>
+          <option value="santiago">Santiago de los Caballeros</option>
+          <option value="santodomingo">Santo Domingo / DN</option>
+          <option value="laromana">La Romana</option>
+          <option value="puertoplata">Puerto Plata</option>
+          <option value="sancristobal">San Cristóbal</option>
+          <option value="sanpedro">San Pedro de Macorís</option>
+          <option value="la-vega">La Vega</option>
+        </select>
+      </div>
+
+      <button type="submit" className="hero-search-submit-btn">
+        <span>Buscar experto</span>
+        <span className="hero-search-btn-arrow">→</span>
+      </button>
+    </form>
+
+    {/* Tags rápidos de categorías más solicitadas */}
+    <div className="hero-search-quick-tags">
+      <span className="quick-tag-label">Más pedidos:</span>
+      {['🔩 Plomero', '⚡ Electricista', '🧹 Limpieza', '🎨 Pintor', '🔧 Mecánica', '❄️ A/C', '🌿 Jardinería'].map((tag, idx) => (
+        <button 
+          key={idx} 
+          type="button" 
+          className="quick-tag-pill"
+          onClick={() => handleQuickTagClick(tag)}
+        >
+          {tag}
+        </button>
+      ))}
+    </div>
+  </div>
+</div>
+
 <div
   style={{ width: '100%', background: '#F26000', paddingBottom: '4px', cursor: 'pointer' }}
   onClick={() => navigate ? navigate('shop') : (window.location.href = '/?page=shop')}
@@ -1513,31 +1636,6 @@ export default function LandingPage({ navigate, lang }) {
   </div>
 </section>
 
-
-{/*  CINTA OFICIAL TIENDA LISTO PATRÓN (DEBAJO DE PROFESIONALES DESTACADOS)  */}
-<div style={{ maxWidth: '1200px', margin: '14px auto 20px', padding: '0 5%' }}>
-  <div 
-    className="store-ribbon-banner"
-    onClick={() => navigate ? navigate('shop') : window.location.href = '/?page=shop'}
-    title="Visitar la Tienda Web de Listo Patrón"
-  >
-    <div className="store-ribbon-content">
-      <span className="store-ribbon-icon">🛍️</span>
-      <div className="store-ribbon-text-group">
-        <p className="store-ribbon-title">
-          Equípate en nuestra tienda <strong>Listo Patrón</strong>
-        </p>
-        <p className="store-ribbon-sub">
-          Herramientas, equipos e insumos de seguridad con envío rápido a todo el país
-        </p>
-      </div>
-    </div>
-    <button className="store-ribbon-btn" onClick={(e) => { e.stopPropagation(); navigate ? navigate('shop') : window.location.href = '/?page=shop'; }}>
-      🛒 Visitar Tienda ›
-    </button>
-  </div>
-</div>
-
 {/*  PUBLICIDAD  */}
 <section style={{"background": "#f5f5f5", "padding": "24px 5%"}}>
   <div className="section-inner">
@@ -1678,6 +1776,65 @@ export default function LandingPage({ navigate, lang }) {
     <span>📍 Tracking en tiempo real</span>
   </div>
 </div>
+
+{/*  SECCIÓN CÓMO FUNCIONA PARA CLIENTES (PASO A PASO 1-2-3)  */}
+<section id="como-funciona" className="how-it-works-section">
+  <div className="section-inner">
+    <div className="chip sr" style={{ margin: "0 auto 14px", display: "table" }}>
+      ✨ Simple y Transparente
+    </div>
+    <h2 className="section-title sr sr-delay-1" style={{ textAlign: "center" }}>
+      ¿Cómo funciona para <span>Clientes?</span>
+    </h2>
+    <p className="section-sub sr sr-delay-2" style={{ margin: "0 auto 40px", textAlign: "center", maxWidth: "580px" }}>
+      Solicitar ayuda profesional en tu hogar o negocio nunca fue tan fácil, rápido y seguro.
+    </p>
+
+    <div className="how-it-works-grid">
+      {/* Paso 1 */}
+      <div className="how-step-card">
+        <div className="how-step-number">01</div>
+        <div className="how-step-icon-box">🔍</div>
+        <h3 className="how-step-title">Busca tu servicio</h3>
+        <p className="how-step-desc">
+          Escribe lo que necesitas o elige una categoría. Filtra por tu ciudad (Santiago, Santo Domingo y todo el país) en solo segundos.
+        </p>
+        <span className="how-step-badge">En 1 minuto</span>
+      </div>
+
+      {/* Paso 2 */}
+      <div className="how-step-card how-step-featured">
+        <div className="how-step-number">02</div>
+        <div className="how-step-icon-box">👷‍♂️</div>
+        <h3 className="how-step-title">Elige al profesional ideal</h3>
+        <p className="how-step-desc">
+          Revisa antecedentes depurados, fotos reales de trabajos anteriores y calificaciones 100% verificadas de otros clientes.
+        </p>
+        <span className="how-step-badge">100% Verificados</span>
+      </div>
+
+      {/* Paso 3 */}
+      <div className="how-step-card">
+        <div className="how-step-number">03</div>
+        <div className="how-step-icon-box">🤝</div>
+        <h3 className="how-step-title">Servicio y satisfacción</h3>
+        <p className="how-step-desc">
+          El experto llega a tu puerta en minutos. Coordina con tranquilidad, paga seguro (efectivo o transferencia) y califica el trabajo.
+        </p>
+        <span className="how-step-badge">Garantía Listo</span>
+      </div>
+    </div>
+    
+    <div style={{ textAlign: 'center', marginTop: '36px' }}>
+      <button 
+        onClick={() => setShowDownloadDropdown(true)} 
+        className="how-cta-button"
+      >
+        📲 Probar Listo Patrón Ahora →
+      </button>
+    </div>
+  </div>
+</section>
 
 {/*  CATEGORIAS  */}
 <section className="cats-section" id="servicios">
@@ -2513,7 +2670,7 @@ export default function LandingPage({ navigate, lang }) {
 
 
 {/*  PREGUNTAS CLIENTES VS PROFESIONALES  */}
-<section style={{"background": "#fff", "padding": "40px 5%"}}>
+<section style={{"background": "#fff", "padding": "50px 5%"}} id="faq">
   <div className="section-inner">
 
     <div style={{"textAlign": "center", "marginBottom": "28px"}}>
@@ -2521,10 +2678,10 @@ export default function LandingPage({ navigate, lang }) {
         ❓ Resolvemos tus dudas
       </div>
       <h2 style={{"fontFamily": "'Fredoka One',cursive", "fontSize": "clamp(24px,4vw,42px)", "color": "#F26000", "lineHeight": "1.1", "marginBottom": "8px"}}>
-        ¿Eres cliente o profesional?
+        ¿Tienes dudas? <span>Selecciona tu perfil</span>
       </h2>
       <p style={{"fontSize": "15px", "color": "#6B7280", "maxWidth": "460px", "margin": "0 auto"}}>
-        Selecciona tu perfil y encuentra respuestas a tus preguntas.
+        Encuentra respuestas claras tanto si buscas contratar o si eres profesional.
       </p>
     </div>
 
@@ -2545,14 +2702,14 @@ export default function LandingPage({ navigate, lang }) {
         <summary style={{"fontWeight": "800", "fontSize": "15px", "color": "#C24D00", "listStyle": "none", "display": "flex", "justifyContent": "space-between", "alignItems": "center"}}>
           ¿Cómo pido un servicio? <span style={{"fontSize": "20px", "color": "#F26000"}}>+</span>
         </summary>
-        <p style={{"marginTop": "12px", "color": "#555", "fontSize": "14px", "lineHeight": "1.7"}}>Descarga la app, regístrate, busca el servicio que necesitas, selecciona un profesional verificado y confirma tu solicitud. En minutos tendrás una respuesta.</p>
+        <p style={{"marginTop": "12px", "color": "#555", "fontSize": "14px", "lineHeight": "1.7"}}>Descarga la app o busca aquí el servicio que necesitas, selecciona un profesional verificado y confirma tu solicitud. En minutos tendrás una respuesta directa.</p>
       </details>
 
       <details style={{"background": "#FFF3EC", "borderRadius": "14px", "padding": "18px 20px", "border": "1px solid #FFD4B8", "cursor": "pointer"}}>
         <summary style={{"fontWeight": "800", "fontSize": "15px", "color": "#C24D00", "listStyle": "none", "display": "flex", "justifyContent": "space-between", "alignItems": "center"}}>
           ¿Los profesionales están verificados? <span style={{"fontSize": "20px", "color": "#F26000"}}>+</span>
         </summary>
-        <p style={{"marginTop": "12px", "color": "#555", "fontSize": "14px", "lineHeight": "1.7"}}>Sí. Todos pasan por verificación de identidad, antecedentes penales, prueba de habilidades y sistema de reputación antes de ser activados.</p>
+        <p style={{"marginTop": "12px", "color": "#555", "fontSize": "14px", "lineHeight": "1.7"}}>Sí. Todos pasan por verificación de identidad, antecedentes penales con la Policía Nacional, prueba técnica de habilidades y sistema de reputación antes de ser activados.</p>
       </details>
 
       <details style={{"background": "#FFF3EC", "borderRadius": "14px", "padding": "18px 20px", "border": "1px solid #FFD4B8", "cursor": "pointer"}}>
@@ -2566,14 +2723,21 @@ export default function LandingPage({ navigate, lang }) {
         <summary style={{"fontWeight": "800", "fontSize": "15px", "color": "#C24D00", "listStyle": "none", "display": "flex", "justifyContent": "space-between", "alignItems": "center"}}>
           ¿Cómo pago el servicio? <span style={{"fontSize": "20px", "color": "#F26000"}}>+</span>
         </summary>
-        <p style={{"marginTop": "12px", "color": "#555", "fontSize": "14px", "lineHeight": "1.7"}}>Puedes pagar en efectivo o por transferencia bancaria directamente al profesional. El pago se confirma después de completar el servicio.</p>
+        <p style={{"marginTop": "12px", "color": "#555", "fontSize": "14px", "lineHeight": "1.7"}}>Puedes pagar en efectivo o por transferencia bancaria directamente al profesional. El pago se efectúa con total transparencia después de completar el servicio.</p>
       </details>
 
       <details style={{"background": "#FFF3EC", "borderRadius": "14px", "padding": "18px 20px", "border": "1px solid #FFD4B8", "cursor": "pointer"}}>
         <summary style={{"fontWeight": "800", "fontSize": "15px", "color": "#C24D00", "listStyle": "none", "display": "flex", "justifyContent": "space-between", "alignItems": "center"}}>
-          ¿Qué pasa si no estoy satisfecho? <span style={{"fontSize": "20px", "color": "#F26000"}}>+</span>
+          ¿En qué ciudades está disponible Listo Patrón? <span style={{"fontSize": "20px", "color": "#F26000"}}>+</span>
         </summary>
-        <p style={{"marginTop": "12px", "color": "#555", "fontSize": "14px", "lineHeight": "1.7"}}>Puedes dejar una reseña y contactar a soporte directamente desde la app. Los profesionales con calificaciones bajas son suspendidos automáticamente.</p>
+        <p style={{"marginTop": "12px", "color": "#555", "fontSize": "14px", "lineHeight": "1.7"}}>Listo Patrón opera en toda República Dominicana, con cobertura destacada en Santiago de los Caballeros, Santo Domingo, La Romana, San Cristóbal, Puerto Plata y San Pedro de Macorís.</p>
+      </details>
+
+      <details style={{"background": "#FFF3EC", "borderRadius": "14px", "padding": "18px 20px", "border": "1px solid #FFD4B8", "cursor": "pointer"}}>
+        <summary style={{"fontWeight": "800", "fontSize": "15px", "color": "#C24D00", "listStyle": "none", "display": "flex", "justifyContent": "space-between", "alignItems": "center"}}>
+          ¿Cómo contacto a soporte si tengo algún inconveniente? <span style={{"fontSize": "20px", "color": "#F26000"}}>+</span>
+        </summary>
+        <p style={{"marginTop": "12px", "color": "#555", "fontSize": "14px", "lineHeight": "1.7"}}>Puedes escribirnos directamente a nuestro WhatsApp oficial (809-909-0455) desde el botón flotante en la web o desde la app. Nuestro equipo responde de inmediato.</p>
       </details>
 
     </div>
@@ -2618,69 +2782,6 @@ export default function LandingPage({ navigate, lang }) {
 
     </div>
 
-  </div>
-</section>
-
-
-
-{/*  FAQ  */}
-<section className="faq-section" id="faq">
-  <div className="section-inner">
-    <div className="chip sr" style={{"margin": "0 auto 16px", "display": "table"}}>❓ Preguntas frecuentes</div>
-    <h2 className="section-title sr sr-delay-1" style={{"textAlign": "center"}}>¿Tienes <span>dudas?</span></h2>
-    <p className="section-sub sr sr-delay-2" style={{"margin": "0 auto 56px", "textAlign": "center"}}>Todo lo que necesitas saber sobre Listo.</p>
-
-    <div className="faq-grid sr sr-delay-2">
-
-      <div className="faq-item" onClick={() => { toggleFaq(this) }}>
-        <div className="faq-q">
-          <span>¿Cómo funciona Listo?</span>
-          <span className="faq-arrow">▼</span>
-        </div>
-        <div className="faq-a">Busca el servicio que necesitas, elige un profesional verificado cerca de ti y coordina directamente. En minutos tienes a alguien en camino.</div>
-      </div>
-
-      <div className="faq-item" onClick={() => { toggleFaq(this) }}>
-        <div className="faq-q">
-          <span>¿Los profesionales están verificados?</span>
-          <span className="faq-arrow">▼</span>
-        </div>
-        <div className="faq-a">Sí. Todos los profesionales pasan por un proceso de verificación antes de aparecer en la plataforma. También puedes ver sus calificaciones y reseñas de otros clientes.</div>
-      </div>
-
-      <div className="faq-item" onClick={() => { toggleFaq(this) }}>
-        <div className="faq-q">
-          <span>¿Cómo se realiza el pago?</span>
-          <span className="faq-arrow">▼</span>
-        </div>
-        <div className="faq-a">El pago se coordina directamente con el profesional. Puedes pagar en efectivo o por transferencia bancaria según el acuerdo con el profesional.</div>
-      </div>
-
-      <div className="faq-item" onClick={() => { toggleFaq(this) }}>
-        <div className="faq-q">
-          <span>¿Qué pasa si tengo un problema con el servicio?</span>
-          <span className="faq-arrow">▼</span>
-        </div>
-        <div className="faq-a">Puedes contactarnos directamente por WhatsApp o email. Nuestro equipo estará disponible para ayudarte a resolver cualquier inconveniente.</div>
-      </div>
-
-      <div className="faq-item" onClick={() => { toggleFaq(this) }}>
-        <div className="faq-q">
-          <span>¿En qué ciudades está disponible?</span>
-          <span className="faq-arrow">▼</span>
-        </div>
-        <div className="faq-a">Listo está disponible en toda República Dominicana, con mayor cobertura en Santo Domingo, Santiago, La Romana y San Pedro de Macorís.</div>
-      </div>
-
-      <div className="faq-item" onClick={() => { toggleFaq(this) }}>
-        <div className="faq-q">
-          <span>¿Cómo me registro como profesional?</span>
-          <span className="faq-arrow">▼</span>
-        </div>
-        <div className="faq-a">Entra a la app, selecciona "Soy profesional", completa tu perfil con tus datos y especialidad, y elige el plan que mejor se adapte a ti. Los primeros 3 meses son gratis (3 contratos por mes).</div>
-      </div>
-
-    </div>
   </div>
 </section>
 
