@@ -768,6 +768,76 @@ export default function LandingPage({ navigate, lang }) {
     goToVercel(cleanTag, searchCity);
   };
 
+  const phoneCarouselSlides = [
+    {
+      id: 'tapiceria',
+      img: './assets/phone_carousel/pro_tapiceria.jpg',
+      title: 'Tapicería y Muebles',
+      category: 'Muebles',
+      badge: '✦ Experto Listo',
+      rating: '5.0 ★',
+    },
+    {
+      id: 'limpieza',
+      img: './assets/phone_carousel/pro_limpieza.jpg',
+      title: 'Limpieza Profunda',
+      category: 'Limpieza',
+      badge: '✦ Top Calificado',
+      rating: '4.9 ★',
+    },
+    {
+      id: 'enfermeria',
+      img: './assets/phone_carousel/pro_enfermeria.jpg',
+      title: 'Enfermería a Domicilio',
+      category: 'Enfermería',
+      badge: '✦ Verificada',
+      rating: '5.0 ★',
+    },
+    {
+      id: 'fumigacion',
+      img: './assets/phone_carousel/pro_fumigacion.jpg',
+      title: 'Control de Plagas',
+      category: 'Fumigación',
+      badge: '✦ Garantizado',
+      rating: '4.9 ★',
+    },
+    {
+      id: 'plomeria',
+      img: './assets/phone_carousel/pro_plomeria.jpg',
+      title: 'Plomería y Tuberías',
+      category: 'Plomero',
+      badge: '✦ Disponible',
+      rating: '5.0 ★',
+    },
+    {
+      id: 'delivery',
+      img: './assets/phone_carousel/pro_delivery.jpg',
+      title: 'Pedidos Listo Express',
+      category: 'Mandame',
+      badge: '✦ Express RD',
+      rating: '4.9 ★',
+    },
+    {
+      id: 'reparaciones',
+      img: './assets/phone_carousel/pro_reparaciones.jpg',
+      title: 'Mantenimiento del Hogar',
+      category: 'Mantenimiento',
+      badge: '✦ En servicio',
+      rating: '4.8 ★',
+    },
+  ];
+
+  const [activePhoneSlide, setActivePhoneSlide] = useState(0);
+  const [isPhoneCarouselPaused, setIsPhoneCarouselPaused] = useState(false);
+
+  useEffect(() => {
+    if (isPhoneCarouselPaused) return;
+    const timer = setInterval(() => {
+      setActivePhoneSlide((prev) => (prev + 1) % phoneCarouselSlides.length);
+    }, 3200);
+    return () => clearInterval(timer);
+  }, [isPhoneCarouselPaused, phoneCarouselSlides.length]);
+
   // Escuchar parámetros de la URL para abrir el modal de planes automáticamente cuando viene de la app
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -1713,6 +1783,221 @@ export default function LandingPage({ navigate, lang }) {
                 <span style={{"color": "rgba(255,255,255,0.9)", "fontSize": "10px", "fontWeight": "700", "letterSpacing": ".5px"}}>🇩🇴 República Dominicana</span>
               </div>
               <div className="phone-search" onClick={() => goToVercel('')} style={{ cursor: "pointer" }} title="Buscar en Vercel">🔍 ¿Qué servicio necesitas?</div>
+
+              {/*  CARRUSEL INTERACTIVO DE PROFESIONALES OFICIALES DENTRO DEL CELULAR  */}
+              <div 
+                className="phone-carousel-wrap" 
+                style={{
+                  position: 'relative',
+                  width: '100%',
+                  height: '124px',
+                  borderRadius: '14px',
+                  overflow: 'hidden',
+                  boxShadow: '0 4px 14px rgba(0,0,0,0.18)',
+                  cursor: 'pointer',
+                  flexShrink: 0,
+                  background: '#141423'
+                }}
+                onMouseEnter={() => setIsPhoneCarouselPaused(true)}
+                onMouseLeave={() => setIsPhoneCarouselPaused(false)}
+                onClick={() => goToVercel(phoneCarouselSlides[activePhoneSlide].category)}
+                title={`Ver ${phoneCarouselSlides[activePhoneSlide].title} en Vercel`}
+              >
+                {phoneCarouselSlides.map((slide, idx) => (
+                  <div
+                    key={slide.id}
+                    style={{
+                      position: 'absolute',
+                      inset: 0,
+                      opacity: activePhoneSlide === idx ? 1 : 0,
+                      transform: activePhoneSlide === idx ? 'scale(1)' : 'scale(1.06)',
+                      transition: 'opacity 0.6s ease, transform 0.6s ease',
+                      pointerEvents: activePhoneSlide === idx ? 'auto' : 'none',
+                    }}
+                  >
+                    <img 
+                      src={slide.img} 
+                      alt={slide.title}
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                        objectPosition: 'center 22%',
+                        display: 'block'
+                      }}
+                    />
+                    {/* Gradiente oscuro inferior para máxima legibilidad */}
+                    <div style={{
+                      position: 'absolute',
+                      inset: 0,
+                      background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0.08) 100%)'
+                    }} />
+
+                    {/* Badge superior */}
+                    <div style={{
+                      position: 'absolute',
+                      top: '7px',
+                      left: '7px',
+                      background: 'rgba(242, 96, 0, 0.92)',
+                      color: '#fff',
+                      fontSize: '8.5px',
+                      fontWeight: '800',
+                      padding: '2px 7px',
+                      borderRadius: '50px',
+                      backdropFilter: 'blur(4px)',
+                      letterSpacing: '0.3px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      boxShadow: '0 2px 6px rgba(0,0,0,0.3)'
+                    }}>
+                      <span>{slide.badge}</span>
+                      <span style={{ color: '#FFD700', fontSize: '8px' }}>{slide.rating}</span>
+                    </div>
+
+                    {/* Texto y botón inferior */}
+                    <div style={{
+                      position: 'absolute',
+                      bottom: '8px',
+                      left: '8px',
+                      right: '8px',
+                      display: 'flex',
+                      alignItems: 'flex-end',
+                      justifyContent: 'space-between',
+                      gap: '6px'
+                    }}>
+                      <div style={{ minWidth: 0, flex: 1 }}>
+                        <div style={{
+                          color: '#ffffff',
+                          fontSize: '11px',
+                          fontWeight: '800',
+                          lineHeight: '1.2',
+                          textShadow: '0 1px 4px rgba(0,0,0,0.9)',
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis'
+                        }}>
+                          {slide.title}
+                        </div>
+                        <div style={{
+                          color: '#FFB800',
+                          fontSize: '8.5px',
+                          fontWeight: '700',
+                          marginTop: '2px',
+                          textShadow: '0 1px 3px rgba(0,0,0,0.9)'
+                        }}>
+                          Profesionales Listos en RD
+                        </div>
+                      </div>
+
+                      <div style={{
+                        background: '#FFFFFF',
+                        color: '#F26000',
+                        fontSize: '9px',
+                        fontWeight: '800',
+                        padding: '4px 8px',
+                        borderRadius: '20px',
+                        boxShadow: '0 2px 6px rgba(0,0,0,0.3)',
+                        whiteSpace: 'nowrap',
+                        flexShrink: 0
+                      }}>
+                        Pedir →
+                      </div>
+                    </div>
+                  </div>
+                ))}
+
+                {/* Flecha anterior */}
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setActivePhoneSlide((prev) => (prev - 1 + phoneCarouselSlides.length) % phoneCarouselSlides.length);
+                  }}
+                  style={{
+                    position: 'absolute',
+                    left: '4px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    width: '20px',
+                    height: '20px',
+                    borderRadius: '50%',
+                    background: 'rgba(0,0,0,0.55)',
+                    color: '#fff',
+                    border: 'none',
+                    fontSize: '12px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    zIndex: 5,
+                    padding: 0
+                  }}
+                  aria-label="Anterior profesional"
+                >
+                  ‹
+                </button>
+
+                {/* Flecha siguiente */}
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setActivePhoneSlide((prev) => (prev + 1) % phoneCarouselSlides.length);
+                  }}
+                  style={{
+                    position: 'absolute',
+                    right: '4px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    width: '20px',
+                    height: '20px',
+                    borderRadius: '50%',
+                    background: 'rgba(0,0,0,0.55)',
+                    color: '#fff',
+                    border: 'none',
+                    fontSize: '12px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    zIndex: 5,
+                    padding: 0
+                  }}
+                  aria-label="Siguiente profesional"
+                >
+                  ›
+                </button>
+
+                {/* Dots indicadores */}
+                <div style={{
+                  position: 'absolute',
+                  bottom: '3px',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  display: 'flex',
+                  gap: '4px',
+                  zIndex: 6
+                }}>
+                  {phoneCarouselSlides.map((_, i) => (
+                    <span
+                      key={i}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setActivePhoneSlide(i);
+                      }}
+                      style={{
+                        width: activePhoneSlide === i ? '12px' : '4px',
+                        height: '4px',
+                        borderRadius: '50px',
+                        background: activePhoneSlide === i ? '#F26000' : 'rgba(255,255,255,0.6)',
+                        transition: 'all 0.3s ease',
+                        cursor: 'pointer'
+                      }}
+                    />
+                  ))}
+                </div>
+              </div>
               <div className="phone-cats">
                 <div className="phone-cat" onClick={() => goToVercel('Mantenimiento')} style={{ cursor: "pointer" }}><span className="phone-cat-icon">🔧</span>Mantenimiento</div>
                 <div className="phone-cat" onClick={() => goToVercel('Limpieza')} style={{ cursor: "pointer" }}><span className="phone-cat-icon">🧹</span>Limpieza</div>
