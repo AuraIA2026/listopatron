@@ -1315,10 +1315,74 @@ export default function LandingPage({ navigate, lang }) {
          </a>
       </div>
     </div>
+
+    {/* BANNER OFICIAL: FABRICACIÓN DE BOLSAS Y UNIFORMES PEDIDOSLISTO */}
+    <div 
+      style={{
+        width: "100%",
+        maxWidth: "1000px",
+        margin: "20px 15px 12px",
+        borderRadius: "16px",
+        overflow: "hidden",
+        boxShadow: "0 10px 30px rgba(0,0,0,0.28)",
+        border: "3px solid rgba(255,255,255,0.25)",
+        background: "#000",
+        cursor: "pointer",
+        position: "relative",
+        transition: "transform 0.25s ease, box-shadow 0.25s ease"
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.transform = "scale(1.012)";
+        e.currentTarget.style.boxShadow = "0 16px 40px rgba(0,0,0,0.38)";
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.transform = "scale(1)";
+        e.currentTarget.style.boxShadow = "0 10px 30px rgba(0,0,0,0.28)";
+      }}
+      onClick={() => {
+        const msg = encodeURIComponent("¡Hola! Vi el anuncio en la web de Listo Patrón. Me gustaría cotizar bolsas personalizadas para restaurante y uniformes de trabajo.");
+        window.open(`https://wa.me/18099090455?text=${msg}`, '_blank');
+      }}
+      title="¡Cotiza hoy tus bolsas y uniformes de trabajo por WhatsApp!"
+    >
+      <img 
+        src="./assets/pedidoslisto_bolsas_uniformes.jpg" 
+        alt="Fabricamos las bolsas para tu restaurante y vendemos todos los uniformes de trabajo que necesitas - PedidosListo"
+        style={{
+          width: "100%",
+          height: "auto",
+          display: "block",
+          objectFit: "contain"
+        }}
+      />
+      {/* Botón flotante para cotizar directamente */}
+      <div 
+        style={{
+          position: "absolute",
+          bottom: "14px",
+          right: "14px",
+          background: "#F26000",
+          color: "#ffffff",
+          fontWeight: "800",
+          fontSize: "clamp(11px, 1.8vw, 14px)",
+          padding: "8px 18px",
+          borderRadius: "50px",
+          boxShadow: "0 4px 14px rgba(0,0,0,0.45)",
+          display: "flex",
+          alignItems: "center",
+          gap: "8px",
+          border: "2px solid #ffffff",
+          letterSpacing: "0.4px",
+          zIndex: 2
+        }}
+      >
+        <span>💬 Cotizar por WhatsApp</span>
+        <span>→</span>
+      </div>
+    </div>
 </div>
 
 
-{/* CARRUSEL TIENDA — bolsas + ropa de trabajo, debajo del video */}
 {/*  BARRA DE BÚSQUEDA RÁPIDA DE SERVICIOS EN PORTADA  */}
 <div id="buscar-servicios" className="hero-search-wrapper">
   <div className="hero-search-card">
