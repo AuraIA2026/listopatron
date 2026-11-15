@@ -1316,6 +1316,48 @@ export default function LandingPage({ navigate, lang }) {
       </div>
     </div>
 
+    {/* BANNER OFICIAL: ¿TIENES HAMBRE? PEDIDOS LISTO */}
+    <a 
+      href="https://listopatron.vercel.app/?page=mandame"
+      onClick={(e) => {
+        e.preventDefault();
+        window.location.href = 'https://listopatron.vercel.app/?page=mandame';
+      }}
+      style={{
+        display: "block",
+        width: "100%",
+        maxWidth: "1000px",
+        margin: "18px 15px 6px",
+        borderRadius: "20px",
+        overflow: "hidden",
+        boxShadow: "0 10px 30px rgba(0,0,0,0.28)",
+        border: "3px solid rgba(255,255,255,0.35)",
+        cursor: "pointer",
+        textDecoration: "none",
+        transition: "transform 0.25s ease, box-shadow 0.25s ease"
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.transform = "scale(1.015)";
+        e.currentTarget.style.boxShadow = "0 16px 40px rgba(0,0,0,0.4)";
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.transform = "scale(1)";
+        e.currentTarget.style.boxShadow = "0 10px 30px rgba(0,0,0,0.28)";
+      }}
+      title="¡Entra y conoce nuestros restaurantes en Pedidos Listo!"
+    >
+      <img 
+        src="./assets/banner_tienes_hambre.jpg" 
+        alt="¿Tienes Hambre? ¡Entra y conoce nuestros restaurantes! Ver restaurantes - PedidosListo"
+        style={{
+          width: "100%",
+          height: "auto",
+          display: "block",
+          objectFit: "contain"
+        }}
+      />
+    </a>
+
     {/* BANNER OFICIAL: FABRICACIÓN DE BOLSAS Y UNIFORMES PEDIDOSLISTO */}
     <div 
       style={{
