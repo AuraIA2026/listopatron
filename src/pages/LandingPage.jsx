@@ -726,10 +726,10 @@ export default function LandingPage({ navigate, lang }) {
   const [showDeliveryModal, setShowDeliveryModal] = useState(false);
   const [isHeroMuted, setIsHeroMuted] = useState(true);
   const heroVideoRef = useRef(null);
-  const batsVideoRef = useRef(null);
-  const [activeVideoIdx, setActiveVideoIdx] = useState(0); // 0 = bats (primero), 1 = profesionales
+  const navidadVideoRef = useRef(null);
+  const [activeVideoIdx, setActiveVideoIdx] = useState(0); // 0 = navidad (primero), 1 = profesionales
   const heroVideos = [
-    { ref: batsVideoRef,  src: './assets/bats_intro.mp4',            loop: true  },
+    { ref: navidadVideoRef, src: './assets/navidad_monumento.mp4', loop: true },
     { ref: heroVideoRef,  src: './assets/todos_los_profesionales.mp4', poster: './assets/todos_los_profesionales_poster.jpg', loop: true },
   ];
   const [showDownloadDropdown, setShowDownloadDropdown] = useState(false);
@@ -1073,10 +1073,10 @@ export default function LandingPage({ navigate, lang }) {
 <div id="intro-portada-container" style={{"width": "100%", "background": "#F26000", "paddingTop": "70px", "display": "flex", "justifyContent": "center", "position": "relative"}}>
     <div style={{"position": "relative", "width": "100%", "maxWidth": "1000px", "boxShadow": "0 0 40px rgba(0,0,0,0.3)", "overflow": "hidden", "background": "#000", "borderRadius": "16px", "margin": "0 15px", "aspectRatio": "250 / 111", "minHeight": "175px"}}>
       
-      {/* Video 1: Murciélagos (sale primero - sin loop, al terminar pasa al siguiente) */}
+      {/* Video 1: Navidad Santa sobre el Monumento (sale primero - sin loop, al terminar pasa al siguiente) */}
       <video
-        ref={batsVideoRef}
-        src="./assets/bats_intro.mp4"
+        ref={navidadVideoRef}
+        src="./assets/navidad_monumento.mp4"
         autoPlay
         muted={isHeroMuted}
         playsInline
@@ -1102,7 +1102,7 @@ export default function LandingPage({ navigate, lang }) {
           <button
             key={i}
             onClick={() => switchToVideo(i)}
-            title={i === 0 ? 'Video intro' : 'Video profesionales'}
+            title={i === 0 ? 'Video Navidad' : 'Video profesionales'}
             style={{width: activeVideoIdx===i ? '28px' : '10px', height:'10px', borderRadius:'50px', background: activeVideoIdx===i ? '#FF6B00' : 'rgba(255,255,255,0.5)', border:'none', cursor:'pointer', transition:'all 0.3s ease', padding:0}}
           />
         ))}
