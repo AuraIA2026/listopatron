@@ -1180,14 +1180,15 @@ export default function LandingPage({ navigate, lang }) {
       <a href="https://listopatron.vercel.app" onClick={(e) => { e.preventDefault(); goToVercel(); }} className="nav-btn nav-btn-inside-menu" style={{ cursor: "pointer", color: "#FFFFFF", fontWeight: "bold" }}>Abrir app →</a>
     </div>
 
-    {/* BOTÓN ABRIR APP SIEMPRE VISIBLE EN PANTALLAS GRANDES */}
+    {/* BOTÓN APP COMPACTO SIEMPRE VISIBLE EN PANTALLAS GRANDES */}
     <a 
       href="https://listopatron.vercel.app"
       onClick={(e) => { e.preventDefault(); goToVercel(); }} 
       className="nav-btn nav-btn-direct" 
-      style={{ cursor: "pointer", color: "#FFFFFF", fontWeight: "bold", whiteSpace: "nowrap" }}
+      title="Abrir app Listo Patrón"
+      style={{ cursor: "pointer", color: "#FFFFFF", fontWeight: "800", whiteSpace: "nowrap", padding: "7px 14px", fontSize: "13px", lineHeight: "1.2", marginLeft: "6px" }}
     >
-      Abrir app →
+      App
     </a>
 
     {/* BOTÓN HAMBURGUESA PARA VER SERVICIOS, FAQ Y DEMÁS */}
