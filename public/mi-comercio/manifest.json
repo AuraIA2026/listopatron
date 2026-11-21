@@ -1,0 +1,32 @@
+{
+  "name": "Pedidos Listo - Comercios RD",
+  "short_name": "Pedidos Listo",
+  "description": "Comandera, POS y delivery para tu comercio en República Dominicana. Gestiona pedidos, clientes y servicios.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FFF3EC",
+  "theme_color": "#F26000",
+  "orientation": "portrait",
+  "scope": "/",
+  "id": "com.pedidoslisto.comercio",
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/favicon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["business", "food", "productivity"],
+  "lang": "es-DO",
+  "dir": "ltr",
+  "prefer_related_applications": false,
+  "screenshots": [],
+  "shortcuts": []
+}

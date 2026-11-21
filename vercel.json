@@ -4,6 +4,14 @@
     { "source": "/unete", "destination": "/" },
     { "source": "/socios", "destination": "/" },
     {
+      "source": "/mi-comercio",
+      "destination": "/mi-comercio/index.html"
+    },
+    {
+      "source": "/mi-comercio/",
+      "destination": "/mi-comercio/index.html"
+    },
+    {
       "source": "/merchant",
       "destination": "/merchant.html"
     },
@@ -12,7 +20,7 @@
       "destination": "/merchant.html"
     },
     {
-      "source": "/((?!assets/|merchant|merchant.html|style.css|app.js|merchant.js|.*\\.).*)",
+      "source": "/((?!assets/|brand/|mi-comercio|merchant|merchant.html|style.css|app.js|merchant.js|.*\\.).*)",
       "destination": "/index.html"
     }
   ]

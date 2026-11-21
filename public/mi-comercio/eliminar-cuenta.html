@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eliminar Cuenta - Pedidos Listo</title>
+    <meta name="description" content="Solicitar eliminación de cuenta y datos personales en Pedidos Listo.">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <meta name="theme-color" content="#F26000">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #FFF3EC;
+            color: #1a1a2e;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .card {
+            background: #fff;
+            max-width: 560px;
+            width: 100%;
+            border-radius: 20px;
+            padding: 40px 36px;
+            box-shadow: 0 12px 48px rgba(242,96,0,0.12);
+        }
+        .icon-big {
+            width: 72px; height: 72px;
+            background: #FFF3EC;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 36px;
+            margin-bottom: 22px;
+        }
+        h1 { font-size: 24px; font-weight: 800; color: #1a1a2e; margin-bottom: 10px; }
+        .subtitle { font-size: 15px; color: #6B7280; line-height: 1.6; margin-bottom: 28px; }
+        .warning-box {
+            background: #fff3dc;
+            border: 1.5px solid #fbbf24;
+            border-radius: 12px;
+            padding: 16px 18px;
+            margin-bottom: 24px;
+            font-size: 14px;
+            color: #92400e;
+            line-height: 1.6;
+        }
+        .warning-box strong { display: block; margin-bottom: 4px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; }
+        ul.delete-list {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 24px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        ul.delete-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            font-size: 14px;
+            color: #374151;
+        }
+        ul.delete-list li .dot {
+            width: 8px; height: 8px;
+            background: #F26000;
+            border-radius: 50%;
+            flex-shrink: 0;
+            margin-top: 5px;
+        }
+        .method-box {
+            background: #F9FAFB;
+            border-radius: 14px;
+            padding: 20px;
+            margin-bottom: 16px;
+            border: 1.5px solid #E5E7EB;
+        }
+        .method-box h3 {
+            font-size: 15px; font-weight: 700;
+            color: #1a1a2e; margin-bottom: 8px;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .method-box p { font-size: 14px; color: #6B7280; line-height: 1.6; }
+        .method-box a { color: #F26000; font-weight: 700; text-decoration: none; }
+        .btn-delete {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            margin-top: 20px;
+            transition: opacity 0.2s, transform 0.2s;
+        }
+        .btn-delete:hover { opacity: 0.9; transform: translateY(-1px); }
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 16px;
+            color: #9CA3AF;
+            font-size: 13px;
+            text-decoration: none;
+        }
+        .back-link:hover { color: #F26000; }
+        footer { margin-top: 24px; text-align: center; font-size: 12px; color: #D1D5DB; }
+        footer a { color: #F26000; text-decoration: none; }
+        @media (max-width: 480px) {
+            .card { padding: 28px 20px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="icon-big">🗑️</div>
+        <h1>Eliminar mi Cuenta</h1>
+        <p class="subtitle">
+            En Pedidos Listo respetamos tu derecho a eliminar tu cuenta y datos personales. 
+            Puedes hacerlo desde la misma aplicación o contactándonos directamente.
+        </p>
+
+        <div class="warning-box">
+            <strong>⚠️ Importante — Antes de continuar</strong>
+            Al eliminar tu cuenta se borrarán permanentemente los siguientes datos y no podrán recuperarse:
+        </div>
+
+        <ul class="delete-list">
+            <li><span class="dot"></span> Tu perfil, foto y datos personales (nombre, teléfono, correo)</li>
+            <li><span class="dot"></span> Historial de pedidos y servicios contratados</li>
+            <li><span class="dot"></span> Direcciones guardadas y preferencias</li>
+            <li><span class="dot"></span> Calificaciones y reseñas realizadas</li>
+            <li><span class="dot"></span> Métodos de pago almacenados</li>
+            <li><span class="dot"></span> Conversaciones con profesionales (si aplica)</li>
+        </ul>
+
+        <p style="font-size:14px;color:#374151;margin-bottom:20px;font-weight:600;">
+            📌 Nota: Los registros de transacciones se conservan por 5 años por obligaciones fiscales dominicanas (Ley 11-92).
+        </p>
+
+        <div class="method-box">
+            <h3>📱 Opción 1 — Desde la App (Recomendado)</h3>
+            <p>
+                Abre Pedidos Listo → Ve a <strong>Perfil</strong> → <strong>Ajustes</strong> → 
+                <strong>Cuenta</strong> → <strong>"Eliminar mi cuenta"</strong>. 
+                El proceso es inmediato y no requiere confirmación adicional.
+            </p>
+        </div>
+
+        <div class="method-box">
+            <h3>📧 Opción 2 — Por Correo Electrónico</h3>
+            <p>
+                Envía un correo a 
+                <a href="mailto:listopatron.app@gmail.com?subject=Solicitud%20eliminaci%C3%B3n%20de%20cuenta&body=Hola%2C%20solicito%20la%20eliminaci%C3%B3n%20permanente%20de%20mi%20cuenta%20y%20datos%20personales%20en%20Pedidos%20Listo.%0A%0ANombre%3A%20%0ATel%C3%A9fono%20registrado%3A%20%0ACorreo%20registrado%3A%20">
+                    listopatron.app@gmail.com
+                </a> 
+                con el asunto <em>"Solicitud eliminación de cuenta"</em> y tu número de teléfono registrado.
+                Procesamos la solicitud en un máximo de <strong>72 horas hábiles</strong>.
+            </p>
+        </div>
+
+        <a href="mailto:listopatron.app@gmail.com?subject=Solicitud%20eliminaci%C3%B3n%20de%20cuenta&body=Hola%2C%20solicito%20la%20eliminaci%C3%B3n%20permanente%20de%20mi%20cuenta%20y%20datos%20personales%20en%20Pedidos%20Listo.%0A%0ANombre%3A%20%0ATel%C3%A9fono%20registrado%3A%20%0ACorreo%20registrado%3A%20" class="btn-delete">
+            🗑️ Solicitar Eliminación por Correo
+        </a>
+
+        <a href="/" class="back-link">← Volver al inicio</a>
+
+        <footer>
+            <p>© 2026 Pedidos Listo · <a href="/privacy-policy/">Política de Privacidad</a> · <a href="/terminos.html">Términos</a></p>
+        </footer>
+    </div>
+</body>
+</html>

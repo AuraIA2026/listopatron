@@ -1147,6 +1147,21 @@ export default function LandingPage({ navigate, lang }) {
           📲 App <span style={{ fontSize: '9px', marginLeft: '2px', display: 'inline-block', transition: 'transform 0.25s ease', transform: showDownloadDropdown ? 'rotate(180deg)' : 'none' }}>▼</span>
         </span>
       </button>
+
+      {/* BOTÓN MI COMERCIO — ALOJA PEDIDOS LISTO SOFTWARE */}
+      <a
+        href="/mi-comercio/"
+        className="nav-action-btn partner-btn-glow"
+        title="Acceder a Mi Comercio — Pedidos Listo Software (POS, Pedidos y Delivery)"
+        style={{ cursor: 'pointer', textDecoration: 'none' }}
+      >
+        <span className="btn-brand-label">
+          Mi<span style={{ color: '#FF6B00' }}>Comercio</span>
+        </span>
+        <span className="btn-tag-pill">
+          🏪 Local
+        </span>
+      </a>
     </div>
   </div>
 
@@ -1157,6 +1172,7 @@ export default function LandingPage({ navigate, lang }) {
       <a href="#planes" onClick={(e) => { e.preventDefault(); setShowPlanModal(true); }}>💳 Comprar Plan Pro</a>
       <a href="#partner" onClick={(e) => { e.preventDefault(); setShowDeliveryModal(true); }}>🛵 PedidosListo Partner</a>
       <a href="#descargar-app" onClick={(e) => { e.preventDefault(); setShowDownloadDropdown(prev => !prev); }}>📲 Descargar App</a>
+      <a href="/mi-comercio/">🏪 Mi Comercio</a>
       <a href="#servicios">Servicios</a>
       <a href="#como-funciona">Cómo funciona</a>
       <a href="#profesionales">Para profesionales</a>
